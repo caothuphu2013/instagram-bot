@@ -24,7 +24,7 @@ class Header extends Component {
             to={(this.props.auth) ? '/dashboard' : '/'}
             className='brand-logo'
           >
-            BuzzLightYear
+            Hello
           </Link>
           {this.renderContent()}
         </div>

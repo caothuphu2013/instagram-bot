@@ -4,7 +4,6 @@ const requireLogin = require('../middlewares/requireLogin')
 
 module.exports = (app) => {
   app.post('/api/stripe', requireLogin, (req, res) => {
-    console.log(req.user)
     stripe.charges.create({
       amount: 799,
       currency: 'usd',
@@ -19,7 +18,7 @@ module.exports = (app) => {
         const user = req.user
         user.paid = true
         user.chargeToken = req.body.id
-        user.save()
+        // user.save()
         res.send(user)
       }
     })
