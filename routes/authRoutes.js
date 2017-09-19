@@ -1,10 +1,7 @@
 const passport = require('passport')
 
 module.exports = (app) => {
-  app.get('/', (req, res) => {
-    res.send('working')
-    console.log('working')
-  })
+  app.get('/', (req, res) => {})
 
 // instagram routes
   app.get('/auth/instagram', passport.authenticate('instagram'), (req, res) => {})

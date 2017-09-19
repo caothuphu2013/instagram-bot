@@ -10,7 +10,10 @@ const userSchema = new Schema({
   bio: String,
   media: Number,
   follows: Number,
-  followed_by: Number
+  followed_by: Number,
+  paid: Boolean,
+  chargeToken: String,
+  createdAt: Number
 })
 
 mongoose.model('users', userSchema)

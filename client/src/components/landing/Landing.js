@@ -4,7 +4,7 @@ class Landing extends Component {
   render () {
     return (
       <div style={{ textAlign: 'center', padding: '50px' }}>
-        Welcome to Emaily
+        To infinity and beyond!
       </div>
     )
   }

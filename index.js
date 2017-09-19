@@ -4,6 +4,7 @@ const express = require('express')
 const mongoose = require('mongoose')
 const cookieSession = require('cookie-session')
 const passport = require('passport')
+const bodyParser = require('body-parser')
 const keys = require('./config/keys')
 require('./models/User')
 require('./services/authentication')
@@ -11,6 +12,8 @@ mongoose.connect(keys.mongoURI)
 
 // invoke express
 const app = express()
+
+app.use(bodyParser.json())
 
 // tell app to handle cookie storage
 app.use(
@@ -26,6 +29,7 @@ app.use(passport.session())
 
 // routes
 require('./routes/authRoutes')(app)
+require('./routes/billingRoutes')(app)
 
 // set port to have express app listen
 const PORT = process.env.PORT || 5000
