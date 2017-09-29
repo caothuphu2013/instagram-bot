@@ -1,18 +1,13 @@
-module.exports = (createdAt, paid) => {
-  if (paid) { return false }
-
+module.exports = (createdAt) => {
   const oneDay = 24 * 60 * 60 * 1000
   const sevenDays = oneDay * 7
   const createdTime = createdAt
   const currentTime = new Date()
   const timeDifference = currentTime - createdTime
-  // const timeDifference = 604800001
 
   if (timeDifference > sevenDays) {
-    console.log('trial has ended')
-    return false
+    return 'Trial has ended'
   } else {
-    console.log('still in trial')
-    return true
+    return ((sevenDays / oneDay) - Math.floor(timeDifference / oneDay)) + ' trial days remaining'
   }
 }

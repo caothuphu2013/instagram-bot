@@ -1,15 +1,17 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import Payments from '../payments/Payments'
-import ifInTrial from '../../utilities/ifInTrial'
+import { Link } from 'react-router-dom'
+import ifInTrial from '../../../utilities/ifInTrial'
+import trialDaysRemaining from '../../../utilities/trialDaysRemaining'
 
 class AdminHeader extends Component {
   renderContent () {
-    if (ifInTrial(this.props.authenticatedUser.createdAt, this.props.authenticatedUser.paid)) {
+    const createdAt = this.props.authenticatedUser.createdAt
+    const paid = this.props.authenticatedUser.paid
+    if (ifInTrial(createdAt, paid)) {
       return (
         <ul id='nav-mobile' className='right hide-on-med-and-down'>
-          <li>Still in trial</li>
-          <li><Payments /></li>
+          <li>{trialDaysRemaining(createdAt)}</li>
           <li><a href='/api/logout'>Logout</a></li>
         </ul>
       )
@@ -24,9 +26,14 @@ class AdminHeader extends Component {
 
   render () {
     return (
-      <div>
-        {this.renderContent()}
-      </div>
+      <nav>
+        <div className='container nav-wrapper'>
+          <Link to='/dashboard' className='brand-logo'>
+            Hello
+          </Link>
+          {this.renderContent()}
+        </div>
+      </nav>
     )
   }
 }

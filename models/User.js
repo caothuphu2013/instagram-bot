@@ -2,6 +2,9 @@ const mongoose = require('mongoose')
 const { Schema } = mongoose
 
 const userSchema = new Schema({
+  name: String,
+  email: String,
+  password: String,
   accessToken: String,
   instagramID: String,
   displayName: String,
@@ -13,7 +16,10 @@ const userSchema = new Schema({
   followed_by: Number,
   paid: Boolean,
   chargeToken: String,
-  createdAt: Number
+  createdAt: Number,
+  stripe_customer_id: String,
+  stripe_email: String,
+  stripe_subscription_id: String
 })
 
 mongoose.model('users', userSchema)

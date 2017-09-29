@@ -1,6 +1,5 @@
 const passport = require('passport')
-const InstagramStrategy = require('passport-instagram').Strategy
-// const LocalStrategy = require('passport-local').Strategy
+const passportLocalMongoose = require('passport-local-mongoose')
 const keys = require('../config/keys')
 const mongoose = require('mongoose')
 const User = mongoose.model('users')
@@ -33,7 +32,9 @@ passport.use(
         bio: profile._json.data.bio,
         media: profile._json.data.counts.media,
         follows: profile._json.data.counts.follows,
-        followed_by: profile._json.data.counts.followed_by
+        followed_by: profile._json.data.counts.followed_by,
+        paid: false,
+        createdAt: Date.now()
       }).save()
 
       done(null, user)

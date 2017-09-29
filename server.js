@@ -2,18 +2,25 @@
 // import express for managing Node
 const express = require('express')
 const mongoose = require('mongoose')
+//
+// const nodemailer = require('nodemailer')
+// const smtpTransport = require('./services/nodeMailer')(nodemailer)
+//
 const cookieSession = require('cookie-session')
 const passport = require('passport')
 const bodyParser = require('body-parser')
 const keys = require('./config/keys')
 require('./models/User')
+require('./models/UserParameters')
 require('./services/authentication')
+
 mongoose.connect(keys.mongoURI)
 
 // invoke express
 const app = express()
 
 app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({ extended: true }))
 
 // tell app to handle cookie storage
 app.use(
@@ -30,6 +37,7 @@ app.use(passport.session())
 // routes
 require('./routes/authRoutes')(app)
 require('./routes/billingRoutes')(app)
+require('./routes/igAPIRoutes')(app)
 
 if (process.env.NODE_ENV === 'production') {
   // Express will serve up production assets

@@ -1,0 +1,17 @@
+.overlay-wrapper {
+ height: calc(100% - 64px);
+ width: 100%;
+ position: absolute;
+ left: 0;
+ right: 0;
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ background-color: rgba(255,255,255,0.8);
+ overflow: hidden;
+ // .overlay-container {
+ //   @include box-shadow;
+ //   background: white;
+ //   padding: 30px;
+ // }
+}
