@@ -6,7 +6,8 @@ const userParameters = new Schema({
   username: String,
   instagram_id: String,
   access_token: String,
-  user_id: String
+  user_id: String,
+  email: String
 })
 
 mongoose.model('user_parameters', userParameters)

@@ -17,17 +17,19 @@ class ParamsForm extends Component {
   saveParams (event) {
     event.preventDefault()
     this.props.spinnify()
-    
+
     axios.post('/api/save_params', {
       hashtags: this.state.hashtags,
       username: this.props.user.username,
       instagram_id: this.props.user.instagramID,
       access_token: this.props.user.accessToken,
+      email: this.props.user.email,
       user_id: this.props.user._id
     })
     .then(response => {
       this.props.toastify('Successfully saved!')
       this.props.spinnify()
+      console.log(response)
     })
     .catch(error => {
       console.log(error)

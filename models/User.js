@@ -1,5 +1,6 @@
 const mongoose = require('mongoose')
 const { Schema } = mongoose
+const passportLocalMongoose = require('passport-local-mongoose')
 
 const userSchema = new Schema({
   name: String,
@@ -15,11 +16,18 @@ const userSchema = new Schema({
   follows: Number,
   followed_by: Number,
   paid: Boolean,
-  chargeToken: String,
+  verified: Boolean,
+  randomHash: String,
   createdAt: Number,
   stripe_customer_id: String,
   stripe_email: String,
-  stripe_subscription_id: String
+  stripe_subscription_id: String,
+  stripe_token: String
 })
 
-mongoose.model('users', userSchema)
+userSchema.plugin(passportLocalMongoose, {
+  usernameField: 'email',
+  hashField: 'password'
+})
+
+module.exports = mongoose.model('users', userSchema)

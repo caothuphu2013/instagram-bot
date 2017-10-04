@@ -13,6 +13,7 @@ const keys = require('./config/keys')
 require('./models/User')
 require('./models/UserParameters')
 require('./services/authentication')
+require('./services/emailAuthentication')
 
 mongoose.connect(keys.mongoURI)
 

@@ -1,51 +1,85 @@
 const passport = require('passport')
 const mongoose = require('mongoose')
 mongoose.Promise = require('bluebird')
-const User = mongoose.model('users')
+const crypto = require('crypto')
+const nodeMailer = require('../services/nodeMailer')
+const User = require('../models/User')
 
 module.exports = (app) => {
+  // landing page
   app.get('/', (req, res) => {})
 
+  // register and login a new user
   app.post('/auth/signup', (req, res) => {
-    // console.log(req.body)
-    // res.redirect('/dashboard')
-    const { name, email, password } = req.body
-    User.findOne({ email }, (err, user) => {
-      if (err) return res.status(500).send(err)
+    const hash = crypto.randomBytes(20).toString('hex')
+    console.log('registering: ' + req.body.name)
+    User.register(new User({
+      name: req.body.name,
+      email: req.body.email,
+      password: req.body.password,
+      createdAt: req.body.createdAt,
+      verified: false,
+      randomHash: hash
+    }),
+    req.body.password, (err, user) => {
+      if (err) return res.send(err)
 
-      if (user === null) {
-        // create user
-        User.create({
-          name,
-          email,
-          password,
-          paid: false,
-          createdAt: Date.now()
-        }, (err, user) => {
-          if (err) return err
-          // res.send(user)
-          // res.redirect('/auth/instagram')
+      req.login(user, (err) => {
+        if (err) return res.send(err)
+        res.send({
+          success: true,
+          user: user
+        })
+      })
+    })
+  })
+
+  // login a existing user
+  app.post('/auth/login', (req, res) => {
+    console.log('logging in: ' + req.body.email)
+    User.authenticate()(req.body.email, req.body.password, (err, user, options) => {
+      if (err) return res.send(err)
+      if (user === false) {
+        res.send({
+          message: options.message,
+          success: false
         })
       } else {
-        // return you already have an account
-        res.send('You already have an account, please login.')
+        req.login(user, (err) => {
+          if (err) return res.send(err)
+          res.send({
+            success: true,
+            user: user
+          })
+        })
       }
     })
   })
 
+  // authenticate new instagram account
   app.get('/auth/instagram', passport.authenticate('instagram'), (req, res) => {})
 
+  // callback after authenticating instagram
   app.get('/auth/instagram/callback',
     passport.authenticate('instagram', { failureRedirect: '/' }),
     function (req, res) {
       res.redirect('/dashboard')
     })
 
-  app.get('/api/logout', (req, res) => {
+  // verify user email
+  app.get('/auth/verify', (req, res) => {
+  })
+
+  // reset password
+  app.get('/auth/reset_password', (req, res) => {})
+
+  // logout current user
+  app.get('/auth/logout', (req, res) => {
     req.logout()
     res.redirect('/')
   })
 
+  // view current logged in user
   app.get('/api/current_user', (req, res) => {
     res.send(req.user)
   })

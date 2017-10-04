@@ -7,9 +7,9 @@ const UserParameters = mongoose.model('user_parameters')
 module.exports = app => {
   // Save user parameters to DB
   app.post('/api/save_params', requireLogin, (req, res) => {
-    let { hashtags, username, instagram_id, access_token, user_id } = req.body
+    let { hashtags, username, instagram_id, access_token, user_id, email } = req.body
     hashtags = hashtags.replace(/[#]|\s/ig, '').split(',')
-    const params = { hashtags, username, instagram_id, access_token, user_id }
+    const params = { hashtags, username, instagram_id, access_token, user_id, email }
     const saveParams = UserParameters.findOneAndUpdate({ instagram_id }, params, { upsert: true }).exec()
 
     saveParams.then(params => {
@@ -20,8 +20,7 @@ module.exports = app => {
   })
 
   app.post('/api/run_params', requireLogin, (req, res) => {
-    const instagram_id = req.body.instagram_id
-    const getParams = UserParameters.findOne({ instagram_id }).exec()
+    const getParams = UserParameters.findOne({ instagram_id: req.body.instagram_id }).exec()
 
     getParams.then(params => {
       res.status(200).send(params)

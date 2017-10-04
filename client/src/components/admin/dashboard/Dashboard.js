@@ -61,6 +61,7 @@ class Dashboard extends Component {
         />
         <Checkout />
         <a href='/auth/instagram'>Instagram Sign Up</a>
+        <a href='/auth/verify'>Send Email</a>
       </div>
     )
   }

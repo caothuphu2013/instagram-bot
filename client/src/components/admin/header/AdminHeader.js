@@ -12,13 +12,13 @@ class AdminHeader extends Component {
       return (
         <ul id='nav-mobile' className='right hide-on-med-and-down'>
           <li>{trialDaysRemaining(createdAt)}</li>
-          <li><a href='/api/logout'>Logout</a></li>
+          <li><a href='/auth/logout'>Logout</a></li>
         </ul>
       )
     } else {
       return (
         <ul id='nav-mobile' className='right hide-on-med-and-down'>
-          <li><a href='/api/logout'>Logout</a></li>
+          <li><a href='/auth/logout'>Logout</a></li>
         </ul>
       )
     }

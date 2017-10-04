@@ -16,6 +16,7 @@ class StartParams extends Component {
       instagram_id: this.props.user.instagramID
     })
     .then(response => {
+      console.log(response)
       this.setState({ running: true })
       this.props.spinnify()
       this.props.toastify('Successfully started!')
