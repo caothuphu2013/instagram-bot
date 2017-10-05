@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import { Link } from 'react-router-dom'
 import Modal from 'react-modal'
-
 import AuthForm from '../../UI/AuthForm'
 
 class ClientHeader extends Component {
@@ -34,7 +33,6 @@ class ClientHeader extends Component {
           </Link>
           <div>
             <ul id='nav-mobile' className='right hide-on-med-and-down'>
-              <li><a href='/auth/instagram'>instagram</a></li>
               <li><p onClick={this.openLoginModal}>Login</p></li>
               <li><p onClick={this.openSignUpModal}>Sign Up</p></li>
             </ul>

@@ -32,14 +32,14 @@ class AuthForm extends Component {
     event.preventDefault()
     this.spinnify()
     const signUp = {
-      name: this.state.name,
-      email: this.state.email,
+      name: this.state.name.toLowerCase(),
+      email: this.state.email.toLowerCase(),
       password: this.state.password,
       createdAt: Date.now()
     }
     const login = {
-      email: this.state.email,
-      password: this.state.password,
+      email: this.state.email.toLowerCase(),
+      password: this.state.password.toLowerCase(),
       createdAt: Date.now()
     }
     const params = (this.props.signUp) ? signUp : login
