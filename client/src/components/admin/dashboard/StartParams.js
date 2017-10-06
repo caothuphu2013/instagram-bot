@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import axios from 'axios'
 
-class StartParams extends Component {
+class runParams extends Component {
   constructor (props) {
     super(props)
 
@@ -10,14 +10,12 @@ class StartParams extends Component {
     }
   }
 
-  startParams () {
+  runParams (path) {
     this.props.spinnify()
-    axios.post('/api/run_params', {
-      instagram_id: this.props.user.instagramID
-    })
+    axios.post(path)
     .then(response => {
       console.log(response)
-      this.setState({ running: true })
+      this.setState({ running: !this.state.running })
       this.props.spinnify()
       this.props.toastify('Successfully started!')
     })
@@ -30,11 +28,21 @@ class StartParams extends Component {
   renderContent () {
     if (this.state.running) {
       return (
-        <button id='stop-button' onClick={() => this.setState({ running: false })}>Stop</button>
+        <button
+          id='stop-button'
+          onClick={() => this.runParams('/api/stop_params')}
+        >
+          Stop
+        </button>
       )
     } else {
       return (
-        <button id='start-button' onClick={() => this.startParams()}>Start</button>
+        <button
+          id='start-button'
+          onClick={() => this.runParams('/api/run_params')}
+        >
+          Start
+        </button>
       )
     }
   }
@@ -48,4 +56,4 @@ class StartParams extends Component {
   }
 }
 
-export default StartParams
+export default runParams

@@ -3,6 +3,7 @@ const mongoose = require('mongoose')
 mongoose.Promise = require('bluebird')
 const UserParameters = mongoose.model('user_parameters')
 const Instagram = require('../services/instagramAutomator')
+const keys = require('../config/keys')
 
 module.exports = app => {
   // Save user parameters to DB
@@ -26,6 +27,7 @@ module.exports = app => {
       param_like_mode,
       param_follow_mode,
       param_usernames,
+      param_automator_running: false,
       username,
       instagram_id,
       access_token,
@@ -33,8 +35,10 @@ module.exports = app => {
       email
     }
 
-    const saveParams = UserParameters.findOneAndUpdate({ email }, params, {
-        new: true,
+    const saveParams = UserParameters.findOneAndUpdate(
+      { email },
+      params,
+      { new: true,
         upsert: true
       }).exec()
 
@@ -46,9 +50,12 @@ module.exports = app => {
   })
 
   app.post('/api/run_params', requireLogin, (req, res) => {
-    const getParams = UserParameters.findOne({ email: req.user.email }).exec()
+    const runParams = UserParameters.findOneAndUpdate(
+      { email: req.user.email },
+      { param_automator_running: true },
+      { new: true, psert: true }).exec()
 
-    getParams.then(params => {
+    runParams.then(params => {
       res.status(200).send(params)
       Instagram.automate(params)
     }).catch(err => {
@@ -56,10 +63,18 @@ module.exports = app => {
     })
   })
 
-  app.get('/api/stop_params', requireLogin, (req, res) => {
-    console.log(req.body)
-    // UserParameters
-    // ig.user('user_id', function(err, result, remaining, limit) {});
+  app.post('/api/stop_params', requireLogin, (req, res) => {
+    const stopParams = UserParameters.findOneAndUpdate(
+      { email: req.user.email },
+      { param_automator_running: false },
+      { new: true, psert: true }).exec()
+
+    stopParams.then(params => {
+      res.status(200).send(params)
+      Instagram.automate(params)
+    }).catch(err => {
+      res.status(500).send(err)
+    })
   })
 
   // function trimParam (param) {

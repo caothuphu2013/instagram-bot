@@ -6,6 +6,7 @@ const userParameters = new Schema({
   param_usernames: Array,
   param_like_mode: Boolean,
   param_follow_mode: Boolean,
+  param_automator_running: Boolean,
   username: String,
   instagram_id: String,
   access_token: String,

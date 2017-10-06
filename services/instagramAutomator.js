@@ -1,21 +1,38 @@
 const ig = require('instagram-node').instagram()
+const mongoose = require('mongoose')
+mongoose.Promise = require('bluebird')
+const UserParameters = mongoose.model('user_parameters')
 const keys = require('../config/keys')
+
 exports.automate = (params) => {
-  console.log('instagram automator: ' + params)
+  const runParams = UserParameters.findOne({ email: params.email }).exec()
 
-  // user and user parameters
-  const instagramID = params.instagram_id
-  const accessToken = params.access_token
-  const instagramUsername = params.username
-  const likeMode = params.param_like_mode
-  const followMode = params.param_follow_mode
-  const hashtags = params.param_hashtags
-  const usernames = params.param_usernames
+  runParams.then(params => {
+    // user and user parameters
+    const automatorRunning = params.param_automator_running
+    const instagramID = params.instagram_id
+    const accessToken = params.access_token
+    const instagramUsername = params.username
+    const likeMode = params.param_like_mode
+    const followMode = params.param_follow_mode
+    const hashtags = params.param_hashtags
+    const usernames = params.param_usernames
 
-  // intervals
-  const perHour = (process.env.NODE_ENV === 'production') ? 60 : 30
-  const oneHour = 3600000
-  const globalRateLimit = keys.globalRateLimit // 500 sandbox / 5000 prod
+    // intervals
+    const perHour = (process.env.NODE_ENV === 'production') ? 60 : 30
+    const oneHour = 3600000
+    const globalRateLimit = keys.globalRateLimit // 500 sandbox / 5000 prod
+    console.log(automatorRunning)
+    // const runParams = setInterval(() => {
+    //   console.log('params running')
+    // }, 1000)
+    //
+    // if (!automatorRunning) {
+    //   clearInterval(runParams)
+    // }
+  }).catch(err => {
+    console.log(err)
+  })
 }
 // instagram media object
   // { id: '1614793834360996998_1749343281',

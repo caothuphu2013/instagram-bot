@@ -6,7 +6,8 @@ module.exports = {
   stripeSecretKey: 'sk_test_d31KtbaaOcccWAOFoaZFp67D',
 
   instagramClientID: '32d44ad1709d40f992606de9f2376aca',
-  instagramClientSecret: 'da37716684784775905ec38fb12e91d7'
+  instagramClientSecret: 'da37716684784775905ec38fb12e91d7',
 
-  globalRateLimit: 500
+  globalRateLimit: 500,
+  automatorRunning: false
 }
