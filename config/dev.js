@@ -8,6 +8,5 @@ module.exports = {
   instagramClientID: '32d44ad1709d40f992606de9f2376aca',
   instagramClientSecret: 'da37716684784775905ec38fb12e91d7'
 
-  // googleClientID: '408733108432-f5hoj2lc989aa4l4hm1m4515nr5ahsjn.apps.googleusercontent.com',
-  // googleClientSecret: 'fO-T89Py3vOFc8CAEdoHp29r'
+  globalRateLimit: 500
 }

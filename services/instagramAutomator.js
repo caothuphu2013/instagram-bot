@@ -1,5 +1,5 @@
 const ig = require('instagram-node').instagram()
-
+const keys = require('../config/keys')
 exports.automate = (params) => {
   console.log('instagram automator: ' + params)
 
@@ -15,6 +15,7 @@ exports.automate = (params) => {
   // intervals
   const perHour = (process.env.NODE_ENV === 'production') ? 60 : 30
   const oneHour = 3600000
+  const globalRateLimit = keys.globalRateLimit // 500 sandbox / 5000 prod
 }
 // instagram media object
   // { id: '1614793834360996998_1749343281',
