@@ -4,7 +4,7 @@
  position: absolute;
  left: 0;
  right: 0;
- z-index: 1000;
+ z-index: 500;
  display: flex;
  align-items: center;
  justify-content: center;
@@ -14,14 +14,14 @@
   .overlay-container {
     @include box-shadow;
     border-radius: 10px;
-    height: 500px;
     background: white;
     padding: 30px;
     width: 50%;
-    z-index: 1010;
+    z-index: 510;
+    margin-top: -64px;
 
     .overlay-content {
-      z-index: 1020;
+      z-index: 520;
     }
   }
 }

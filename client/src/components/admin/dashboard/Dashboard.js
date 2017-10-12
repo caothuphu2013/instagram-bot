@@ -36,11 +36,12 @@ class Dashboard extends Component {
         <Overlay>
           <div>{this.state.overlayDescription}</div>
           <Checkout
-            user={this.props.user}
-            toastify={this.props.toastify}
-            spinnify={this.props.spinnify}
+            user={this.props.authenticatedUser}
+            toastify={this.toastify.bind(this)}
+            spinnify={this.spinnify.bind(this)}
+            closeOverlay={() => this.setState({ openOverlay: false })}
           />
-          <p onClick={() => this.setState({ openOverlay: false })}>X</p>
+          <p onClick={() => this.setState({ openOverlay: false })}>Close</p>
         </Overlay>
       )
     }

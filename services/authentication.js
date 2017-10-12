@@ -23,15 +23,15 @@ passport.use(
   },
   (req, accessToken, refreshToken, profile, done) => {
     const instagramProfile = {
-      accessToken: accessToken,
-      instagramID: profile.id,
-      displayName: profile.displayName,
-      username: profile._json.data.username,
-      profile_picture: profile._json.data.profile_picture,
-      bio: profile._json.data.bio,
-      media: profile._json.data.counts.media,
-      follows: profile._json.data.counts.follows,
-      followed_by: profile._json.data.counts.followed_by
+      instagram_accessToken: accessToken,
+      instagram_id: profile.id,
+      instagram_displayName: profile.displayName,
+      instagram_username: profile._json.data.username,
+      instagram_profile_picture: profile._json.data.profile_picture,
+      instagram_bio: profile._json.data.bio,
+      instagram_media: profile._json.data.counts.media,
+      instagram_current_following: profile._json.data.counts.follows,
+      instagram_current_followers: profile._json.data.counts.followed_by
     }
 
     const saveInstaProfile = User.findOneAndUpdate({ email: req.user.email }, instagramProfile, { upsert: true }).exec()

@@ -10,6 +10,7 @@ class Checkout extends Component {
         <CheckoutForm
           spinnify={this.props.spinnify}
           toastify={this.props.toastify}
+          closeOverlay={this.props.closeOverlay}
         />
       </Elements>
     )

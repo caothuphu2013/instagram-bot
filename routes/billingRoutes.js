@@ -48,6 +48,7 @@ module.exports = (app) => {
           user.stripe_token = req.body.token.id
           user.paid = true
           user.save()
+          console.log('billing done')
           res.status(200).send('You have successfully subscribed to BuzzLightYear!')
         }
       }
@@ -55,7 +56,7 @@ module.exports = (app) => {
   })
 
   app.post('/api/stripe/current', requireLogin, (req, res) => {
-    
+
   })
 
   app.post('api/stripe/cancel', requireLogin, (req, res) => {
