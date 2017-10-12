@@ -49,15 +49,17 @@ module.exports = app => {
     })
   })
 
+  let intervals = {}
+
   app.post('/api/run_params', requireLogin, (req, res) => {
     const runParams = UserParameters.findOneAndUpdate(
       { email: req.user.email },
       { param_automator_running: true },
-      { new: true, psert: true }).exec()
+      { new: true, upsert: true }).exec()
 
     runParams.then(params => {
-      res.status(200).send(params)
-      Instagram.automate(params)
+      intervals[req.user.email] = Instagram.automate(params)
+      res.status(200).send('Successfully started!')
     }).catch(err => {
       res.status(500).send(err)
     })
@@ -67,11 +69,21 @@ module.exports = app => {
     const stopParams = UserParameters.findOneAndUpdate(
       { email: req.user.email },
       { param_automator_running: false },
-      { new: true, psert: true }).exec()
+      { new: true, upsert: true }).exec()
 
     stopParams.then(params => {
+      clearInterval(intervals[req.user.email])
+      res.status(200).send('Successfully stopped!')
+    }).catch(err => {
+      res.status(500).send(err)
+    })
+  })
+
+  app.post('/api/current_params', requireLogin, (req, res) => {
+    const currentParams = UserParameters.findOne({ email: req.user.email }).exec()
+
+    currentParams.then(params => {
       res.status(200).send(params)
-      Instagram.automate(params)
     }).catch(err => {
       res.status(500).send(err)
     })

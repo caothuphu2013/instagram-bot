@@ -2,7 +2,7 @@ const passport = require('passport')
 const mongoose = require('mongoose')
 mongoose.Promise = require('bluebird')
 const crypto = require('crypto')
-const nodeMailer = require('../services/nodeMailer')
+// const nodeMailer = require('../services/nodeMailer')
 const User = require('../models/User')
 
 module.exports = (app) => {
@@ -11,15 +11,26 @@ module.exports = (app) => {
 
   // register and login a new user
   app.post('/auth/signup', (req, res) => {
-    const hash = crypto.randomBytes(20).toString('hex')
-    console.log('registering: ' + req.body.name)
     User.register(new User({
       name: req.body.name,
       email: req.body.email,
       password: req.body.password,
       createdAt: req.body.createdAt,
+      randomHash: crypto.randomBytes(20).toString('hex'),
       verified: false,
-      randomHash: hash
+      paid: false,
+      instagramID: '',
+      displayName: '',
+      username: '',
+      profile_picture: '',
+      bio: '',
+      media: null,
+      follows: null,
+      followed_by: null,
+      stripe_customer_id: '',
+      stripe_email: '',
+      stripe_subscription_id: '',
+      stripe_token: ''
     }),
     req.body.password, (err, user) => {
       if (err) return res.send(err)
@@ -36,7 +47,6 @@ module.exports = (app) => {
 
   // login a existing user
   app.post('/auth/login', (req, res) => {
-    console.log('logging in: ' + req.body.email)
     User.authenticate()(req.body.email, req.body.password, (err, user, options) => {
       if (err) return res.send(err)
       if (user === false) {

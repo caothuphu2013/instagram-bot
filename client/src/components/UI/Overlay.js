@@ -10,7 +10,7 @@ class Overlay extends Component {
           </div>
         </div>
       </div>
-    )    
+    )
   }
 }
 

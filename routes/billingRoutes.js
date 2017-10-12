@@ -8,8 +8,8 @@ module.exports = (app) => {
     User.findOne({ email: req.user.email }, (err, user) => {
       if (err) return res.status(400).send(err)
 
-      if (user) {
-        res.status(200).send('This customer profile already exists.')
+      if (user.paid || user.stripe_email !== '') {
+        res.status(200).send('This user is already subscribed')
       } else {
         stripe.customers.create({
           email: req.user.email,
@@ -34,6 +34,7 @@ module.exports = (app) => {
               res.status(500).send(err)
             } else {
               console.log('subscription: ' + subscription)
+              console.log(customer)
               updateUserModel(customer, subscription)
             }
           })
@@ -47,10 +48,14 @@ module.exports = (app) => {
           user.stripe_token = req.body.token.id
           user.paid = true
           user.save()
-          res.status(200).send(user)
+          res.status(200).send('You have successfully subscribed to BuzzLightYear!')
         }
       }
     })
+  })
+
+  app.post('/api/stripe/current', requireLogin, (req, res) => {
+    
   })
 
   app.post('api/stripe/cancel', requireLogin, (req, res) => {

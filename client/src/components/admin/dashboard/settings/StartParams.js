@@ -10,19 +10,29 @@ class runParams extends Component {
     }
   }
 
+  componentDidMount () {
+    axios.post('/api/current_params')
+      .then(res => {
+        this.setState({ running: res.data.param_automator_running })
+      })
+      .catch(error => {
+        console.log(error)
+      })
+  }
+
   runParams (path) {
     this.props.spinnify()
     axios.post(path)
-    .then(response => {
-      console.log(response)
-      this.setState({ running: !this.state.running })
-      this.props.spinnify()
-      this.props.toastify('Successfully started!')
-    })
-    .catch(error => {
-      console.log(error)
-      this.props.toastify('There was an error please try again')
-    })
+      .then(res => {
+        console.log(res)
+        this.setState({ running: !this.state.running })
+        this.props.spinnify()
+        this.props.toastify(res.data)
+      })
+      .catch(error => {
+        console.log(error)
+        this.props.toastify('There was an error please try again')
+      })
   }
 
   renderContent () {

@@ -13,14 +13,19 @@ class CheckoutForm extends Component {
   handleSubmit (e) {
     e.preventDefault()
     const name = this.props.authenticatedUser.displayName
-
+    this.props.spinnify()
+    
     this.props.stripe.createToken({ type: 'card', name }).then(({token}) => {
       axios.post('api/stripe/subscribe', { token })
       .then(response => {
         console.log(response)
+        this.props.toastify(response.data)
+        this.props.spinnify()
       })
       .catch(error => {
         console.log(error)
+        this.props.toastify(error.data)
+        this.props.spinnify()
       })
     })
   }

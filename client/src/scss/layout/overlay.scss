@@ -4,14 +4,28 @@
  position: absolute;
  left: 0;
  right: 0;
+ z-index: 1000;
  display: flex;
  align-items: center;
  justify-content: center;
  background-color: rgba(255,255,255,0.8);
  overflow: hidden;
- // .overlay-container {
- //   @include box-shadow;
- //   background: white;
- //   padding: 30px;
- // }
+
+  .overlay-container {
+    @include box-shadow;
+    border-radius: 10px;
+    height: 500px;
+    background: white;
+    padding: 30px;
+    width: 50%;
+    z-index: 1010;
+
+    .overlay-content {
+      z-index: 1020;
+    }
+  }
+}
+
+nav {
+  background-color: lightgrey !important;
 }

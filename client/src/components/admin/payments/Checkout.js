@@ -7,7 +7,10 @@ class Checkout extends Component {
   render () {
     return (
       <Elements>
-        <CheckoutForm />
+        <CheckoutForm
+          spinnify={this.props.spinnify}
+          toastify={this.props.toastify}
+        />
       </Elements>
     )
   }

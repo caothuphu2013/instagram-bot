@@ -7,6 +7,16 @@
 /*--------------------------------------
          IMPORT LAYOUT
 ---------------------------------------*/
+.toolbar {
+  -webkit-box-shadow: 0 1px 2px 1px rgba(59, 59, 59, 0.4);
+  -moz-box-shadow: 0 1px 2px 1px rgba(59, 59, 59, 0.4);
+  box-shadow: 0 1px 2px 1px rgba(59, 59, 59, 0.4);
+  border-radius: 10px;
+  background: white;
+  padding: 30px;
+  width: 100%;
+  margin: 20px 0; }
+
 .spinner-wrapper {
   height: calc(100% - 64px);
   width: 100%;
@@ -24,8 +34,24 @@
   position: absolute;
   left: 0;
   right: 0;
+  z-index: 1000;
   display: flex;
   align-items: center;
   justify-content: center;
   background-color: rgba(255, 255, 255, 0.8);
   overflow: hidden; }
+  .overlay-wrapper .overlay-container {
+    -webkit-box-shadow: 0 1px 2px 1px rgba(59, 59, 59, 0.4);
+    -moz-box-shadow: 0 1px 2px 1px rgba(59, 59, 59, 0.4);
+    box-shadow: 0 1px 2px 1px rgba(59, 59, 59, 0.4);
+    border-radius: 10px;
+    height: 500px;
+    background: white;
+    padding: 30px;
+    width: 50%;
+    z-index: 1010; }
+    .overlay-wrapper .overlay-container .overlay-content {
+      z-index: 1020; }
+
+nav {
+  background-color: lightgrey !important; }

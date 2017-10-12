@@ -8,6 +8,7 @@ class AdminHeader extends Component {
   renderContent () {
     const createdAt = this.props.authenticatedUser.createdAt
     const paid = this.props.authenticatedUser.paid
+    
     if (ifInTrial(createdAt, paid)) {
       return (
         <ul id='nav-mobile' className='right hide-on-med-and-down'>
@@ -29,7 +30,6 @@ class AdminHeader extends Component {
       <nav>
         <div className='container nav-wrapper'>
           <Link to='/dashboard' className='brand-logo'>
-            Hello
           </Link>
           {this.renderContent()}
         </div>

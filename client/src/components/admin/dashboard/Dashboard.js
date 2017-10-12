@@ -3,8 +3,10 @@ import { connect } from 'react-redux'
 import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.min.css'
 
-import ParamsForm from './ParamsForm'
-import StartParams from './StartParams'
+import InstagramToolbar from './InstagramToolbar'
+import SettingsToolbar from './settings/SettingsToolbar'
+import StripeToolbar from './StripeToolbar'
+
 import Checkout from '../payments/Checkout'
 import Spinner from '../../UI/Spinner'
 import Overlay from '../../UI/Overlay'
@@ -14,31 +16,40 @@ class Dashboard extends Component {
   constructor (props) {
     super(props)
 
-    this.state = { spinner: false }
+    this.state = {
+      spinner: false,
+      openOverlay: false,
+      overlayDescription: 'Your trial has ended, please subscribe to continue service.'
+    }
+
+    this.returnOverlay = this.returnOverlay.bind(this)
   }
 
-  toastify (message) {
-    toast(message)
-  }
+  toastify (message) { toast(message) }
 
-  spinnify () {
-    this.setState({ spinner: !this.state.spinner })
-  }
+  spinnify () { this.setState({ spinner: !this.state.spinner }) }
 
   returnOverlay () {
-    return (
-      <Overlay>
-        <div>Your trial has ended, please subscribe to continue service.</div>
-      </Overlay>
-    )
+    const { createdAt, paid } = this.props.authenticatedUser
+    if ((!ifInTrial(createdAt, paid) && !paid) || this.state.openOverlay === true) {
+      return (
+        <Overlay>
+          <div>{this.state.overlayDescription}</div>
+          <Checkout
+            user={this.props.user}
+            toastify={this.props.toastify}
+            spinnify={this.props.spinnify}
+          />
+          <p onClick={() => this.setState({ openOverlay: false })}>X</p>
+        </Overlay>
+      )
+    }
   }
 
   render () {
-    const { createdAt, paid } = this.props.authenticatedUser
-
     return (
       <div>
-        {(!ifInTrial(createdAt, paid) && !paid) && this.returnOverlay()}
+        {this.returnOverlay()}
         {(this.state.spinner) && <Spinner />}
         <ToastContainer
           position='top-center'
@@ -49,19 +60,25 @@ class Dashboard extends Component {
           closeOnClick
           pauseOnHover
         />
-        <ParamsForm
+        <InstagramToolbar
           user={this.props.authenticatedUser}
           toastify={this.toastify.bind(this)}
           spinnify={this.spinnify.bind(this)}
         />
-        <StartParams
+        <SettingsToolbar
           user={this.props.authenticatedUser}
           toastify={this.toastify.bind(this)}
           spinnify={this.spinnify.bind(this)}
         />
-        <Checkout />
-        <a href='/auth/instagram'>Instagram Sign Up</a>
-        <a href='/auth/verify'>Send Email</a>
+        <StripeToolbar
+          user={this.props.authenticatedUser}
+          toastify={this.toastify.bind(this)}
+          spinnify={this.spinnify.bind(this)}
+          triggerCheckout={() => this.setState({
+            openOverlay: true,
+            overlayDescription: 'Subscribe'
+          })}
+        />
       </div>
     )
   }
