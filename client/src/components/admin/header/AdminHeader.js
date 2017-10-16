@@ -30,7 +30,6 @@ class AdminHeader extends Component {
       <nav>
         <div className='container nav-wrapper'>
           <Link to='/dashboard' className='brand-logo'>
-            BuzzLightYear
           </Link>
           {this.renderContent()}
         </div>

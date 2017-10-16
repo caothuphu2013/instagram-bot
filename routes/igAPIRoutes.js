@@ -11,26 +11,35 @@ module.exports = app => {
     let {
       param_hashtags,
       param_like_mode,
+      param_blacklist_hashtags,
+      param_blacklist_usernames,
       param_follow_mode,
       param_usernames,
       param_longitude,
       param_latitude,
+      param_timezone,
       username,
       instagram_id,
       access_token,
       user_id,
       email
     } = req.body
+
     param_hashtags = param_hashtags.replace(/[#]|\s/ig, '').split(',')
     param_usernames = param_usernames.replace(/[@]|\s/ig, '').split(',')
+    param_blacklist_hashtags = param_blacklist_hashtags.replace(/[#]|\s/ig, '').split(',')
+    param_blacklist_usernames = param_blacklist_usernames.replace(/[@]|\s/ig, '').split(',')
 
     const params = {
       param_hashtags,
       param_like_mode,
+      param_blacklist_hashtags,
+      param_blacklist_usernames,
       param_follow_mode,
       param_usernames,
       param_longitude,
       param_latitude,
+      param_timezone,
       param_automator_running: false,
       username,
       instagram_id,
@@ -42,9 +51,7 @@ module.exports = app => {
     const saveParams = UserParameters.findOneAndUpdate(
       { email },
       params,
-      { new: true,
-        upsert: true
-      }).exec()
+      { new: true, upsert: true }).exec()
 
     saveParams.then(params => {
       res.status(200).send(params)
@@ -87,7 +94,12 @@ module.exports = app => {
     const currentParams = UserParameters.findOne({ email: req.user.email }).exec()
 
     currentParams.then(params => {
-      res.status(200).send(params)
+      if (params === null) {
+        params = 0
+        res.status(200).send(params)
+      } else {
+        res.status(200).send(params)
+      }
     }).catch(err => {
       res.status(500).send(err)
     })

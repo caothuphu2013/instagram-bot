@@ -11,13 +11,15 @@ class runParams extends Component {
   }
 
   componentDidMount () {
-    axios.post('/api/current_params')
-      .then(res => {
-        this.setState({ running: res.data.param_automator_running })
-      })
-      .catch(error => {
-        console.log(error)
-      })
+    // axios.post('/api/current_params')
+    //   .then(res => {
+    //     if (res.data !== 0) {
+    //       this.setState({ running: res.data.param_automator_running })
+    //     }
+    //   })
+    //   .catch(error => {
+    //     console.log(error)
+    //   })
   }
 
   runParams (path) {

@@ -29,7 +29,6 @@ class ClientHeader extends Component {
       <nav>
         <div className='container nav-wrapper'>
           <Link to='/' className='brand-logo'>
-            BuzzLightYear
           </Link>
           <div>
             <ul id='nav-mobile' className='right hide-on-med-and-down'>
