@@ -29,7 +29,6 @@ class StripeToolbar extends Component {
   }
 
   render () {
-    console.log(this.props.authenticatedUser)
     return (
       <div id='stripe-toolbar' className='toolbar'>
         {this.renderContent()}

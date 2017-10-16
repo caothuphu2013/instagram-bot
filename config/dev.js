@@ -8,6 +8,8 @@ module.exports = {
   instagramClientID: '32d44ad1709d40f992606de9f2376aca',
   instagramClientSecret: 'da37716684784775905ec38fb12e91d7',
 
+  googleMapsAutoCompleteKey: 'AIzaSyDEKZc0x9ZKGYY-P8x2FVXXa2xFYuF8Gms',
+
   globalRateLimit: 500,
   automatorRunning: false
 }

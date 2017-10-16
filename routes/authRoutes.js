@@ -16,9 +16,10 @@ module.exports = (app) => {
       name: req.body.name,
       email: req.body.email,
       password: req.body.password,
-      createdAt: req.body.createdAt,
-      lastLogin: req.body.createdAt,
-      randomHash: crypto.randomBytes(20).toString('hex'),
+      created_at: req.body.createdAt,
+      current_login: req.body.createdAt,
+      last_login: null,
+      random_hash: crypto.randomBytes(20).toString('hex'),
       verified: false,
       paid: false,
       instagram_accessToken: '',
@@ -70,9 +71,12 @@ module.exports = (app) => {
               if (err) res.status(400).send(err)
 
               // take latest instagram data and update user in db
+              // and update last login time and current login time
               const updateUser = User.findOneAndUpdate(
                 { email: user.email },
                 {
+                  last_login: user.current_login,
+                  current_login: Date.now(),
                   instagram_current_following: medias.counts.follows,
                   instagram_current_followers: medias.counts.followed_by,
                   instagram_lastLogin_following: user.instagram_current_following,
@@ -88,9 +92,19 @@ module.exports = (app) => {
             })
           } else {
             // no instagram account linked yet
-            res.send({
-              success: true,
-              user: user
+            // so just update current login and last login
+            const updateUser = User.findOneAndUpdate(
+              { email: user.email },
+              {
+                last_login: user.current_login,
+                current_login: Date.now()
+              },
+              { new: true, upsert: true }).exec()
+
+            updateUser.then(user => {
+              res.status(200).send()
+            }).catch(err => {
+              res.status(500).send(err)
             })
           }
         })

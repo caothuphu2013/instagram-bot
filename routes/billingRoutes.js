@@ -5,11 +5,13 @@ const User = require('../models/User')
 
 module.exports = (app) => {
   app.post('/api/stripe/subscribe', requireLogin, (req, res) => {
+    // SUBSCRIPTIONS
+    // CHECK IF STRIPE CUSTOMER EXISTS INSTEAD
     User.findOne({ email: req.user.email }, (err, user) => {
       if (err) return res.status(400).send(err)
-
-      if (user.paid || user.stripe_email !== '') {
-        res.status(200).send('This user is already subscribed')
+      console.log(user)
+      if (user.paid === true || user.stripe_email !== '') {
+        return res.status(200).send('This user is already subscribed')
       } else {
         stripe.customers.create({
           email: req.user.email,
@@ -55,10 +57,6 @@ module.exports = (app) => {
     })
   })
 
-  app.post('/api/stripe/current', requireLogin, (req, res) => {
-
-  })
-
   app.post('api/stripe/cancel', requireLogin, (req, res) => {
     stripe.subscriptions.del(req.user.stripe_subscription_id,
       { at_period_end: true },
@@ -70,5 +68,64 @@ module.exports = (app) => {
         }
       }
     )
+  })
+
+  // CUSTOMER
+
+  app.post('/api/stripe/current', requireLogin, (req, res) => {
+    stripe.customers.retrieve(
+      "cus_BaXXq6kH07HDjv",
+      function(err, customer) {
+        // asynchronously called
+      }
+    )
+  })
+
+  // BILLING
+
+  app.post('/api/stripe/update_card', requireLogin, (req, res) => {
+    stripe.customers.updateCard(
+      "cus_BaXXq6kH07HDjv",
+      "card_1BDN4TBgmE30r29MKX2qknBB",
+      { name: "Joshua Thompson" },
+      function(err, card) {
+        // asynchronously called
+      }
+    )
+  })
+
+  app.post('/api/stripe/delete_card', requireLogin, (req, res) => {
+    stripe.customers.deleteCard(
+      "cus_BaXXq6kH07HDjv",
+      "card_1BDN4TBgmE30r29MKX2qknBB",
+      function(err, confirmation) {
+        // asynchronously called
+      }
+    )
+  })
+
+  // COUPONS & DISCOUNTS
+  app.post('/api/stripe/create_coupon', requireLogin, (req, res) => {
+    stripe.coupons.create({
+      percent_off: 25,
+      duration: 'repeating',
+      duration_in_months: 3,
+      id: '25OFF'
+    }, function(err, coupon) {
+      // asynchronously called
+    })
+  })
+
+  app.post('/api/stripe/retrieve_coupon', requireLogin, (req, res) => {
+    stripe.coupons.retrieve(
+      "25OFF",
+      function(err, coupon) {
+        // asynchronously called
+      }
+    )
+  })
+
+  app.post('/api/stripe/delete_coupon', requireLogin, (req, res) => {
+    stripe.coupons.del('25OFF')
   })
 }
