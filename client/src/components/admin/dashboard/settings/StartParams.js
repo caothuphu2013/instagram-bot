@@ -11,15 +11,15 @@ class runParams extends Component {
   }
 
   componentDidMount () {
-    // axios.post('/api/current_params')
-    //   .then(res => {
-    //     if (res.data !== 0) {
-    //       this.setState({ running: res.data.param_automator_running })
-    //     }
-    //   })
-    //   .catch(error => {
-    //     console.log(error)
-    //   })
+    axios.post('/api/current_params', { email: this.props.user.email })
+      .then(res => {
+        if (res.data !== '') {
+          this.setState({ running: res.data.param_automator_running })
+        }
+      })
+      .catch(error => {
+        console.log(error)
+      })
   }
 
   runParams (path) {
@@ -33,6 +33,7 @@ class runParams extends Component {
       })
       .catch(error => {
         console.log(error)
+        this.props.spinnify()
         this.props.toastify('There was an error please try again')
       })
   }

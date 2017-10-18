@@ -72,6 +72,7 @@ module.exports = app => {
       intervals[req.user.email] = Instagram.automate(params)
       res.status(200).send('Successfully started!')
     }).catch(err => {
+      console.log(err)
       res.status(500).send(err)
     })
   })
@@ -94,14 +95,9 @@ module.exports = app => {
     const currentParams = UserParameters.findOne({ email: req.user.email }).exec()
 
     currentParams.then(params => {
-      if (params === null) {
-        params = 0
-        res.status(200).send(params)
-      } else {
-        res.status(200).send(params)
-      }
+      res.status(200).send(params)
     }).catch(err => {
-      res.status(500).send(err)
+      res.status(400).send(err)
     })
   })
 
@@ -113,10 +109,10 @@ module.exports = app => {
   //   } else {
   //     bool = false
   //   }
-  //
-  //   // while (bool) {
-  //   //   trimParam(param)
-  //   // }
+
+    // while (bool) {
+    //   trimParam(param)
+    // }
   // }
   //
   // trimParam(param_hashtags)

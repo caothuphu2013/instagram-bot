@@ -17,6 +17,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "axios": "^0.16.2",
     "body-parser": "^1.18.1",
     "concurrently": "^3.5.0",
     "connect-ensure-login": "^0.1.1",

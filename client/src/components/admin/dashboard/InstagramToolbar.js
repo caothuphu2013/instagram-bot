@@ -13,6 +13,7 @@ class InstagramToolbar extends Component {
           <li><p>{this.props.authenticatedUser.instagram_username}</p></li>
           <li><p>Following: {this.props.authenticatedUser.instagram_current_following}</p></li>
           <li><p>Followers: {this.props.authenticatedUser.instagram_current_followers}</p></li>
+          <a className='btn' href='/auth/instagram'>Connect Another</a>
         </ul>
       )
     }

@@ -9,8 +9,8 @@ class ParamsForm extends Component {
     this.state = {
       param_hashtags: '',
       param_usernames: '',
-      param_blacklist_hashtags: '',
-      param_blacklist_usernames: '',
+      param_blacklist_hashtags: null,
+      param_blacklist_usernames: null,
       param_like_mode: false,
       param_follow_mode: false,
       param_longitude: '',
@@ -24,27 +24,26 @@ class ParamsForm extends Component {
   }
 
   componentDidMount () {
-    // axios.post('/api/current_params', { email: this.props.user.email })
-    // .then(res => {
-    //   console.log(res.data)
-    //   if (res.data !== 0) {
-    //     const data = res.data
-    //     this.setState({
-    //       param_hashtags: data.param_hashtags.toString(),
-    //       param_usernames: data.param_usernames.toString(),
-    //       param_blacklist_hashtags: data.param_blacklist_hashtags.toString(),
-    //       param_blacklist_usernames: data.param_blacklist_usernames.toString(),
-    //       param_like_mode: data.param_like_mode,
-    //       param_follow_mode: data.param_follow_mode,
-    //       param_longitude: data.param_longitude,
-    //       param_latitude: data.param_latitude,
-    //       param_timezone: data.param_timezone
-    //     })
-    //   }
-    // })
-    // .catch(error => {
-    //   console.log(error)
-    // })
+    axios.post('/api/current_params', { email: this.props.user.email })
+    .then(res => {
+      if (res.data !== '') {
+        const data = res.data
+        this.setState({
+          param_hashtags: data.param_hashtags.toString(),
+          param_usernames: data.param_usernames.toString(),
+          param_blacklist_hashtags: data.param_blacklist_hashtags.toString(),
+          param_blacklist_usernames: data.param_blacklist_usernames.toString(),
+          param_like_mode: data.param_like_mode,
+          param_follow_mode: data.param_follow_mode,
+          param_longitude: data.param_longitude,
+          param_latitude: data.param_latitude,
+          param_timezone: data.param_timezone
+        })
+      }
+    })
+    .catch(error => {
+      console.log(error)
+    })
   }
 
   handleChange (event) {
@@ -71,7 +70,7 @@ class ParamsForm extends Component {
       param_timezone: this.state.param_timezone,
       username: this.props.user.instagram_username,
       instagram_id: this.props.user.instagram_id,
-      access_token: this.props.user.access_token,
+      access_token: this.props.user.instagram_accessToken,
       email: this.props.user.email,
       user_id: this.props.user._id
     })
