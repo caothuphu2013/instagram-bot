@@ -3,7 +3,6 @@ const keys = require('../config/keys')
 const determine = require('./determineParameters')
 
 exports.automate = (params) => {
-  console.log(params)
   // account
   const instagramID = params.instagram_id
   const accessToken = params.access_token
@@ -24,79 +23,127 @@ exports.automate = (params) => {
   const perHour = (process.env.NODE_ENV === 'production') ? 60 : 30
   const oneHour = 3600000
   const globalRateLimit = keys.globalRateLimit // 500 sandbox / 5000 prod
-  /*-----------------------
-  // Types
-  -------------------------*/
-  const types = determine.parameters(params)
-  // param type
-  // 0 = has neither
-  // 1 = has hashtags only
-  // 2 = has usernames only
-  // 3 = has hashtags & usernames
-
-  // location type
-  // 0 = has neither
-  // 1 = has timezone only
-  // 2 = has lat/long only
-  // 3 = has timezone & lat/long
-
-  // automator type
-  // 0 = has neither
-  // 1 = has follow only
-  // 2 = has like only
-  // 3 = has follow and like
 
   /*-----------------------
-  // Interval
+  // Interval Function
   -------------------------*/
   // return setInterval(() => {
-  let locationData
-  let usernamesData = []
-  let hashtagsData = []
+  let locationIDs
+  let locationMediaIDs
+
+  let usernameIDs = []
+  let userRecentMediaIDs = []
+  let usersFollowedByIDs
+
+  let hashtagRecentMediaIDs = []
 
   async function getData () {
-    // get location
-    locationData = (latitude && longitude) && await locationSearch()
+    /********************************/
+    /*       LOCATIONS DATA         */
+    /********************************/
+    // get location IDs based off latitude and longitude coordinates
+    locationIDs = (latitude && longitude) && await locationSearch()
+    // get recent media IDs, that dont include blacklisted hashtags, based off location IDs
+    locationMediaIDs = (locationIDs.length > 0) && await locationRecentMedia(locationIDs[0])
 
-    // get usernames
-    // access a user id = usernamesData[0][0].id
+    /********************************/
+    /*       USERNAMES DATA         */
+    /********************************/
+    // get username IDs
     if (usernames[0] !== '') {
       for (var a = 0; a < usernames.length; a++) {
-        usernamesData[a] = await userSearch(usernames[a])
+        usernameIDs[a] = await userSearch(usernames[a])
+      }
+    }
+    // get recent media IDs based from the username IDs
+    if (usernameIDs) {
+      for (var b = 0; b < usernames.length; b++) {
+        userRecentMediaIDs[b] = await userRecentMedia(usernameIDs[b])
+      }
+    }
+    // get user follwers IDs based off the recent media they liked
+    if (userRecentMediaIDs) {
+
+    }
+
+    // /********************************/
+    /*       HASHTAGS DATA          */
+    /********************************/
+    // get recent media IDs based from hashtags
+    if (hashtags[0] !== '') {
+      for (var d = 0; d < hashtags.length; d++) {
+        hashtagRecentMediaIDs[d] = await recentHashtagMedia(hashtags[d])
       }
     }
 
-    // get hashtag info
-    // access a media object id = hashtagsData[0][0].id
-    // if (hashtags[0] !== '') {
-    //   for (var b = 0; b < hashtags.length; b++) {
-    //     hashtagsData[b] = await recentHashtags(hashtags[b])
-    //   }
-    // }
+  }
+  // getData()
+  // }, 1000)
+  /********************************/
+  /*           HELPERS            */
+  /********************************/
+  function doesntHaveBlacklistTags (arr) {
+    if (blacklistHashtags[0] !== '') {
+      return blacklistHashtags.every(blacklist => !arr.includes(blacklist))
+    }
+
+    return true
   }
 
-  getData()
-  // }, 1000)
+  function doesntHaveBlacklistUsernames (username) {
+    if (blacklistUsernames[0] !== '') {
+      for (var x = 0; x < blacklistUsernames.length; x++) {
+        return !blacklistUsernames[x].includes(username)
+      }
+    } else {
+      return true
+    }
+  }
 
   /********************************/
-  /*           LOCATIONS          */
+  /*     LOCATIONS ENDPOINTS      */
   /********************************/
-  // get media based off latitude and longitude coordinates
+  // get location IDs based off latitude and longitude coordinates
   function locationSearch () {
     return axios.get('https://api.instagram.com/v1/locations/search', {
       params: { lat: latitude, lng: longitude, access_token: accessToken }
     })
     .then(res => {
-      return res.data
+      const locationIDs = []
+      for (var x = 0; x < res.data.data.length; x++) {
+        locationIDs[x] = res.data.data[x].id
+      }
+      return locationIDs
     })
     .catch(err => {
       console.log('location search err: ' + err)
     })
   }
 
-  /* -----------------------
-  // Self User Endpoints
-  -------------------------*/
+  // get recent media based off location IDs
+  function locationRecentMedia (locationID) {
+    return axios.get(`https://api.instagram.com/v1/locations/${locationID}/media/recent`, {
+      params: { access_token: accessToken }
+    })
+    .then(res => {
+      const data = res.data.data
+      const locationMediaIDs = []
+
+      for (var x = 0; x < data.length; x++) {
+        if (doesntHaveBlacklistTags(data[x].tags)) {
+          locationMediaIDs[x] = data[x].id
+        }
+      }
+      return locationMediaIDs
+    })
+    .catch(err => {
+      console.log('location search err: ' + err)
+    })
+  }
+
+  /********************************/
+  /*     USER SELF ENDPOINTS      */
+  /********************************/
   function getUserSelf () {
     axios.get('https://api.instagram.com/v1/users/self', {
       params: { access_token: accessToken }
@@ -133,36 +180,51 @@ exports.automate = (params) => {
     })
   }
 
-  /* -----------------------
-  // User Endpoints
-  -------------------------*/
+  /********************************/
+  /*        USER ENDPOINTS        */
+  /********************************/
+  // get recent media IDs based off a username ID
   function userRecentMedia (userID) {
-    axios.get(`https://api.instagram.com/v1/users/${userID}/media/recent/`, {
+    return axios.get(`https://api.instagram.com/v1/users/${userID}/media/recent/`, {
       params: { access_token: accessToken }
     })
     .then(res => {
-      console.log(res.data)
+      return res.data.data
+        .filter(row => doesntHaveBlacklistTags(row.tags))
+        .map(row => row.id)
+
+      // const data = res.data.data
+      // let userRecentMediaIDs = []
+      //
+      // for (var x = 0; x < data.length; x++) {
+      //   if (doesntHaveBlacklistTags(data[x].tags)) {
+      //     userRecentMediaIDs.push(data[x].id)
+      //   }
+      // }
+
+      return userRecentMediaIDs
     })
     .catch(err => {
       console.log('err: ' + err)
     })
   }
 
+  // get user IDs based from the usernames they want to follow
   function userSearch (username) {
     return axios.get('https://api.instagram.com/v1/users/search', {
       params: { q: username, access_token: accessToken }
     })
     .then(res => {
-      return res.data.data
+      return res.data.data[0].id
     })
     .catch(err => {
       console.log('user search err: ' + err)
     })
   }
 
-  /* -----------------------
-  // Like Endpoints
-  -------------------------*/
+  /********************************/
+  /*        LIKE ENDPOINTS        */
+  /********************************/
   function addLike (mediaID) {
     return axios.post(`https://api.instagram.com/v1/media/${mediaID}/likes`, {
       params: { access_token: accessToken }
@@ -175,19 +237,51 @@ exports.automate = (params) => {
     })
   }
 
-  /* -----------------------
-  // Comment Endpoints
-  -------------------------*/
+  function usersWhoLikedThisMedia (mediaID) {
+    return axios.get(`https://api.instagram.com/v1/media/${mediaID}/likes`, {
+      params: { access_token: accessToken }
+    })
+    .then(res => {
+      const data = res.data.data
+      let usersWhoLikedThisMediaIDs = []
 
-  /* -----------------------
-  // Tag Endpoints
-  -------------------------*/
-  function recentHashtags (hashtag) {
+      for (var x = 0; x < data.length; x++) {
+        // console.log(data[x].username)
+        // console.log(doesntHaveBlacklistUsernames(data[x].username))
+        // if (doesntHaveBlacklistUsernames(data[x].username)) {
+          usersWhoLikedThisMediaIDs[x] = data[x].id
+        // }
+      }
+
+      console.log(usersWhoLikedThisMediaIDs)
+      return usersWhoLikedThisMediaIDs
+    })
+    .catch(err => {
+      console.log('usersWhoLikedThisMedia err: ' + err)
+    })
+  }
+  /********************************/
+  /*     COMMENT ENDPOINTS        */
+  /********************************/
+
+  /********************************/
+  /*     HASHTAG ENDPOINTS        */
+  /********************************/
+  function recentHashtagMedia (hashtag) {
     return axios.get(`https://api.instagram.com/v1/tags/${hashtag}/media/recent`, {
       params: { access_token: accessToken }
     })
     .then(res => {
-      return res.data.data
+      const data = res.data.data
+      let hashtagRecentMediaIDs = []
+
+      for (var x = 0; x < data.length; x++) {
+        if (doesntHaveBlacklistTags(data[x].tags)) {
+          hashtagRecentMediaIDs[x] = data[x].id
+        }
+      }
+
+      return hashtagRecentMediaIDs
     })
     .catch(err => {
       console.log('recent hashtags err: ' + err)
