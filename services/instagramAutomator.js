@@ -27,13 +27,15 @@ exports.automate = (params) => {
   /*-----------------------
   // Interval Function
   -------------------------*/
-  // return setInterval(() => {
+  let likesPerHour = 0
+  let skip = 5
+
   let locationIDs
-  let locationMediaIDs
+  let locationMediaIDs = []
 
   let usernameIDs = []
   let userRecentMediaIDs = []
-  let usersFollowedByIDs
+  let userIDsWhoFollow = []
 
   let hashtagRecentMediaIDs = []
 
@@ -42,9 +44,13 @@ exports.automate = (params) => {
     /*       LOCATIONS DATA         */
     /********************************/
     // get location IDs based off latitude and longitude coordinates
-    locationIDs = (latitude && longitude) && await locationSearch()
-    // get recent media IDs, that dont include blacklisted hashtags, based off location IDs
-    locationMediaIDs = (locationIDs.length > 0) && await locationRecentMedia(locationIDs[0])
+    // locationIDs = (latitude && longitude) && await locationSearch()
+    // // get recent media IDs based off location IDs
+    // if (locationIDs) {
+    //   for (var z = 0; z < locationIDs.length; z++) {
+    //     locationMediaIDs.push(await locationRecentMedia(locationIDs[z]))
+    //   }
+    // }
 
     /********************************/
     /*       USERNAMES DATA         */
@@ -52,33 +58,71 @@ exports.automate = (params) => {
     // get username IDs
     if (usernames[0] !== '') {
       for (var a = 0; a < usernames.length; a++) {
-        usernameIDs[a] = await userSearch(usernames[a])
+        usernameIDs.push(await userSearch(usernames[a]))
       }
     }
-    // get recent media IDs based from the username IDs
+    // // get recent media IDs based from the username IDs
     if (usernameIDs) {
       for (var b = 0; b < usernames.length; b++) {
-        userRecentMediaIDs[b] = await userRecentMedia(usernameIDs[b])
+        userRecentMediaIDs.push(await userRecentMedia(usernameIDs[b]))
       }
     }
-    // get user follwers IDs based off the recent media they liked
+    // get user's followers IDs based off the recent media they liked
     if (userRecentMediaIDs) {
-
+      for (var c = 0; c < userRecentMediaIDs.length; c++) {
+        if (userRecentMediaIDs[c].length > 0) {
+          for (var cc = 0; cc < userRecentMediaIDs[c].length; cc += skip) {
+            userIDsWhoFollow.push(await usersWhoLikedThisMedia(userRecentMediaIDs[c][cc]))
+          }
+        }
+      }
     }
+
+    console.log(userIDsWhoFollow)
 
     // /********************************/
     /*       HASHTAGS DATA          */
     /********************************/
     // get recent media IDs based from hashtags
-    if (hashtags[0] !== '') {
-      for (var d = 0; d < hashtags.length; d++) {
-        hashtagRecentMediaIDs[d] = await recentHashtagMedia(hashtags[d])
+    // if (hashtags[0] !== '') {
+    //   for (var d = 0; d < hashtags.length; d++) {
+    //     hashtagRecentMediaIDs.push(await recentHashtagMedia(hashtags[d]))
+    //   }
+    // }
+    //
+    // console.log(locationIDs)
+    // console.log(locationMediaIDs)
+    // console.log(usernameIDs)
+    // console.log(userRecentMediaIDs)
+    // console.log(hashtagRecentMediaIDs)
+  }
+
+  async function addLikes () {
+    /********************************/
+    /*       LOCATIONS DATA         */
+    /********************************/
+    // loop through location Media IDs and like posts
+    if (locationMediaIDs.length > 0) {
+      for (var y = 0; y < locationMediaIDs.length; y++) {
+        if (locationMediaIDs[y].length > 0) {
+          for (var yy = 0; yy < locationMediaIDs[y].length; yy += skip) {
+            if (await addLike(locationMediaIDs[y][yy]) === 200) {
+              likesPerHour++
+              console.log('add location like worked')
+            }
+          }
+        }
       }
     }
-
   }
-  // getData()
-  // }, 1000)
+
+  async function automate () {
+    await getData()
+    await addLikes()
+  }
+
+  automate()
+
   /********************************/
   /*           HELPERS            */
   /********************************/
@@ -92,12 +136,10 @@ exports.automate = (params) => {
 
   function doesntHaveBlacklistUsernames (username) {
     if (blacklistUsernames[0] !== '') {
-      for (var x = 0; x < blacklistUsernames.length; x++) {
-        return !blacklistUsernames[x].includes(username)
-      }
-    } else {
-      return true
+      return blacklistUsernames.every(blacklist => !username.includes(blacklist))
     }
+
+    return true
   }
 
   /********************************/
@@ -109,11 +151,7 @@ exports.automate = (params) => {
       params: { lat: latitude, lng: longitude, access_token: accessToken }
     })
     .then(res => {
-      const locationIDs = []
-      for (var x = 0; x < res.data.data.length; x++) {
-        locationIDs[x] = res.data.data[x].id
-      }
-      return locationIDs
+      return res.data.data.map(data => data.id)
     })
     .catch(err => {
       console.log('location search err: ' + err)
@@ -126,15 +164,9 @@ exports.automate = (params) => {
       params: { access_token: accessToken }
     })
     .then(res => {
-      const data = res.data.data
-      const locationMediaIDs = []
-
-      for (var x = 0; x < data.length; x++) {
-        if (doesntHaveBlacklistTags(data[x].tags)) {
-          locationMediaIDs[x] = data[x].id
-        }
-      }
-      return locationMediaIDs
+      return res.data.data
+        .filter(data => doesntHaveBlacklistTags(data.tags))
+        .map(data => data.id)
     })
     .catch(err => {
       console.log('location search err: ' + err)
@@ -144,41 +176,41 @@ exports.automate = (params) => {
   /********************************/
   /*     USER SELF ENDPOINTS      */
   /********************************/
-  function getUserSelf () {
-    axios.get('https://api.instagram.com/v1/users/self', {
-      params: { access_token: accessToken }
-    })
-    .then(res => {
-      console.log(res.data)
-    })
-    .catch(err => {
-      console.log('get user err: ' + err)
-    })
-  }
-
-  function userSelfFeed () {
-    axios.get('https://api.instagram.com/v1/users/self/media/recent', {
-      params: { access_token: accessToken }
-    })
-    .then(res => {
-      console.log(res.data)
-    })
-    .catch(err => {
-      console.log('user self feed err: ' + err)
-    })
-  }
-
-  function userSelfLiked () {
-    axios.get('https://api.instagram.com/v1/users/self/media/liked', {
-      params: { access_token: accessToken }
-    })
-    .then(res => {
-      console.log(res.data)
-    })
-    .catch(err => {
-      console.log('user self liked err: ' + err)
-    })
-  }
+  // function getUserSelf () {
+  //   axios.get('https://api.instagram.com/v1/users/self', {
+  //     params: { access_token: accessToken }
+  //   })
+  //   .then(res => {
+  //     console.log(res.data)
+  //   })
+  //   .catch(err => {
+  //     console.log('get user err: ' + err)
+  //   })
+  // }
+  //
+  // function userSelfFeed () {
+  //   axios.get('https://api.instagram.com/v1/users/self/media/recent', {
+  //     params: { access_token: accessToken }
+  //   })
+  //   .then(res => {
+  //     console.log(res.data)
+  //   })
+  //   .catch(err => {
+  //     console.log('user self feed err: ' + err)
+  //   })
+  // }
+  //
+  // function userSelfLiked () {
+  //   axios.get('https://api.instagram.com/v1/users/self/media/liked', {
+  //     params: { access_token: accessToken }
+  //   })
+  //   .then(res => {
+  //     console.log(res.data)
+  //   })
+  //   .catch(err => {
+  //     console.log('user self liked err: ' + err)
+  //   })
+  // }
 
   /********************************/
   /*        USER ENDPOINTS        */
@@ -190,19 +222,8 @@ exports.automate = (params) => {
     })
     .then(res => {
       return res.data.data
-        .filter(row => doesntHaveBlacklistTags(row.tags))
-        .map(row => row.id)
-
-      // const data = res.data.data
-      // let userRecentMediaIDs = []
-      //
-      // for (var x = 0; x < data.length; x++) {
-      //   if (doesntHaveBlacklistTags(data[x].tags)) {
-      //     userRecentMediaIDs.push(data[x].id)
-      //   }
-      // }
-
-      return userRecentMediaIDs
+        .filter(data => doesntHaveBlacklistTags(data.tags))
+        .map(data => data.id)
     })
     .catch(err => {
       console.log('err: ' + err)
@@ -223,18 +244,30 @@ exports.automate = (params) => {
   }
 
   /********************************/
-  /*        LIKE ENDPOINTS        */
+  /*        MEDIA ENDPOINTS       */
   /********************************/
-  function addLike (mediaID) {
-    return axios.post(`https://api.instagram.com/v1/media/${mediaID}/likes`, {
+  function getMediaObject (mediaID) {
+    axios.get(`https://api.instagram.com/v1/media/${mediaID}`, {
       params: { access_token: accessToken }
     })
     .then(res => {
-      console.log('res: ' + res)
+      // return res.data.data
+      //   .filter(data => doesntHaveBlacklistTags(data.tags))
+      //   .map(data => data.id)
+      console.log(res.data.data)
     })
     .catch(err => {
-      console.log('add like err: ' + err)
+      console.log('recent hashtags err: ' + err)
     })
+  }
+
+  /********************************/
+  /*        LIKE ENDPOINTS        */
+  /********************************/
+  function addLike (mediaID) {
+    return axios.post(`https://api.instagram.com/v1/media/${mediaID}/likes?access_token=${accessToken}`)
+    .then(res => res.data.meta.code)
+    .catch(err => err)
   }
 
   function usersWhoLikedThisMedia (mediaID) {
@@ -242,27 +275,12 @@ exports.automate = (params) => {
       params: { access_token: accessToken }
     })
     .then(res => {
-      const data = res.data.data
-      let usersWhoLikedThisMediaIDs = []
-
-      for (var x = 0; x < data.length; x++) {
-        // console.log(data[x].username)
-        // console.log(doesntHaveBlacklistUsernames(data[x].username))
-        // if (doesntHaveBlacklistUsernames(data[x].username)) {
-          usersWhoLikedThisMediaIDs[x] = data[x].id
-        // }
-      }
-
-      console.log(usersWhoLikedThisMediaIDs)
-      return usersWhoLikedThisMediaIDs
+      return res.data.data.map(dat => dat.id)
     })
     .catch(err => {
       console.log('usersWhoLikedThisMedia err: ' + err)
     })
   }
-  /********************************/
-  /*     COMMENT ENDPOINTS        */
-  /********************************/
 
   /********************************/
   /*     HASHTAG ENDPOINTS        */
@@ -272,16 +290,9 @@ exports.automate = (params) => {
       params: { access_token: accessToken }
     })
     .then(res => {
-      const data = res.data.data
-      let hashtagRecentMediaIDs = []
-
-      for (var x = 0; x < data.length; x++) {
-        if (doesntHaveBlacklistTags(data[x].tags)) {
-          hashtagRecentMediaIDs[x] = data[x].id
-        }
-      }
-
-      return hashtagRecentMediaIDs
+      return res.data.data
+        .filter(data => doesntHaveBlacklistTags(data.tags))
+        .map(data => data.id)
     })
     .catch(err => {
       console.log('recent hashtags err: ' + err)
