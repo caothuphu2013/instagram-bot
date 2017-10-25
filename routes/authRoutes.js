@@ -4,6 +4,7 @@ mongoose.Promise = require('bluebird')
 const crypto = require('crypto')
 // const nodeMailer = require('../services/nodeMailer')
 const User = require('../models/User')
+const Stats = require('../models/Stats')
 const ig = require('instagram-node').instagram()
 
 module.exports = (app) => {
@@ -85,10 +86,28 @@ module.exports = (app) => {
                 { new: true, upsert: true }).exec()
 
               updateUser.then(user => {
-                res.status(200).send()
+                updateStats
+                // res.status(200).send()
               }).catch(err => {
                 res.status(500).send(err)
               })
+
+              const updateStats = Stats.findOrCreate(
+                { email: user.email },
+                {
+                  name: user.name,
+                  email: user.email,
+                  last_login: user.current_login,
+                  current_login: Date.now(),
+                  instagram_current_following: medias.counts.follows,
+                  instagram_current_followers: medias.counts.followed_by,
+                  instagram_lastLogin_following: user.instagram_current_following,
+                  instagram_lastLogin_followers: user.instagram_current_followers
+                }, (err, result) => {
+                  if (err) return res.status(500).send(err)
+                  res.status(200).send()
+                  console.log(result)
+                })
             })
           } else {
             // no instagram account linked yet

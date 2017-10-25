@@ -2,6 +2,7 @@ const keys = require('../config/keys')
 const stripe = require('stripe')(keys.stripeSecretKey)
 const requireLogin = require('../middlewares/requireLogin')
 const User = require('../models/User')
+const StripeAccount = require('../models/StripeAccount')
 
 module.exports = (app) => {
   app.post('/api/stripe/subscribe', requireLogin, (req, res) => {
@@ -49,9 +50,26 @@ module.exports = (app) => {
           user.stripe_subscription_id = subscription.id
           user.stripe_token = req.body.token.id
           user.paid = true
-          user.save()
-          console.log('billing done')
-          res.status(200).send('You have successfully subscribed to BuzzLightYear!')
+
+          StripeAccount.findOrCreate(
+            { email: customer.email },
+            {
+              name: customer.name,
+              email: customer.email,
+              created_at: Date.now(),
+              stripe_status: 'subscribed',
+              stripe_customer_id: customer.id,
+              stripe_email: customer.email,
+              stripe_subscription_id: subscription.id,
+              stripe_token: req.body.token.id
+            }, (err, result) => {
+              if (err) return res.status(500).send(err)
+
+              user.save()
+              console.log('billing done')
+              res.status(200).send('You have successfully subscribed to BuzzLightYear!')
+              console.log(result)
+            })
         }
       }
     })

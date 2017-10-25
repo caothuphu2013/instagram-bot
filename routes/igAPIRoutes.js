@@ -1,4 +1,5 @@
 const requireLogin = require('../middlewares/requireLogin')
+const cron = require('node-cron')
 const mongoose = require('mongoose')
 mongoose.Promise = require('bluebird')
 const UserParameters = mongoose.model('user_parameters')
@@ -70,6 +71,7 @@ module.exports = app => {
 
     runParams.then(params => {
       intervals[req.user.email] = Instagram.automate(params)
+        // cron.schedule('* * * * *', () => Instagram.automate(params)).start()
       res.status(200).send('Successfully started!')
     }).catch(err => {
       console.log(err)
@@ -84,7 +86,8 @@ module.exports = app => {
       { new: true, upsert: true }).exec()
 
     stopParams.then(params => {
-      clearInterval(intervals[req.user.email])
+      intervals[req.user.email] = ''
+      // intervals[req.user.email].stop()
       res.status(200).send('Successfully stopped!')
     }).catch(err => {
       res.status(500).send(err)

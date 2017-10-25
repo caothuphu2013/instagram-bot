@@ -35,7 +35,7 @@ exports.automate = (params) => {
 
   let usernameIDs = []
   let userRecentMediaIDs = []
-  let userIDsWhoFollow = []
+  let userIDsWhoFollowUsernames = []
 
   let hashtagRecentMediaIDs = []
 
@@ -72,13 +72,13 @@ exports.automate = (params) => {
       for (var c = 0; c < userRecentMediaIDs.length; c++) {
         if (userRecentMediaIDs[c].length > 0) {
           for (var cc = 0; cc < userRecentMediaIDs[c].length; cc += skip) {
-            userIDsWhoFollow.push(await usersWhoLikedThisMedia(userRecentMediaIDs[c][cc]))
+            userIDsWhoFollowUsernames.push(await usersWhoLikedThisMedia(userRecentMediaIDs[c][cc]))
           }
         }
       }
     }
 
-    console.log(userIDsWhoFollow)
+    console.log(userIDsWhoFollowUsernames)
 
     // /********************************/
     /*       HASHTAGS DATA          */
@@ -114,6 +114,19 @@ exports.automate = (params) => {
         }
       }
     }
+
+    // if (userIDsWhoFollowUsernames.length > 0) {
+    //   for (var z = 0; z < userIDsWhoFollowUsernames.length; z++) {
+    //     if (userIDsWhoFollowUsernames[z].length > 0) {
+    //       for (var zz = 0; zz < userIDsWhoFollowUsernames[z].length; zz += skip) {
+    //         // if (await requestToFollow(userIDsWhoFollowUsernames[z][zz]) === 200) {
+    //         //   likesPerHour++
+    //         //   console.log('add location like worked')
+    //         // }
+    //       }
+    //     }
+    //   }
+    // }
   }
 
   async function automate () {
@@ -121,7 +134,9 @@ exports.automate = (params) => {
     await addLikes()
   }
 
-  automate()
+  // automate()
+
+  requestToFollow('20516057')
 
   /********************************/
   /*           HELPERS            */
@@ -275,11 +290,34 @@ exports.automate = (params) => {
       params: { access_token: accessToken }
     })
     .then(res => {
-      return res.data.data.map(dat => dat.id)
+      return res.data.data
+        .filter(data => doesntHaveBlacklistUsernames(data.username))
+        .map(data => data.id)
     })
     .catch(err => {
       console.log('usersWhoLikedThisMedia err: ' + err)
     })
+  }
+
+  /********************************/
+  /*   RELATIONSHIP ENDPOINTS     */
+  /********************************/
+  function getRelationship (usernameID) {
+   axios.get(`https://api.instagram.com/v1/users/${usernameID}/relationship`, {
+      params: { access_token: accessToken }
+    })
+    .then(res => {
+      console.log(res.data.data)
+    })
+    .catch(err => {
+      console.log('usersWhoLikedThisMedia err: ' + err)
+    })
+  }
+
+  function requestToFollow (usernameID) {
+    axios.post(`https://api.instagram.com/v1/users/${usernameID}/relationship?access_token=${accessToken}`, {'action': 'follow'})
+    .then(res => console.log(res))
+    .catch(err => console.log(err))
   }
 
   /********************************/

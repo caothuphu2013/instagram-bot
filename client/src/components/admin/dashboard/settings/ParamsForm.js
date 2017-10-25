@@ -9,8 +9,8 @@ class ParamsForm extends Component {
     this.state = {
       param_hashtags: '',
       param_usernames: '',
-      param_blacklist_hashtags: null,
-      param_blacklist_usernames: null,
+      param_blacklist_hashtags: '',
+      param_blacklist_usernames: '',
       param_like_mode: false,
       param_follow_mode: false,
       param_longitude: '',
