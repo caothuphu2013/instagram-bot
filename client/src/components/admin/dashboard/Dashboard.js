@@ -2,12 +2,11 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.min.css'
-import axios from 'axios'
 
 import * as actions from '../../../actions'
 
 import InstagramToolbar from './InstagramToolbar'
-import SettingsToolbar from './settings/SettingsToolbar'
+import SettingsToolbar from './SettingsToolbar'
 import StripeToolbar from './StripeToolbar'
 import StatsToolbar from './StatsToolbar'
 import MenuBar from './MenuBar'
@@ -21,8 +20,11 @@ class Dashboard extends Component {
   constructor (props) {
     super(props)
 
+    this.props.fetchUserStats(this.props.authenticatedUser.email)
+    this.props.fetchUserParams(this.props.authenticatedUser.email)
+
     this.state = {
-      spinner: false,
+      spinner: true,
       openOverlay: false,
       overlayDescription: 'Your trial has ended, please subscribe to continue service.'
     }
@@ -30,14 +32,8 @@ class Dashboard extends Component {
     this.returnOverlay = this.returnOverlay.bind(this)
   }
 
-  componentDidMount () {
-    axios.get('/stats/latest', { email: this.props.authenticatedUser.email })
-      .then(res => {
-        console.log(res)
-      })
-      .catch(err => {
-        console.log(err)
-      })
+  componentWillReceiveProps (nextProps) {
+    if (nextProps.authenticatedUser && nextProps.userStats && nextProps.userParams) this.spinnify()
   }
 
   toastify (message) { toast(message) }
@@ -58,6 +54,34 @@ class Dashboard extends Component {
           />
           <p onClick={() => this.setState({ openOverlay: false })}>Close</p>
         </Overlay>
+      )
+    }
+  }
+
+  renderContent () {
+    if (this.props.userStats && this.props.userParams) {
+      return (
+        <div className='toolbar-container'>
+          <StatsToolbar
+            userStats={this.props.userStats}
+            toastify={this.toastify.bind(this)}
+            spinnify={this.spinnify.bind(this)}
+          />
+          <SettingsToolbar
+            userParams={this.props.userParams}
+            toastify={this.toastify.bind(this)}
+            spinnify={this.spinnify.bind(this)}
+          />
+          <StripeToolbar
+            user={this.props.authenticatedUser}
+            toastify={this.toastify.bind(this)}
+            spinnify={this.spinnify.bind(this)}
+            triggerCheckout={() => this.setState({
+              openOverlay: true,
+              overlayDescription: 'Subscribe'
+            })}
+          />
+        </div>
       )
     }
   }
@@ -83,34 +107,14 @@ class Dashboard extends Component {
           spinnify={this.spinnify.bind(this)}
         />
         <MenuBar />
-        <div className='toolbar-container'>
-          <StatsToolbar
-            user={this.props.authenticatedUser}
-            toastify={this.toastify.bind(this)}
-            spinnify={this.spinnify.bind(this)}
-          />
-          <SettingsToolbar
-            user={this.props.authenticatedUser}
-            toastify={this.toastify.bind(this)}
-            spinnify={this.spinnify.bind(this)}
-          />
-          <StripeToolbar
-            user={this.props.authenticatedUser}
-            toastify={this.toastify.bind(this)}
-            spinnify={this.spinnify.bind(this)}
-            triggerCheckout={() => this.setState({
-              openOverlay: true,
-              overlayDescription: 'Subscribe'
-            })}
-          />
-        </div>
+        {this.renderContent()}
       </div>
     )
   }
 }
 
-function mapStateToProps ({ authenticatedUser }) {
-  return { authenticatedUser }
+function mapStateToProps ({ authenticatedUser, userStats, userParams }) {
+  return { authenticatedUser, userStats, userParams }
 }
 
 export default connect(mapStateToProps, actions)(Dashboard)

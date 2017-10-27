@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import StartParams from './settings/StartParams'
+import StartParams from './StartParams'
 
 class InstagramToolbar extends Component {
   renderContent () {

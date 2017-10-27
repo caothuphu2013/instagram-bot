@@ -1,5 +1,4 @@
 import React, { Component } from 'react'
-import { connect } from 'react-redux'
 
 class StatsToolbar extends Component {
   render () {
@@ -11,8 +10,4 @@ class StatsToolbar extends Component {
   }
 }
 
-function mapStateToProps ({ authenticatedUser }) {
-  return { authenticatedUser }
-}
-
-export default connect(mapStateToProps)(StatsToolbar)
+export default StatsToolbar

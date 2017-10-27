@@ -136,8 +136,8 @@ exports.automate = (params) => {
 
   async function automate () {
     await getData()
-    await addLikes()
-    await addFollows()
+    if (likeMode) await addLikes()
+    if (followMode) await addFollows()
   }
 
   // automate()

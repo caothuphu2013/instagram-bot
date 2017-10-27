@@ -3,47 +3,25 @@ import Autocomplete from 'react-google-autocomplete'
 import TimezonePicker from 'react-timezone'
 import axios from 'axios'
 
-class ParamsForm extends Component {
+class SettingsToolbar extends Component {
   constructor (props) {
     super(props)
+    const params = this.props.userParams
     this.state = {
-      param_hashtags: '',
-      param_usernames: '',
-      param_blacklist_hashtags: '',
-      param_blacklist_usernames: '',
-      param_like_mode: false,
-      param_follow_mode: false,
-      param_longitude: '',
-      param_latitude: '',
-      param_timezone: ''
+      param_hashtags: params.param_hashtags.toString(),
+      param_usernames: params.param_usernames.toString(),
+      param_blacklist_hashtags: params.param_blacklist_hashtags.toString(),
+      param_blacklist_usernames: params.param_blacklist_usernames.toString(),
+      param_like_mode: params.param_like_mode,
+      param_follow_mode: params.param_follow_mode,
+      param_longitude: params.param_longitude,
+      param_latitude: params.param_latitude,
+      param_timezone: params.param_timezone
     }
 
     this.handleChange = this.handleChange.bind(this)
     this.handleCheckbox = this.handleCheckbox.bind(this)
     this.saveParams = this.saveParams.bind(this)
-  }
-
-  componentDidMount () {
-    axios.post('/api/current_params', { email: this.props.user.email })
-    .then(res => {
-      if (res.data !== '') {
-        const data = res.data
-        this.setState({
-          param_hashtags: data.param_hashtags.toString(),
-          param_usernames: data.param_usernames.toString(),
-          param_blacklist_hashtags: data.param_blacklist_hashtags.toString(),
-          param_blacklist_usernames: data.param_blacklist_usernames.toString(),
-          param_like_mode: data.param_like_mode,
-          param_follow_mode: data.param_follow_mode,
-          param_longitude: data.param_longitude,
-          param_latitude: data.param_latitude,
-          param_timezone: data.param_timezone
-        })
-      }
-    })
-    .catch(error => {
-      console.log(error)
-    })
   }
 
   handleChange (event) {
@@ -87,8 +65,9 @@ class ParamsForm extends Component {
   }
 
   render () {
+    console.log(this.state)
     return (
-      <div>
+      <div id='settings-toolbar' className='toolbar'>
         <TimezonePicker
           style={{width: '100%'}}
           value={this.state.param_timezone}
@@ -100,6 +79,7 @@ class ParamsForm extends Component {
             name: 'timezone'
           }}
         />
+
         <Autocomplete
           style={{width: '100%'}}
           onPlaceSelected={place => {
@@ -110,6 +90,7 @@ class ParamsForm extends Component {
           }}
           types={['(cities)']}
         />
+
         <form id='params-form' onSubmit={this.saveParams}>
           <label htmlFor='param_like_mode'>Like Mode: </label>
           <input
@@ -165,9 +146,10 @@ class ParamsForm extends Component {
           />
           <input type='submit' value='Save' />
         </form>
+
       </div>
     )
   }
 }
 
-export default ParamsForm
+export default SettingsToolbar

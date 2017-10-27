@@ -1,11 +1,24 @@
 import axios from 'axios'
-import { FETCH_USER, FETCH_USER_STATS } from './types'
+import { FETCH_USER, FETCH_USER_STATS, FETCH_USER_PARAMS } from './types'
 
-export const fetchUserStats = () => {
+export const fetchUserStats = (email) => {
   return function (dispatch, email) {
-    axios.get('/stats/latest', email)
+    axios.get('/api/stats', { email })
       .then(res => dispatch({
         type: FETCH_USER_STATS,
+        payload: res.data
+      }))
+      .catch(err => {
+        console.log(err)
+      })
+  }
+}
+
+export const fetchUserParams = (email) => {
+  return function (dispatch, email) {
+    axios.get('/api/current_params', { email })
+      .then(res => dispatch({
+        type: FETCH_USER_PARAMS,
         payload: res.data
       }))
       .catch(err => {

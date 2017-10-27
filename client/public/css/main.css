@@ -51,7 +51,7 @@
 .spinner-wrapper {
   height: calc(100% - 64px);
   width: 100%;
-  position: absolute;
+  position: fixed;
   left: 0;
   right: 0;
   display: flex;
@@ -93,3 +93,5 @@ nav {
   width: 200px;
   height: 100%;
   border-right: 1px solid lightgrey; }
+
+/*# sourceMappingURL=main.css.map */

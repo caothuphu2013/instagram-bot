@@ -94,7 +94,7 @@ module.exports = app => {
     })
   })
 
-  app.post('/api/current_params', requireLogin, (req, res) => {
+  app.get('/api/current_params', requireLogin, (req, res) => {
     const currentParams = UserParameters.findOne({ email: req.user.email }).exec()
 
     currentParams.then(params => {
