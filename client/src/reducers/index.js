@@ -1,8 +1,8 @@
 import { combineReducers } from 'redux'
 import authReducer from './authReducer'
-import instagramApiReducer from './instagramApiReducer'
+import userStatsReducer from './userStatsReducer'
 
 export default combineReducers({
   authenticatedUser: authReducer,
-  igAPI: instagramApiReducer
+  userStats: userStatsReducer
 })

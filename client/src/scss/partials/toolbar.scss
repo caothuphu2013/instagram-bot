@@ -1,0 +1,37 @@
+.toolbar-container {
+  width: calc(100% - 200px);
+  height: 100%;
+  float: right;
+  padding: 40px;
+
+  .toolbar {
+    @include box-shadow;
+    border-radius: 10px;
+    background: white;
+    padding: 20px;
+    width: 100%;
+    margin-bottom: 20px;
+  }
+}
+
+#instagram-toolbar {
+  @include box-shadow;
+  .profile-pic {
+    height: 80px;
+    width: 80px;
+    background-size: cover;
+    background-position: 50% 50%;
+    border-radius: 99px;
+  }
+
+  ul {
+    display: flex;
+    align-items: center;
+    margin: 0;
+
+    li {
+      display: inline-block;
+      padding: 10px;
+    }
+  }
+}

@@ -9,8 +9,14 @@
 // @import "helpers/_responsive";
 
 /*--------------------------------------
-         IMPORT LAYOUT
+         IMPORT layout
 ---------------------------------------*/
-@import "layout/toolbar";
-@import "layout/spinner";
-@import "layout/overlay";
+@import "layout/dashboard";
+
+/*--------------------------------------
+         IMPORT partials
+---------------------------------------*/
+@import "partials/toolbar";
+@import "partials/spinner";
+@import "partials/overlay";
+@import "partials/menubar";

@@ -5,27 +5,46 @@
          MIXINS
 ---------------------------------------*/
 /*--------------------------------------
-         IMPORT LAYOUT
+         IMPORT layout
 ---------------------------------------*/
-.toolbar {
+#dashboard {
+  width: 100%;
+  position: relative;
+  height: calc(100vh - 64px); }
+
+/*--------------------------------------
+         IMPORT partials
+---------------------------------------*/
+.toolbar-container {
+  width: calc(100% - 200px);
+  height: 100%;
+  float: right;
+  padding: 40px; }
+  .toolbar-container .toolbar {
+    -webkit-box-shadow: 0 1px 2px 1px rgba(59, 59, 59, 0.4);
+    -moz-box-shadow: 0 1px 2px 1px rgba(59, 59, 59, 0.4);
+    box-shadow: 0 1px 2px 1px rgba(59, 59, 59, 0.4);
+    border-radius: 10px;
+    background: white;
+    padding: 20px;
+    width: 100%;
+    margin-bottom: 20px; }
+
+#instagram-toolbar {
   -webkit-box-shadow: 0 1px 2px 1px rgba(59, 59, 59, 0.4);
   -moz-box-shadow: 0 1px 2px 1px rgba(59, 59, 59, 0.4);
-  box-shadow: 0 1px 2px 1px rgba(59, 59, 59, 0.4);
-  border-radius: 10px;
-  background: white;
-  padding: 20px;
-  width: 100%;
-  margin: 20px 0; }
-  .toolbar#instagram-toolbar .profile-pic {
+  box-shadow: 0 1px 2px 1px rgba(59, 59, 59, 0.4); }
+  #instagram-toolbar .profile-pic {
     height: 80px;
     width: 80px;
     background-size: cover;
     background-position: 50% 50%;
     border-radius: 99px; }
-  .toolbar#instagram-toolbar ul {
+  #instagram-toolbar ul {
     display: flex;
-    align-items: center; }
-    .toolbar#instagram-toolbar ul li {
+    align-items: center;
+    margin: 0; }
+    #instagram-toolbar ul li {
       display: inline-block;
       padding: 10px; }
 
@@ -69,4 +88,8 @@
 nav {
   background-color: lightgrey !important; }
 
-/*# sourceMappingURL=main.css.map */
+#menu-bar {
+  float: left;
+  width: 200px;
+  height: 100%;
+  border-right: 1px solid lightgrey; }

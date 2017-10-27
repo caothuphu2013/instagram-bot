@@ -13,9 +13,7 @@ class runParams extends Component {
   componentDidMount () {
     axios.post('/api/current_params', { email: this.props.user.email })
       .then(res => {
-        if (res.data !== '') {
-          this.setState({ running: res.data.param_automator_running })
-        }
+        if (res.data !== '') this.setState({ running: res.data.param_automator_running })
       })
       .catch(error => {
         console.log(error)

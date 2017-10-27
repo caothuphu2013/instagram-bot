@@ -10,7 +10,6 @@ import Landing from './client/landing/Landing'
 class App extends Component {
   componentDidMount () {
     this.props.fetchUser()
-    this.props.fetchUserAccessToken()
   }
 
   renderContent () {
@@ -18,10 +17,8 @@ class App extends Component {
       return (
         <div>
           <AdminHeader />
-          <div className='container'>
-            <Route path='/dashboard' component={Dashboard} />
-            <Redirect from='/' to='/dashboard' exact />
-          </div>
+          <Route path='/dashboard' component={Dashboard} />
+          <Redirect from='/' to='/dashboard' exact />
         </div>
       )
     } else {

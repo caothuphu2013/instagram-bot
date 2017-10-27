@@ -1,3 +1,4 @@
+const findOrCreate = require('mongoose-find-or-create')
 const mongoose = require('mongoose')
 const { Schema } = mongoose
 
@@ -18,5 +19,7 @@ const userParameters = new Schema({
   user_id: String,
   email: String
 })
+
+userParameters.plugin(findOrCreate)
 
 mongoose.model('user_parameters', userParameters)

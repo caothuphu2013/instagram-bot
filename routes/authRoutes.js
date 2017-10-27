@@ -2,7 +2,6 @@ const passport = require('passport')
 const mongoose = require('mongoose')
 mongoose.Promise = require('bluebird')
 const crypto = require('crypto')
-// const nodeMailer = require('../services/nodeMailer')
 const User = require('../models/User')
 const Stats = require('../models/Stats')
 const ig = require('instagram-node').instagram()
@@ -142,8 +141,7 @@ module.exports = (app) => {
     })
 
   // verify user email
-  app.get('/auth/verify', (req, res) => {
-  })
+  app.get('/auth/verify', (req, res) => {})
 
   // reset password
   app.get('/auth/reset_password', (req, res) => {})

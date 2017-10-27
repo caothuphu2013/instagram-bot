@@ -36,6 +36,7 @@ app.use(passport.initialize())
 app.use(passport.session())
 
 // routes
+require('./routes/statsRoutes')(app)
 require('./routes/authRoutes')(app)
 require('./routes/billingRoutes')(app)
 require('./routes/igAPIRoutes')(app)

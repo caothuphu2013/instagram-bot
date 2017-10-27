@@ -28,6 +28,7 @@ exports.automate = (params) => {
   // Interval Function
   -------------------------*/
   let likesPerHour = 0
+  let followsPerHour = 0
   let skip = 5
 
   let locationIDs
@@ -44,13 +45,13 @@ exports.automate = (params) => {
     /*       LOCATIONS DATA         */
     /********************************/
     // get location IDs based off latitude and longitude coordinates
-    // locationIDs = (latitude && longitude) && await locationSearch()
+    locationIDs = (latitude && longitude) && await locationSearch()
     // // get recent media IDs based off location IDs
-    // if (locationIDs) {
-    //   for (var z = 0; z < locationIDs.length; z++) {
-    //     locationMediaIDs.push(await locationRecentMedia(locationIDs[z]))
-    //   }
-    // }
+    if (locationIDs) {
+      for (var z = 0; z < locationIDs.length; z++) {
+        locationMediaIDs.push(await locationRecentMedia(locationIDs[z]))
+      }
+    }
 
     /********************************/
     /*       USERNAMES DATA         */
@@ -78,17 +79,15 @@ exports.automate = (params) => {
       }
     }
 
-    console.log(userIDsWhoFollowUsernames)
-
     // /********************************/
     /*       HASHTAGS DATA          */
     /********************************/
     // get recent media IDs based from hashtags
-    // if (hashtags[0] !== '') {
-    //   for (var d = 0; d < hashtags.length; d++) {
-    //     hashtagRecentMediaIDs.push(await recentHashtagMedia(hashtags[d]))
-    //   }
-    // }
+    if (hashtags[0] !== '') {
+      for (var d = 0; d < hashtags.length; d++) {
+        hashtagRecentMediaIDs.push(await recentHashtagMedia(hashtags[d]))
+      }
+    }
     //
     // console.log(locationIDs)
     // console.log(locationMediaIDs)
@@ -108,35 +107,40 @@ exports.automate = (params) => {
           for (var yy = 0; yy < locationMediaIDs[y].length; yy += skip) {
             if (await addLike(locationMediaIDs[y][yy]) === 200) {
               likesPerHour++
-              console.log('add location like worked')
+              console.log('added location like')
             }
           }
         }
       }
     }
+  }
 
-    // if (userIDsWhoFollowUsernames.length > 0) {
-    //   for (var z = 0; z < userIDsWhoFollowUsernames.length; z++) {
-    //     if (userIDsWhoFollowUsernames[z].length > 0) {
-    //       for (var zz = 0; zz < userIDsWhoFollowUsernames[z].length; zz += skip) {
-    //         // if (await requestToFollow(userIDsWhoFollowUsernames[z][zz]) === 200) {
-    //         //   likesPerHour++
-    //         //   console.log('add location like worked')
-    //         // }
-    //       }
-    //     }
-    //   }
-    // }
+  async function addFollows () {
+    /********************************/
+    /*       USERNAMES DATA         */
+    /********************************/
+    // loop through user IDs who follow usernames given and request to follow
+    if (userIDsWhoFollowUsernames.length > 0) {
+      for (var z = 0; z < userIDsWhoFollowUsernames.length; z++) {
+        if (userIDsWhoFollowUsernames[z].length > 0) {
+          for (var zz = 0; zz < userIDsWhoFollowUsernames[z].length; zz += skip) {
+            // if (await requestToFollow(userIDsWhoFollowUsernames[z][zz]) === 200) {
+            //   followsPerHour++
+            //   console.log('add location like worked')
+            // }
+          }
+        }
+      }
+    }
   }
 
   async function automate () {
     await getData()
     await addLikes()
+    await addFollows()
   }
 
   // automate()
-
-  requestToFollow('20516057')
 
   /********************************/
   /*           HELPERS            */
