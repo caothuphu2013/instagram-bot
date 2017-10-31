@@ -68,6 +68,7 @@ class Dashboard extends Component {
             spinnify={this.spinnify.bind(this)}
           />
           <SettingsToolbar
+            user={this.props.authenticatedUser}
             userParams={this.props.userParams}
             toastify={this.toastify.bind(this)}
             spinnify={this.spinnify.bind(this)}

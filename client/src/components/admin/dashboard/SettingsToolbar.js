@@ -14,9 +14,9 @@ class SettingsToolbar extends Component {
       param_blacklist_usernames: params.param_blacklist_usernames.toString(),
       param_like_mode: params.param_like_mode,
       param_follow_mode: params.param_follow_mode,
-      param_longitude: params.param_longitude,
-      param_latitude: params.param_latitude,
-      param_timezone: params.param_timezone
+      param_timezone: params.param_timezone,
+      param_longitude: '',
+      param_latitude: ''
     }
 
     this.handleChange = this.handleChange.bind(this)
@@ -54,18 +54,15 @@ class SettingsToolbar extends Component {
     })
     .then(response => {
       this.props.spinnify()
-      this.props.toastify('Successfully saved!')
-      console.log(response)
+      this.props.toastify(response.data)
     })
     .catch(error => {
-      console.log(error)
       this.props.spinnify()
-      this.props.toastify('There was an error please try again')
+      this.props.toastify(error.data)
     })
   }
 
   render () {
-    console.log(this.state)
     return (
       <div id='settings-toolbar' className='toolbar'>
         <TimezonePicker

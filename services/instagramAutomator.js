@@ -1,9 +1,13 @@
 const axios = require('axios')
 const keys = require('../config/keys')
-const determine = require('./determineParameters')
+const mongoose = require('mongoose')
+mongoose.Promise = require('bluebird')
+const Stats = mongoose.model('stats')
+const moment = require('moment-timezone')
 
 exports.automate = (params) => {
   // account
+  const userEmail = params.email
   const instagramID = params.instagram_id
   const accessToken = params.access_token
   const instagramUsername = params.username
@@ -19,17 +23,20 @@ exports.automate = (params) => {
   const longitude = params.param_longitude
   const latitude = params.param_latitude
   const timezone = params.param_timezone
+  const localHour = Number(moment().tz(timezone).format().split('T')[1].split(':')[0])
   // intervals
   const perHour = (process.env.NODE_ENV === 'production') ? 60 : 30
   const oneHour = 3600000
   const globalRateLimit = keys.globalRateLimit // 500 sandbox / 5000 prod
 
   /*-----------------------
-  // Interval Function
+  //  Automator Variables
   -------------------------*/
   let likesPerHour = 0
   let followsPerHour = 0
+  let apiCallsPerHour = 0
   let skip = 5
+  let abort = false
 
   let locationIDs
   let locationMediaIDs = []
@@ -39,13 +46,29 @@ exports.automate = (params) => {
   let userIDsWhoFollowUsernames = []
 
   let hashtagRecentMediaIDs = []
+  console.log('start: ' + likesPerHour)
 
+  /*-------------------------
+  //  START AUTOMATOR      //
+  -------------------------*/
+  // check if timezone parameter is in place, if not automatically run automate()
+  // if so, check if the localHour is before 10pm and after 7am, when it is run automate()
+  if (timezone !== '') {
+    if (localHour < 20 && localHour > 7) automate()
+  } else {
+    automate()
+  }
+
+
+  /*-------------------------
+  //  AUTOMATOR PROCESS    //
+  -------------------------*/
   async function getData () {
     /********************************/
     /*       LOCATIONS DATA         */
     /********************************/
     // get location IDs based off latitude and longitude coordinates
-    locationIDs = (latitude && longitude) && await locationSearch()
+    locationIDs = (latitude !== '' && longitude !== '') && await locationSearch()
     // // get recent media IDs based off location IDs
     if (locationIDs) {
       for (var z = 0; z < locationIDs.length; z++) {
@@ -62,7 +85,7 @@ exports.automate = (params) => {
         usernameIDs.push(await userSearch(usernames[a]))
       }
     }
-    // // get recent media IDs based from the username IDs
+    // get recent media IDs based from the username IDs
     if (usernameIDs) {
       for (var b = 0; b < usernames.length; b++) {
         userRecentMediaIDs.push(await userRecentMedia(usernameIDs[b]))
@@ -98,7 +121,7 @@ exports.automate = (params) => {
 
   async function addLikes () {
     /********************************/
-    /*       LOCATIONS DATA         */
+    /*       LOCATION LIKES         */
     /********************************/
     // loop through location Media IDs and like posts
     if (locationMediaIDs.length > 0) {
@@ -113,9 +136,26 @@ exports.automate = (params) => {
         }
       }
     }
+
+    /********************************/
+    /*  USERS RECENT MEDIA LIKES    */
+    /********************************/
+    // loop through given usernames recent media
+    if (userRecentMediaIDs.length > 0) {
+      for (var x = 0; x < userRecentMediaIDs.length; x++) {
+        if (userRecentMediaIDs[x].length > 0) {
+          for (var xx = 0; xx < userRecentMediaIDs[x].length; xx += skip) {
+            if (await addLike(userRecentMediaIDs[x][xx]) === 200) {
+              likesPerHour++
+              console.log('added users recent media like')
+            }
+          }
+        }
+      }
+    }
   }
 
-  async function addFollows () {
+  function addFollows () {
     /********************************/
     /*       USERNAMES DATA         */
     /********************************/
@@ -123,7 +163,8 @@ exports.automate = (params) => {
     if (userIDsWhoFollowUsernames.length > 0) {
       for (var z = 0; z < userIDsWhoFollowUsernames.length; z++) {
         if (userIDsWhoFollowUsernames[z].length > 0) {
-          for (var zz = 0; zz < userIDsWhoFollowUsernames[z].length; zz += skip) {
+          for (var zz = 0; zz < userIDsWhoFollowUsernames[z].length; zz++) {
+            console.log(userIDsWhoFollowUsernames[z])
             // if (await requestToFollow(userIDsWhoFollowUsernames[z][zz]) === 200) {
             //   followsPerHour++
             //   console.log('add location like worked')
@@ -134,13 +175,32 @@ exports.automate = (params) => {
     }
   }
 
-  async function automate () {
-    await getData()
-    if (likeMode) await addLikes()
-    if (followMode) await addFollows()
+  function finishAutomation () {
+    const saveData = Stats.findOneAndUpdate(
+      { email: userEmail },
+      {
+        $inc: {
+          instagram_likes_since_lastLogin: likesPerHour,
+          instagram_follows_requested_since_lastLogin: followsPerHour
+        }
+      },
+      { returnNewDocument: true, upsert: true }).exec()
+
+    saveData.then(params => {
+        console.log('finish: ' + likesPerHour)
+        console.log('finish: ' + perHour)
+        // if (likesPerHour < perHour && followsPerHour < perHour) automate()
+      }).catch(err => {
+        console.log(err)
+      })
   }
 
-  // automate()
+  async function automate () {
+    if (!abort) await getData()
+    if (!abort && likeMode) await addLikes()
+    if (!abort && followMode) await addFollows()
+    if (!abort) await finishAutomation()
+  }
 
   /********************************/
   /*           HELPERS            */
@@ -170,10 +230,11 @@ exports.automate = (params) => {
       params: { lat: latitude, lng: longitude, access_token: accessToken }
     })
     .then(res => {
+      apiCallsPerHour++
       return res.data.data.map(data => data.id)
     })
     .catch(err => {
-      console.log('location search err: ' + err)
+      if (err.response.data.error_type === 'OAuthRateLimitException') abort = true
     })
   }
 
@@ -183,12 +244,13 @@ exports.automate = (params) => {
       params: { access_token: accessToken }
     })
     .then(res => {
+      apiCallsPerHour++
       return res.data.data
         .filter(data => doesntHaveBlacklistTags(data.tags))
         .map(data => data.id)
     })
     .catch(err => {
-      console.log('location search err: ' + err)
+      if (err.response.data.error_type === 'OAuthRateLimitException') abort = true
     })
   }
 
@@ -240,12 +302,13 @@ exports.automate = (params) => {
       params: { access_token: accessToken }
     })
     .then(res => {
+      apiCallsPerHour++
       return res.data.data
         .filter(data => doesntHaveBlacklistTags(data.tags))
         .map(data => data.id)
     })
     .catch(err => {
-      console.log('err: ' + err)
+      if (err.response.data.error_type === 'OAuthRateLimitException') abort = true
     })
   }
 
@@ -255,10 +318,12 @@ exports.automate = (params) => {
       params: { q: username, access_token: accessToken }
     })
     .then(res => {
+      apiCallsPerHour++
       return res.data.data[0].id
     })
     .catch(err => {
       console.log('user search err: ' + err)
+      if (err.response.data.error_type === 'OAuthRateLimitException') abort = true
     })
   }
 
@@ -270,6 +335,7 @@ exports.automate = (params) => {
       params: { access_token: accessToken }
     })
     .then(res => {
+      apiCallsPerHour++
       // return res.data.data
       //   .filter(data => doesntHaveBlacklistTags(data.tags))
       //   .map(data => data.id)
@@ -277,6 +343,7 @@ exports.automate = (params) => {
     })
     .catch(err => {
       console.log('recent hashtags err: ' + err)
+      if (err.response.data.error_type === 'OAuthRateLimitException') abort = true
     })
   }
 
@@ -285,8 +352,14 @@ exports.automate = (params) => {
   /********************************/
   function addLike (mediaID) {
     return axios.post(`https://api.instagram.com/v1/media/${mediaID}/likes?access_token=${accessToken}`)
-    .then(res => res.data.meta.code)
-    .catch(err => err)
+    .then(res => {
+      apiCallsPerHour++
+      return res.data.meta.code
+    })
+    .catch(err => {
+      console.log('add like error: ' + err)
+      if (err.response.data.error_type === 'OAuthRateLimitException') abort = true
+    })
   }
 
   function usersWhoLikedThisMedia (mediaID) {
@@ -294,12 +367,14 @@ exports.automate = (params) => {
       params: { access_token: accessToken }
     })
     .then(res => {
+      apiCallsPerHour++
       return res.data.data
         .filter(data => doesntHaveBlacklistUsernames(data.username))
         .map(data => data.id)
     })
     .catch(err => {
       console.log('usersWhoLikedThisMedia err: ' + err)
+      if (err.response.data.error_type === 'OAuthRateLimitException') abort = true
     })
   }
 
@@ -311,17 +386,25 @@ exports.automate = (params) => {
       params: { access_token: accessToken }
     })
     .then(res => {
+      apiCallsPerHour++
       console.log(res.data.data)
     })
     .catch(err => {
-      console.log('usersWhoLikedThisMedia err: ' + err)
+      console.log('get relationship err: ' + err)
+      if (err.response.data.error_type === 'OAuthRateLimitException') abort = true
     })
   }
 
   function requestToFollow (usernameID) {
-    axios.post(`https://api.instagram.com/v1/users/${usernameID}/relationship?access_token=${accessToken}`, {'action': 'follow'})
-    .then(res => console.log(res))
-    .catch(err => console.log(err))
+    return axios.post(`https://api.instagram.com/v1/users/${usernameID}/relationship?access_token=${accessToken}?`, { action: 'follow' })
+    .then(res => {
+      apiCallsPerHour++
+      console.log(res)
+    })
+    .catch(err => {
+      console.log(err)
+      if (err.response.data.error_type === 'OAuthRateLimitException') abort = true
+    })
   }
 
   /********************************/
@@ -332,12 +415,14 @@ exports.automate = (params) => {
       params: { access_token: accessToken }
     })
     .then(res => {
+      apiCallsPerHour++
       return res.data.data
         .filter(data => doesntHaveBlacklistTags(data.tags))
         .map(data => data.id)
     })
     .catch(err => {
       console.log('recent hashtags err: ' + err)
+      if (err.response.data.error_type === 'OAuthRateLimitException') abort = true
     })
   }
 }

@@ -4,6 +4,7 @@ const mongoose = require('mongoose')
 mongoose.Promise = require('bluebird')
 const UserParameters = mongoose.model('user_parameters')
 const Instagram = require('../services/instagramAutomator')
+const axios = require('axios')
 const keys = require('../config/keys')
 
 module.exports = app => {
@@ -49,16 +50,39 @@ module.exports = app => {
       email
     }
 
-    const saveParams = UserParameters.findOneAndUpdate(
-      { email },
-      params,
-      { new: true, upsert: true }).exec()
+    function userSearch (username) {
+      return axios.get('https://api.instagram.com/v1/users/search', {
+        params: { q: username, access_token }
+      })
+      .then(res => {
+        return res.data.data[0].id
+      })
+      .catch(err => {
+        return false
+      })
+    }
 
-    saveParams.then(params => {
-      res.status(200).send(params)
-    }).catch(err => {
-      res.status(500).send(err)
-    })
+    // check if given usernames exist
+    (async function () {
+      if (param_usernames[0] !== '') {
+        for (var a = 0; a < param_usernames.length; a++) {
+          if (await userSearch(param_usernames[a]) === false) {
+            return res.send('One of the usernames saved does not exist. Please check your spelling.')
+          }
+        }
+      }
+
+      const saveParams = UserParameters.findOneAndUpdate(
+        { email },
+        params,
+        { new: true, upsert: true }).exec()
+
+      saveParams.then(params => {
+        res.status(200).send('Successfully saved new settings.')
+      }).catch(err => {
+        res.status(500).send('There was an error saving settings, please try again.')
+      })
+    })()
   })
 
   let intervals = {}

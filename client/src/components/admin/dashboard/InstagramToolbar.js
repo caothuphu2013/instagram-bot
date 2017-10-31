@@ -14,12 +14,7 @@ class InstagramToolbar extends Component {
       return (
         <div style={{ display: 'flex' }}>
           <div>
-            <ul>
-              <li><div className='profile-pic' style={{ backgroundImage }} /></li>
-              <li><p>{this.props.authenticatedUser.instagram_username}</p></li>
-              <li><p>Following: {this.props.authenticatedUser.instagram_current_following}</p></li>
-              <li><p>Followers: {this.props.authenticatedUser.instagram_current_followers}</p></li>
-            </ul>
+
           </div>
           <div>
             <StartParams
@@ -47,3 +42,12 @@ function mapStateToProps ({ authenticatedUser }) {
 }
 
 export default connect(mapStateToProps)(InstagramToolbar)
+
+{/*
+  <ul>
+    <li><div className='profile-pic' style={{ backgroundImage }} /></li>
+    <li><p>{this.props.authenticatedUser.instagram_username}</p></li>
+    <li><p>Following: {this.props.authenticatedUser.instagram_current_following}</p></li>
+    <li><p>Followers: {this.props.authenticatedUser.instagram_current_followers}</p></li>
+  </ul>
+   */}
