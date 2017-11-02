@@ -1,15 +1,16 @@
 const mongoose = require('mongoose')
 mongoose.Promise = require('bluebird')
-const Stats = require('../models/Stats')
+const InstagramAccount = require('../models/InstagramAccount')
 
 module.exports = (app) => {
-  // get latest stats
+  // get latest InstagramAccount
   app.get('/api/stats', (req, res) => {
-    const getStats = Stats.findOne(
+    const getInstagramAccount = InstagramAccount.findOne(
       { email: req.user.email }).exec()
 
-    getStats.then(stats => {
-      res.status(200).send(stats)
+    getInstagramAccount.then(InstagramAccount => {
+      console.log(InstagramAccount)
+      res.status(200).send(InstagramAccount)
     }).catch(err => {
       res.status(500).send(err)
     })

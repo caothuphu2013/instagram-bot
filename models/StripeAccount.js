@@ -10,7 +10,9 @@ const StripeAccount = new Schema({
   stripe_customer_id: String,
   stripe_email: String,
   stripe_subscription_id: String,
-  stripe_token: String
+  stripe_token: String,
+  stripe_current_period_end: Number,
+  stripe_current_period_start: Number
 })
 
 StripeAccount.plugin(findOrCreate)

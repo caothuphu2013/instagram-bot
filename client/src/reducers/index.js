@@ -5,6 +5,6 @@ import userParamsReducer from './userParamsReducer'
 
 export default combineReducers({
   authenticatedUser: authReducer,
-  userStats: userStatsReducer,
+  userInstagramStats: userStatsReducer,
   userParams: userParamsReducer
 })

@@ -10,7 +10,7 @@ module.exports = (app) => {
     // CHECK IF STRIPE CUSTOMER EXISTS INSTEAD
     User.findOne({ email: req.user.email }, (err, user) => {
       if (err) return res.status(400).send(err)
-      console.log(user)
+
       if (user.paid === true || user.stripe_email !== '') {
         return res.status(200).send('This user is already subscribed')
       } else {
@@ -22,7 +22,6 @@ module.exports = (app) => {
             console.log('customer error: ' + err)
             res.status(500).send(err)
           } else {
-            console.log('customer: ' + customer)
             subscribe(customer)
           }
         })
@@ -36,8 +35,7 @@ module.exports = (app) => {
               console.log('subscription error: ' + err)
               res.status(500).send(err)
             } else {
-              console.log('subscription: ' + subscription)
-              console.log(customer)
+              console.log(subscription)
               updateUserModel(customer, subscription)
             }
           })
@@ -61,7 +59,9 @@ module.exports = (app) => {
               stripe_customer_id: customer.id,
               stripe_email: customer.email,
               stripe_subscription_id: subscription.id,
-              stripe_token: req.body.token.id
+              stripe_token: req.body.token.id,
+              stripe_current_period_end: subscription.current_period_end,
+              stripe_current_period_start: subscription.current_period_start
             }, (err, result) => {
               if (err) return res.status(500).send(err)
 

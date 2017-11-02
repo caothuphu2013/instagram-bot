@@ -1,5 +1,4 @@
 import React, { Component } from 'react'
-import { connect } from 'react-redux'
 
 class StripeToolbar extends Component {
   constructor (props) {
@@ -13,7 +12,8 @@ class StripeToolbar extends Component {
   }
 
   renderContent () {
-    if (this.props.authenticatedUser.paid) {
+    console.log(this.props.user)
+    if (this.props.user.paid) {
       return (
         <div>Paid</div>
       )
@@ -37,8 +37,4 @@ class StripeToolbar extends Component {
   }
 }
 
-function mapStateToProps ({ authenticatedUser }) {
-  return { authenticatedUser }
-}
-
-export default connect(mapStateToProps)(StripeToolbar)
+export default StripeToolbar

@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { FETCH_USER, FETCH_USER_STATS, FETCH_USER_PARAMS } from './types'
 
-export const fetchUserStats = (email) => {
+export const fetchUserInstagramStats = (email) => {
   return function (dispatch, email) {
     axios.get('/api/stats', { email })
       .then(res => dispatch({
@@ -43,7 +43,7 @@ export const handleToken = token => async dispatch => {
   })
 }
 
-// export const fetchUserStats = () => async dispatch => {
+// export const fetchuserInstagramStats = () => async dispatch => {
 //   const res = await axios.get('/stats/latest')
 //   dispatch({
 //     type: FETCH_USER_STATS,

@@ -1,0 +1,14 @@
+#onboarding {
+  height: 100%; }
+  #onboarding .slick-slider {
+    height: 100%; }
+    #onboarding .slick-slider .slick-list {
+      height: 100% !important; }
+      #onboarding .slick-slider .slick-list .slick-track {
+        height: 100%; }
+        #onboarding .slick-slider .slick-list .slick-track .slick-slide {
+          height: 100%; }
+          #onboarding .slick-slider .slick-list .slick-track .slick-slide .container, #onboarding .slick-slider .slick-list .slick-track .slick-slide .row, #onboarding .slick-slider .slick-list .slick-track .slick-slide .slide {
+            height: 100%; }
+  #onboarding .slick-arrow {
+    background: black; }

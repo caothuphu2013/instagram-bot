@@ -2,8 +2,8 @@ const passport = require('passport')
 const mongoose = require('mongoose')
 mongoose.Promise = require('bluebird')
 const crypto = require('crypto')
+const InstagramAccount = require('../models/InstagramAccount')
 const User = require('../models/User')
-const Stats = require('../models/Stats')
 const ig = require('instagram-node').instagram()
 
 module.exports = (app) => {
@@ -21,18 +21,11 @@ module.exports = (app) => {
       last_login: null,
       random_hash: crypto.randomBytes(20).toString('hex'),
       verified: false,
-      paid: false,
       instagram_accessToken: '',
       instagram_id: '',
-      instagram_displayName: '',
       instagram_username: '',
-      instagram_profile_picture: '',
-      instagram_bio: '',
-      instagram_media: null,
       instagram_current_following: null,
       instagram_current_followers: null,
-      instagram_lastLogin_following: null,
-      instagram_lastLogin_followers: null,
       stripe_customer_id: '',
       stripe_email: '',
       stripe_subscription_id: '',
@@ -55,78 +48,48 @@ module.exports = (app) => {
   app.post('/auth/login', (req, res) => {
     User.authenticate()(req.body.email, req.body.password, (err, user, options) => {
       if (err) return res.send(err)
-      if (user === false) {
-        res.send({
-          message: options.message,
-          success: false
-        })
-      } else {
-        req.login(user, (err) => {
+
+      req.login(user, (err) => {
+        if (err) return res.send(err)
+
+        // make instagram api call to get users latest data
+        ig.use({ access_token: user.instagram_accessToken })
+        ig.user(user.instagram_id, (err, medias, pagination, remaining, limit) => {
           if (err) return res.send(err)
 
-          if (user.instagram_id !== '') {
-            // make instagram api call to get users latest data
-            ig.use({ access_token: user.instagram_accessToken })
-            ig.user(user.instagram_id, (err, medias, pagination, remaining, limit) => {
-              if (err) res.status(400).send(err)
+          const updateUser = User.findOneAndUpdate(
+            { email: user.email },
+            {
+              last_login: user.current_login,
+              current_login: Date.now()
+            },
+            { new: true, upsert: true }).exec()
 
-              // take latest instagram data and update user in db
-              // and update last login time and current login time
-              const updateUser = User.findOneAndUpdate(
-                { email: user.email },
-                {
-                  last_login: user.current_login,
-                  current_login: Date.now(),
-                  instagram_current_following: medias.counts.follows,
-                  instagram_current_followers: medias.counts.followed_by,
-                  instagram_lastLogin_following: user.instagram_current_following,
-                  instagram_lastLogin_followers: user.instagram_current_followers
-                },
-                { new: true, upsert: true }).exec()
+          updateUser.then(user => {
+            updateInstagramAccount
+          }).catch(err => {
+            res.status(500).send(err)
+          })
 
-              updateUser.then(user => {
-                updateStats
-                // res.status(200).send()
-              }).catch(err => {
-                res.status(500).send(err)
-              })
+          const updateInstagramAccount = InstagramAccount.findOneAndUpdate(
+            { email: user.email },
+            {
+              last_login: user.current_login,
+              current_login: Date.now(),
+              instagram_current_following: medias.counts.follows,
+              instagram_current_followers: medias.counts.followed_by,
+              instagram_lastLogin_following: user.instagram_current_following,
+              instagram_lastLogin_followers: user.instagram_current_followers
+            },
+            { new: true, upsert: true }).exec()
 
-              const updateStats = Stats.findOrCreate(
-                { email: user.email },
-                {
-                  name: user.name,
-                  email: user.email,
-                  last_login: user.current_login,
-                  current_login: Date.now(),
-                  instagram_current_following: medias.counts.follows,
-                  instagram_current_followers: medias.counts.followed_by,
-                  instagram_lastLogin_following: user.instagram_current_following,
-                  instagram_lastLogin_followers: user.instagram_current_followers
-                }, (err, result) => {
-                  if (err) return res.status(500).send(err)
-                  res.status(200).send()
-                  console.log(result)
-                })
-            })
-          } else {
-            // no instagram account linked yet
-            // so just update current login and last login
-            const updateUser = User.findOneAndUpdate(
-              { email: user.email },
-              {
-                last_login: user.current_login,
-                current_login: Date.now()
-              },
-              { new: true, upsert: true }).exec()
-
-            updateUser.then(user => {
-              res.status(200).send()
-            }).catch(err => {
-              res.status(500).send(err)
-            })
-          }
+          updateInstagramAccount.then(user => {
+            res.status(200).send()
+          }).catch(err => {
+            res.status(500).send(err)
+          })
         })
-      }
+      })
     })
   })
 

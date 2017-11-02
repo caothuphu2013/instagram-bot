@@ -9,16 +9,16 @@
   display: flex;
 }
 
-@mixin vertical-align {
-  display: -webkit-box;
-  display: -moz-box;
-  display: -ms-flexbox;
-  // display: -webkit-flex;
-  display: flex;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-}
+// @mixin vertical-align {
+//   display: -webkit-box;
+//   display: -moz-box;
+//   display: -ms-flexbox;
+//   // display: -webkit-flex;
+//   display: flex;
+//   -webkit-box-align: center;
+//   -ms-flex-align: center;
+//   align-items: center;
+// }
 
 @mixin center-align($orientation) {
   display: -webkit-box;
@@ -67,7 +67,6 @@
 }
 
 @mixin vertical-align {
-  position: relative;
   top: 50%;
   -webkit-transform: translateY(-50%);
   -ms-transform: translateY(-50%);

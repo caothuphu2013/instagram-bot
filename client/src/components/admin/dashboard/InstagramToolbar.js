@@ -3,15 +3,9 @@ import { connect } from 'react-redux'
 import StartParams from './StartParams'
 
 class InstagramToolbar extends Component {
-  renderContent () {
-    if (this.props.authenticatedUser.instagram_id === '') {
-      return (
-        <a className='btn' href='/auth/instagram'>Connect</a>
-      )
-    } else {
-      let backgroundImage = `url(${this.props.authenticatedUser.instagram_profile_picture})`
-
-      return (
+  render () {
+    return (
+      <div id='instagram-toolbar'>
         <div style={{ display: 'flex' }}>
           <div>
 
@@ -24,14 +18,6 @@ class InstagramToolbar extends Component {
             />
           </div>
         </div>
-      )
-    }
-  }
-
-  render () {
-    return (
-      <div id='instagram-toolbar'>
-        {this.renderContent()}
       </div>
     )
   }

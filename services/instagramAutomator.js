@@ -4,6 +4,7 @@ const mongoose = require('mongoose')
 mongoose.Promise = require('bluebird')
 const Stats = mongoose.model('stats')
 const moment = require('moment-timezone')
+const fetch = require('node-fetch')
 
 exports.automate = (params) => {
   // account
@@ -46,19 +47,18 @@ exports.automate = (params) => {
   let userIDsWhoFollowUsernames = []
 
   let hashtagRecentMediaIDs = []
-  console.log('start: ' + likesPerHour)
+  // console.log('start: ' + likesPerHour)
 
   /*-------------------------
   //  START AUTOMATOR      //
   -------------------------*/
   // check if timezone parameter is in place, if not automatically run automate()
   // if so, check if the localHour is before 10pm and after 7am, when it is run automate()
-  if (timezone !== '') {
-    if (localHour < 20 && localHour > 7) automate()
-  } else {
-    automate()
-  }
-
+  // if (timezone !== '') {
+  //   if (localHour < 20 && localHour > 7) automate()
+  // } else {
+  //   automate()
+  // }
 
   /*-------------------------
   //  AUTOMATOR PROCESS    //
@@ -116,6 +116,7 @@ exports.automate = (params) => {
     // console.log(locationMediaIDs)
     // console.log(usernameIDs)
     // console.log(userRecentMediaIDs)
+    // console.log(userIDsWhoFollowUsernames)
     // console.log(hashtagRecentMediaIDs)
   }
 
@@ -396,15 +397,23 @@ exports.automate = (params) => {
   }
 
   function requestToFollow (usernameID) {
-    return axios.post(`https://api.instagram.com/v1/users/${usernameID}/relationship?access_token=${accessToken}?`, { action: 'follow' })
-    .then(res => {
-      apiCallsPerHour++
-      console.log(res)
-    })
-    .catch(err => {
-      console.log(err)
-      if (err.response.data.error_type === 'OAuthRateLimitException') abort = true
-    })
+    // return axios.post(`https://api.instagram.com/v1/users/${usernameID}/relationship?access_token=${accessToken}?`, { action: 'follow' })
+    // .then(res => {
+    //   apiCallsPerHour++
+    //   console.log(res)
+    // })
+    // .catch(err => {
+    //   console.log(err)
+    //   if (err.response.data.error_type === 'OAuthRateLimitException') abort = true
+    // })
+    // let action = { 'action': 'follow' }
+    // fetch(`https://api.instagram.com/v1/users/${usernameID}/relationship?access_token=${accessToken}`,
+    //   { method: 'POST', action: 'follow' })
+    // .then(res => {
+    //   console.log(res)
+    // }).catch(err => {
+    //   console.log(err)
+    // })
   }
 
   /********************************/

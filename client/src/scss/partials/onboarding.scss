@@ -1,0 +1,33 @@
+#onboarding {
+  height: 100%;
+
+  .slick-slider {
+    height: 100%;
+
+    .slick-list {
+      height: 100% !important;
+
+      .slick-track {
+        height: 100%;
+
+        .slick-slide {
+          height: 100%;
+
+          .container, .row {
+            height: 100%;
+
+            .slide {
+              height: 50%;
+              position: relative;
+              @include vertical-align;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .slick-arrow {
+    background: black;
+  }
+}
