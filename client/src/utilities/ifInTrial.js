@@ -9,10 +9,8 @@ module.exports = (createdAt, paid) => {
   // const timeDifference = 604800001
 
   if (timeDifference > sevenDays) {
-    console.log('trial has ended')
     return false
-  } else {
-    console.log('still in trial')
-    return true
   }
+
+  return true
 }

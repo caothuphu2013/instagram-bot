@@ -12,7 +12,6 @@ class StripeToolbar extends Component {
   }
 
   renderContent () {
-    console.log(this.props.user)
     if (this.props.user.paid) {
       return (
         <div>Paid</div>

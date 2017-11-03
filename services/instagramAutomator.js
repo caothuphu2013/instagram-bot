@@ -2,7 +2,6 @@ const axios = require('axios')
 const keys = require('../config/keys')
 const mongoose = require('mongoose')
 mongoose.Promise = require('bluebird')
-const Stats = mongoose.model('stats')
 const moment = require('moment-timezone')
 const fetch = require('node-fetch')
 
@@ -177,23 +176,23 @@ exports.automate = (params) => {
   }
 
   function finishAutomation () {
-    const saveData = Stats.findOneAndUpdate(
-      { email: userEmail },
-      {
-        $inc: {
-          instagram_likes_since_lastLogin: likesPerHour,
-          instagram_follows_requested_since_lastLogin: followsPerHour
-        }
-      },
-      { returnNewDocument: true, upsert: true }).exec()
-
-    saveData.then(params => {
-        console.log('finish: ' + likesPerHour)
-        console.log('finish: ' + perHour)
-        // if (likesPerHour < perHour && followsPerHour < perHour) automate()
-      }).catch(err => {
-        console.log(err)
-      })
+    // const saveData = Stats.findOneAndUpdate(
+    //   { email: userEmail },
+    //   {
+    //     $inc: {
+    //       instagram_likes_since_lastLogin: likesPerHour,
+    //       instagram_follows_requested_since_lastLogin: followsPerHour
+    //     }
+    //   },
+    //   { returnNewDocument: true, upsert: true }).exec()
+    //
+    // saveData.then(params => {
+    //     console.log('finish: ' + likesPerHour)
+    //     console.log('finish: ' + perHour)
+    //     // if (likesPerHour < perHour && followsPerHour < perHour) automate()
+    //   }).catch(err => {
+    //     console.log(err)
+    //   })
   }
 
   async function automate () {

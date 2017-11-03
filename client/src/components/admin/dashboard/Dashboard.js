@@ -32,17 +32,21 @@ class showDashboard extends Component {
       showDashboard: false,
       showSpinner: true,
       showOverlay: false,
+      // settingsToolbarVisible: false,
+      // statsToolbarVisible: true,
+      // stripeToolbarVisible: false,
       overlayDescription: 'Your trial has ended, please subscribe to continue service.'
     }
 
     this.returnOverlay = this.returnOverlay.bind(this)
+    // this.toggleMenu = this.toggleMenu.bind(this)
   }
 
   componentWillReceiveProps (nextProps) {
     if (nextProps.authenticatedUser) {
-      if (nextProps.authenticatedUser.created_at === nextProps.authenticatedUser.current_login) {
+      if (!nextProps.userInstagramStats && !nextProps.userParams) {
         this.setState({ showOnBoarding: true, showSpinner: false })
-      } else {
+      } else if (nextProps.userInstagramStats && nextProps.userParams) {
         this.setState({ showDashboard: true, showSpinner: false })
       }
     }
@@ -70,41 +74,66 @@ class showDashboard extends Component {
     }
   }
 
-  renderContent () {
-    if (this.props.authenticatedUser.instagram_accessToken) {
-      return (
-        <div>
-          <InstagramToolbar
-            user={this.props.authenticatedUser}
+  // toggleMenu (state) {
+  //   if (state === 'settingsToolbarVisible') {
+  //     this.setState({
+  //       settingsToolbarVisible: true,
+  //       statsToolbarVisible: false,
+  //       stripeToolbarVisible: false
+  //     })
+  //   } else if (state === 'statsToolbarVisible') {
+  //     this.setState({
+  //       settingsToolbarVisible: false,
+  //       statsToolbarVisible: true,
+  //       stripeToolbarVisible: false
+  //     })
+  //   } else if (state === 'stripeToolbarVisible') {
+  //     this.setState({
+  //       settingsToolbarVisible: false,
+  //       statsToolbarVisible: false,
+  //       stripeToolbarVisible: true
+  //     })
+  //   }
+  // }
+
+  renderDashboard () {
+    return (
+      <div>
+        <InstagramToolbar
+          user={this.props.authenticatedUser}
+          toastify={this.toastify.bind(this)}
+          spinnify={this.spinnify.bind(this)}
+        />
+        <MenuBar />
+        <div className='toolbar-container'>
+          <StatsToolbar
+            userInstagramStats={this.props.userInstagramStats}
             toastify={this.toastify.bind(this)}
             spinnify={this.spinnify.bind(this)}
           />
-          <MenuBar />
-            <div className='toolbar-container'>
-              <StatsToolbar
-                userInstagramStats={this.props.userInstagramStats}
-                toastify={this.toastify.bind(this)}
-                spinnify={this.spinnify.bind(this)}
-              />
-              <StripeToolbar
-                user={this.props.authenticatedUser}
-                toastify={this.toastify.bind(this)}
-                spinnify={this.spinnify.bind(this)}
-                triggerCheckout={() => this.setState({
-                  showOverlay: true,
-                  overlayDescription: 'Subscribe'
-                })}
-              />
-            </div>
+
+          <SettingsToolbar
+            user={this.props.authenticatedUser}
+            userParams={this.props.userParams}
+            toastify={this.toastify.bind(this)}
+            spinnify={this.spinnify.bind(this)}
+          />
+
+          <StripeToolbar
+            user={this.props.authenticatedUser}
+            toastify={this.toastify.bind(this)}
+            spinnify={this.spinnify.bind(this)}
+            triggerCheckout={() => this.setState({
+              showOverlay: true,
+              overlayDescription: 'Subscribe'
+            })}
+          />
         </div>
-      )
-    } else if (this.state.showOnBoarding) {
-      return <OnBoardingSlider />
-    }
+      </div>
+    )
   }
 
   render () {
-    console.log(this.props)
     return (
       <div id='showDashboard'>
         {this.returnOverlay()}
@@ -118,8 +147,8 @@ class showDashboard extends Component {
           closeOnClick
           pauseOnHover
         />
-
-        {this.renderContent()}
+        {(this.state.showOnBoarding) && <OnBoardingSlider />}
+        {(this.state.showDashboard) && this.renderDashboard()}
       </div>
     )
   }
@@ -130,28 +159,3 @@ function mapStateToProps ({ authenticatedUser, userInstagramStats, userParams })
 }
 
 export default connect(mapStateToProps, actions)(showDashboard)
-
-{ /*
-  <div className='toolbar-container'>
-    <StatsToolbar
-      userInstagramStats={this.props.userInstagramStats}
-      toastify={this.toastify.bind(this)}
-      spinnify={this.spinnify.bind(this)}
-    />
-    <SettingsToolbar
-      user={this.props.authenticatedUser}
-      userParams={this.props.userParams}
-      toastify={this.toastify.bind(this)}
-      spinnify={this.spinnify.bind(this)}
-    />
-    <StripeToolbar
-      user={this.props.authenticatedUser}
-      toastify={this.toastify.bind(this)}
-      spinnify={this.spinnify.bind(this)}
-      triggerCheckout={() => this.setState({
-        showOverlay: true,
-        overlayDescription: 'Subscribe'
-      })}
-    />
-  </div>
-*/ }

@@ -2,7 +2,7 @@ const findOrCreate = require('mongoose-find-or-create')
 const mongoose = require('mongoose')
 const { Schema } = mongoose
 
-const userParameters = new Schema({
+const UserParameters = new Schema({
   param_hashtags: Array,
   param_usernames: Array,
   param_blacklist_hashtags: Array,
@@ -13,13 +13,13 @@ const userParameters = new Schema({
   param_longitude: String,
   param_latitude: String,
   param_timezone: String,
-  username: String,
   instagram_id: String,
   access_token: String,
-  user_id: String,
-  email: String
+  name: String,
+  email: String,
+  created_at: Number
 })
 
-userParameters.plugin(findOrCreate)
+UserParameters.plugin(findOrCreate)
 
-mongoose.model('user_parameters', userParameters)
+module.exports = mongoose.model('user_parameters', UserParameters)

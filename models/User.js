@@ -11,6 +11,7 @@ const userSchema = new Schema({
   instagram_username: String,
   instagram_current_following: Number,
   instagram_current_followers: Number,
+  instagram_current_media: Number,
   verified: Boolean,
   random_hash: String,
   created_at: Number,

@@ -1,22 +1,13 @@
 import React, { Component } from 'react'
 
 class MenuBar extends Component {
-  constructor (props) {
-    super(props)
-
-    this.state = {
-      active: ''
-    }
-  }
-
   render () {
     return (
       <div id='menu-bar'>
         <ul>
-          <li>Automation Settings</li>
-          <li>Statistics</li>
-          <li>Add New Account</li>
-          <li>Account & Billing</li>
+          <li><p>Automation Settings</p></li>
+          <li><p>Statistics</p></li>
+          <li><p>Account & Billing</p></li>
         </ul>
       </div>
     )

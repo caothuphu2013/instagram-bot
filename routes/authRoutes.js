@@ -5,6 +5,7 @@ const crypto = require('crypto')
 const InstagramAccount = require('../models/InstagramAccount')
 const User = require('../models/User')
 const ig = require('instagram-node').instagram()
+const moment = require('moment')
 
 module.exports = (app) => {
   // landing page
@@ -26,6 +27,7 @@ module.exports = (app) => {
       instagram_username: '',
       instagram_current_following: null,
       instagram_current_followers: null,
+      instagram_current_media: null,
       stripe_customer_id: '',
       stripe_email: '',
       stripe_subscription_id: '',
@@ -76,6 +78,8 @@ module.exports = (app) => {
             {
               last_login: user.current_login,
               current_login: Date.now(),
+              instagram_current_media: medias.counts.media,
+              instagram_lastLogin_media: user.instagram_current_media,
               instagram_current_following: medias.counts.follows,
               instagram_current_followers: medias.counts.followed_by,
               instagram_lastLogin_following: user.instagram_current_following,
