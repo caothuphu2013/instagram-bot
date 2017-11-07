@@ -11,6 +11,7 @@ import OnBoardingSlider from '../onboarding/OnBoardingSlider'
 // showDashboard
 import InstagramToolbar from './InstagramToolbar'
 import SettingsToolbar from './SettingsToolbar'
+import TargetingToolbar from './TargetingToolbar'
 import StripeToolbar from './StripeToolbar'
 import StatsToolbar from './StatsToolbar'
 import MenuBar from './MenuBar'
@@ -119,6 +120,13 @@ class showDashboard extends Component {
             spinnify={this.spinnify.bind(this)}
           />
 
+          <TargetingToolbar
+            user={this.props.authenticatedUser}
+            userParams={this.props.userParams}
+            toastify={this.toastify.bind(this)}
+            spinnify={this.spinnify.bind(this)}
+          />
+
           <StripeToolbar
             user={this.props.authenticatedUser}
             toastify={this.toastify.bind(this)}
@@ -135,7 +143,7 @@ class showDashboard extends Component {
 
   render () {
     return (
-      <div id='showDashboard'>
+      <div id='dashboard'>
         {this.returnOverlay()}
         {(this.state.showSpinner) && <Spinner />}
         <ToastContainer

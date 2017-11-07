@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import axios from 'axios'
 
-class runParams extends Component {
+class StartAutomator extends Component {
   constructor (props) {
     super(props)
 
@@ -24,15 +24,13 @@ class runParams extends Component {
     this.props.spinnify()
     axios.post(path)
       .then(res => {
-        console.log(res)
         this.setState({ running: !this.state.running })
         this.props.spinnify()
         this.props.toastify(res.data)
       })
       .catch(error => {
-        console.log(error)
         this.props.spinnify()
-        this.props.toastify('There was an error please try again')
+        this.props.toastify(error.data)
       })
   }
 
@@ -67,4 +65,4 @@ class runParams extends Component {
   }
 }
 
-export default runParams
+export default StartAutomator

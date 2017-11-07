@@ -14,6 +14,7 @@ exports.automate = (params) => {
   // modes
   const likeMode = params.param_like_mode
   const followMode = params.param_follow_mode
+  const unfollowMode = params.param_unfollow_mode
   // hashtags & usernames
   const hashtags = params.param_hashtags
   const usernames = params.param_usernames
@@ -23,7 +24,7 @@ exports.automate = (params) => {
   const longitude = params.param_longitude
   const latitude = params.param_latitude
   const timezone = params.param_timezone
-  const localHour = Number(moment().tz(timezone).format().split('T')[1].split(':')[0])
+  const localHour = (timezone) && Number(moment().tz(timezone).format().split('T')[1].split(':')[0])
   // intervals
   const perHour = (process.env.NODE_ENV === 'production') ? 60 : 30
   const oneHour = 3600000
@@ -46,7 +47,9 @@ exports.automate = (params) => {
   let userIDsWhoFollowUsernames = []
 
   let hashtagRecentMediaIDs = []
-  // console.log('start: ' + likesPerHour)
+
+  // for Unfollows function
+  let userIDsRequestedToFollow = []
 
   /*-------------------------
   //  START AUTOMATOR      //
@@ -167,12 +170,17 @@ exports.automate = (params) => {
             console.log(userIDsWhoFollowUsernames[z])
             // if (await requestToFollow(userIDsWhoFollowUsernames[z][zz]) === 200) {
             //   followsPerHour++
+            //   userIDsRequestedToFollow.push(userIDsWhoFollowUsernames[z][zz])
             //   console.log('add location like worked')
             // }
           }
         }
       }
     }
+  }
+
+  function unFollows () {
+
   }
 
   function finishAutomation () {

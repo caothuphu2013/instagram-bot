@@ -9,6 +9,7 @@ const UserParameters = new Schema({
   param_blacklist_usernames: Array,
   param_like_mode: Boolean,
   param_follow_mode: Boolean,
+  param_unfollow_mode: Boolean,
   param_automator_running: Boolean,
   param_longitude: String,
   param_latitude: String,

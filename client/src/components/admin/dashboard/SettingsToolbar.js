@@ -1,6 +1,4 @@
 import React, { Component } from 'react'
-import Autocomplete from 'react-google-autocomplete'
-import TimezonePicker from 'react-timezone'
 import axios from 'axios'
 
 class SettingsToolbar extends Component {
@@ -8,24 +6,13 @@ class SettingsToolbar extends Component {
     super(props)
     const params = this.props.userParams
     this.state = {
-      param_hashtags: params.param_hashtags.toString(),
-      param_usernames: params.param_usernames.toString(),
-      param_blacklist_hashtags: params.param_blacklist_hashtags.toString(),
-      param_blacklist_usernames: params.param_blacklist_usernames.toString(),
       param_like_mode: params.param_like_mode,
       param_follow_mode: params.param_follow_mode,
-      param_timezone: params.param_timezone,
-      param_longitude: '',
-      param_latitude: ''
+      param_unfollow_mode: params.param_unfollow_mode
     }
 
-    this.handleChange = this.handleChange.bind(this)
     this.handleCheckbox = this.handleCheckbox.bind(this)
     this.saveParams = this.saveParams.bind(this)
-  }
-
-  handleChange (event) {
-    this.setState({ [event.target.name]: event.target.value })
   }
 
   handleCheckbox (event) {
@@ -36,16 +23,10 @@ class SettingsToolbar extends Component {
     event.preventDefault()
     this.props.spinnify()
 
-    axios.post('/api/save_params', {
-      param_hashtags: this.state.param_hashtags,
-      param_usernames: this.state.param_usernames,
-      param_blacklist_hashtags: this.state.param_blacklist_hashtags,
-      param_blacklist_usernames: this.state.param_blacklist_usernames,
+    axios.post('/api/save_setting_params', {
       param_like_mode: this.state.param_like_mode,
       param_follow_mode: this.state.param_follow_mode,
-      param_longitude: this.state.param_longitude,
-      param_latitude: this.state.param_latitude,
-      param_timezone: this.state.param_timezone,
+      param_unfollow_mode: this.state.param_unfollow_mode,
       username: this.props.user.instagram_username,
       instagram_id: this.props.user.instagram_id,
       access_token: this.props.user.instagram_accessToken,
@@ -65,29 +46,6 @@ class SettingsToolbar extends Component {
   render () {
     return (
       <div id='settings-toolbar' className='toolbar'>
-        <TimezonePicker
-          style={{width: '100%'}}
-          value={this.state.param_timezone}
-          onChange={timezone => {
-            this.setState({ param_timezone: timezone })
-          }}
-          inputProps={{
-            placeholder: 'Select Timezone',
-            name: 'timezone'
-          }}
-        />
-
-        <Autocomplete
-          style={{width: '100%'}}
-          onPlaceSelected={place => {
-            this.setState({
-              param_longitude: place.geometry.location.lng(),
-              param_latitude: place.geometry.location.lat()
-            })
-          }}
-          types={['(cities)']}
-        />
-
         <form id='params-form' onSubmit={this.saveParams}>
           <label htmlFor='param_like_mode'>Like Mode: </label>
           <input
@@ -105,45 +63,16 @@ class SettingsToolbar extends Component {
             checked={this.state.param_follow_mode}
             onClick={this.handleCheckbox}
           />
-          <label htmlFor='param_hashtags'>Enter hashtags:</label>
-          <textarea
-            id='param_hashtags'
-            type='text'
-            name='param_hashtags'
-            placeholder='hashtags separated by a comma..'
-            value={this.state.param_hashtags}
-            onChange={this.handleChange}
-          />
-          <label htmlFor='param_usernames'>Enter usernames:</label>
-          <textarea
-            id='param_usernames'
-            type='text'
-            name='param_usernames'
-            placeholder='usernames separated by a comma..'
-            value={this.state.param_usernames}
-            onChange={this.handleChange}
-          />
-        <label htmlFor='param_blacklist_hashtags'>Enter hashtags to blacklist:</label>
-          <textarea
-            id='param_blacklist_hashtags'
-            type='text'
-            name='param_blacklist_hashtags'
-            placeholder='hashtags to blasklist separated by a comma..'
-            value={this.state.param_blacklist_hashtags}
-            onChange={this.handleChange}
-          />
-        <label htmlFor='param_blacklist_usernames'>Enter usernames to blacklist:</label>
-          <textarea
-            id='param_blacklist_usernames'
-            type='text'
-            name='param_blacklist_usernames'
-            placeholder='usernames to blacklist separated by a comma..'
-            value={this.state.param_blacklist_usernames}
-            onChange={this.handleChange}
+          <label htmlFor='param_unfollow_mode'>Unfollow Mode: </label>
+          <input
+            id='param_unfollow_mode'
+            type='checkbox'
+            name='param_unfollow_mode'
+            checked={this.state.param_unfollow_mode}
+            onClick={this.handleCheckbox}
           />
           <input type='submit' value='Save' />
         </form>
-
       </div>
     )
   }

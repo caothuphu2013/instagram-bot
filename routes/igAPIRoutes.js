@@ -8,15 +8,53 @@ const axios = require('axios')
 const keys = require('../config/keys')
 
 module.exports = app => {
-  // Save user parameters to DB
-  app.post('/api/save_params', requireLogin, (req, res) => {
+  /********************************/
+  /*   SAVE AUTOMATOR SETTINGS    */
+  /********************************/
+  app.post('/api/save_setting_params', requireLogin, (req, res) => {
+    let {
+      param_like_mode,
+      param_follow_mode,
+      param_unfollow_mode,
+      username,
+      instagram_id,
+      access_token,
+      user_id,
+      email
+    } = req.body
+
+    const params = {
+      param_like_mode,
+      param_follow_mode,
+      param_unfollow_mode,
+      param_automator_running: false,
+      username,
+      instagram_id,
+      access_token,
+      user_id,
+      email
+    }
+
+    const saveParams = UserParameters.findOneAndUpdate(
+      { email },
+      params,
+      { new: true, upsert: true }).exec()
+
+    saveParams.then(params => {
+      res.status(200).send('Successfully saved new settings.')
+    }).catch(err => {
+      res.status(500).send('There was an error saving settings, please try again.')
+    })
+  })
+  /********************************/
+  /*   SAVE TARGETING SETTINGS    */
+  /********************************/
+  app.post('/api/save_targeting_params', requireLogin, (req, res) => {
     let {
       param_hashtags,
-      param_like_mode,
+      param_usernames,
       param_blacklist_hashtags,
       param_blacklist_usernames,
-      param_follow_mode,
-      param_usernames,
       param_longitude,
       param_latitude,
       param_timezone,
@@ -34,10 +72,8 @@ module.exports = app => {
 
     const params = {
       param_hashtags,
-      param_like_mode,
       param_blacklist_hashtags,
       param_blacklist_usernames,
-      param_follow_mode,
       param_usernames,
       param_longitude,
       param_latitude,
@@ -67,7 +103,7 @@ module.exports = app => {
       if (param_usernames[0] !== '') {
         for (var a = 0; a < param_usernames.length; a++) {
           if (await userSearch(param_usernames[a]) === false) {
-            return res.send('One of the usernames saved does not exist. Please check your spelling.')
+            return res.send('One of the usernames submitted does not exist. Please check your spelling.')
           }
         }
       }
@@ -86,7 +122,9 @@ module.exports = app => {
   })
 
   let intervals = {}
-
+  /********************************/
+  /*       RUN AUTOMATOR          */
+  /********************************/
   app.post('/api/run_params', requireLogin, (req, res) => {
     const runParams = UserParameters.findOneAndUpdate(
       { email: req.user.email },
@@ -103,6 +141,9 @@ module.exports = app => {
     })
   })
 
+  /********************************/
+  /*       STOP AUTOMATOR          */
+  /********************************/
   app.post('/api/stop_params', requireLogin, (req, res) => {
     const stopParams = UserParameters.findOneAndUpdate(
       { email: req.user.email },
@@ -118,6 +159,9 @@ module.exports = app => {
     })
   })
 
+  /********************************/
+  /*    REDUX CURRENT PARAMS      */
+  /********************************/
   app.get('/api/current_params', requireLogin, (req, res) => {
     const currentParams = UserParameters.findOne({ email: req.user.email }).exec()
 

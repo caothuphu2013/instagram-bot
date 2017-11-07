@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import StartParams from './StartParams'
+import StartAutomator from './StartAutomator'
 
 class InstagramToolbar extends Component {
   render () {
@@ -8,10 +8,14 @@ class InstagramToolbar extends Component {
       <div id='instagram-toolbar'>
         <div style={{ display: 'flex' }}>
           <div>
-
+            <ul>
+              <li><p>@{this.props.authenticatedUser.instagram_username}</p></li>
+              <li><p>Following: {this.props.authenticatedUser.instagram_current_following}</p></li>
+              <li><p>Followers: {this.props.authenticatedUser.instagram_current_followers}</p></li>
+            </ul>
           </div>
           <div>
-            <StartParams
+            <StartAutomator
               user={this.props.user}
               toastify={this.props.toastify}
               spinnify={this.props.spinnify}

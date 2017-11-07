@@ -6,6 +6,7 @@ class MenuBar extends Component {
       <div id='menu-bar'>
         <ul>
           <li><p>Automation Settings</p></li>
+          <li><p>Targeting Options</p></li>
           <li><p>Statistics</p></li>
           <li><p>Account & Billing</p></li>
         </ul>
