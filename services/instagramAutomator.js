@@ -404,7 +404,7 @@ exports.automate = (params) => {
   }
 
   function requestToFollow (usernameID) {
-    // return axios.post(`https://api.instagram.com/v1/users/${usernameID}/relationship?access_token=${accessToken}?`, { action: 'follow' })
+    // return fetch(`https://api.instagram.com/v1/users/${usernameID}/relationship?access_token=${accessToken}`, { action: 'follow' })
     // .then(res => {
     //   apiCallsPerHour++
     //   console.log(res)
@@ -413,14 +413,14 @@ exports.automate = (params) => {
     //   console.log(err)
     //   if (err.response.data.error_type === 'OAuthRateLimitException') abort = true
     // })
-    // let action = { 'action': 'follow' }
-    // fetch(`https://api.instagram.com/v1/users/${usernameID}/relationship?access_token=${accessToken}`,
-    //   { method: 'POST', action: 'follow' })
-    // .then(res => {
-    //   console.log(res)
-    // }).catch(err => {
-    //   console.log(err)
-    // })
+    let action = { 'action': 'follow' }
+    fetch(`https://api.instagram.com/v1/users/${usernameID}/relationship?access_token=${accessToken}`,
+      { method: 'POST', body: JSON.stringify({ action: 'follow' }), headers: { contentType: 'application/json' } })
+    .then(res => {
+      console.log(res)
+    }).catch(err => {
+      console.log(err)
+    })
   }
 
   /********************************/
