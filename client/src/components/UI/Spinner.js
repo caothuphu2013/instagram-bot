@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { CircleLoader } from 'react-spinners'
+import { ScaleLoader } from 'react-spinners'
 
 class Spinner extends Component {
   constructor (props) {
@@ -12,7 +12,7 @@ class Spinner extends Component {
   render () {
     return (
       <div className='spinner-wrapper'>
-        <CircleLoader
+        <ScaleLoader
           size={50}
           loading={this.state.loading}
           color={'#26a69a'}

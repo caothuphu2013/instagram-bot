@@ -11,7 +11,7 @@ module.exports = (app) => {
     User.findOne({ email: req.user.email }, (err, user) => {
       if (err) return res.status(400).send(err)
 
-      if (user.paid === true || user.stripe_email !== '') {
+      if (user.stripe_email !== '') {
         return res.status(200).send('This user is already subscribed')
       } else {
         stripe.customers.create({
@@ -47,7 +47,6 @@ module.exports = (app) => {
           user.stripe_email = customer.email
           user.stripe_subscription_id = subscription.id
           user.stripe_token = req.body.token.id
-          user.paid = true
 
           StripeAccount.findOrCreate(
             { email: customer.email },
@@ -66,9 +65,7 @@ module.exports = (app) => {
               if (err) return res.status(500).send(err)
 
               user.save()
-              console.log('billing done')
               res.status(200).send('You have successfully subscribed to BuzzLightYear!')
-              console.log(result)
             })
         }
       }

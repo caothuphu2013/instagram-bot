@@ -7,7 +7,7 @@ import trialDaysRemaining from '../../../utilities/trialDaysRemaining'
 class AdminHeader extends Component {
   renderContent () {
     const createdAt = this.props.authenticatedUser.created_at
-    const paid = this.props.authenticatedUser.paid
+    const paid = this.props.authenticatedUser.stripe_subscription_id
 
     if (ifInTrial(createdAt, paid)) {
       return (
@@ -29,7 +29,7 @@ class AdminHeader extends Component {
     return (
       <nav>
         <div className='container nav-wrapper'>
-          <Link to='/dashboard' className='brand-logo'>
+          <Link to='/dashboard' className='brand-logo'>LitSocial
           </Link>
           {this.renderContent()}
         </div>

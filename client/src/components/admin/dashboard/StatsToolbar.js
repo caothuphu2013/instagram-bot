@@ -18,7 +18,7 @@ class StatsToolbar extends Component {
     return (
       <div id='stats-toolbar' className='toolbar'>
         <div>
-          <h4>Current</h4>
+          <h5>Current</h5>
           <table>
             <tr>
               <th>Posts</th>
@@ -31,7 +31,7 @@ class StatsToolbar extends Component {
               <td>{stats.instagram_current_following}</td>
             </tr>
           </table>
-          <h4>Last Login</h4>
+          <h5>Last Login</h5>
           <table>
             <tr>
               <th>Posts</th>
@@ -44,7 +44,7 @@ class StatsToolbar extends Component {
               <td>{(this.state.firstLogin) ? '-' : stats.instagram_lastLogin_following}</td>
             </tr>
           </table>
-          <h4>Since Last Login</h4>
+          <h5>Since Last Login</h5>
           <table>
             <tr>
               <th>Likes Given</th>

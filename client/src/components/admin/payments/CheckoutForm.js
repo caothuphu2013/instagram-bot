@@ -18,13 +18,11 @@ class CheckoutForm extends Component {
     this.props.stripe.createToken({ type: 'card', name }).then(({token}) => {
       axios.post('api/stripe/subscribe', { token })
       .then(response => {
-        console.log(response)
         this.props.toastify(response)
         this.props.spinnify()
         this.props.closeOverlay()
       })
       .catch(error => {
-        console.log(error)
         this.props.toastify(error)
         this.props.spinnify()
         this.props.closeOverlay()

@@ -12,7 +12,7 @@ class StripeToolbar extends Component {
   }
 
   renderContent () {
-    if (this.props.user.paid) {
+    if (this.props.user.stripe_subscription_id) {
       return (
         <div>Paid</div>
       )

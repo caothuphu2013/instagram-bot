@@ -63,7 +63,7 @@
 .overlay-wrapper {
   height: calc(100% - 64px);
   width: 100%;
-  position: absolute;
+  position: fixed;
   left: 0;
   right: 0;
   z-index: 500;
@@ -115,3 +115,5 @@ nav {
               transform: translateY(-50%); }
   #onboarding .slick-arrow {
     background: black; }
+
+/*# sourceMappingURL=main.css.map */
