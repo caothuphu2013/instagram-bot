@@ -29,7 +29,7 @@ class AdminHeader extends Component {
     return (
       <nav>
         <div className='container nav-wrapper'>
-          <Link to='/dashboard' className='brand-logo'>LitSocial
+          <Link to='/dashboard' className='brand-logo'>
           </Link>
           {this.renderContent()}
         </div>

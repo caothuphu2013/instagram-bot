@@ -19,70 +19,107 @@ module.exports = (app) => {
           source: req.body.token.id
         }, (err, customer) => {
           if (err) {
-            console.log('customer error: ' + err)
             res.status(500).send(err)
           } else {
             subscribe(customer)
           }
         })
-
-        function subscribe (customer) {
-          stripe.subscriptions.create({
-            customer: customer.id,
-            items: [{ plan: 'buzz-monthly-sub' }]
-          }, (err, subscription) => {
-            if (err) {
-              console.log('subscription error: ' + err)
-              res.status(500).send(err)
-            } else {
-              console.log(subscription)
-              updateUserModel(customer, subscription)
-            }
-          })
-        }
-
-        function updateUserModel (customer, subscription) {
-          const user = req.user
-          user.stripe_customer_id = customer.id
-          user.stripe_email = customer.email
-          user.stripe_subscription_id = subscription.id
-          user.stripe_token = req.body.token.id
-
-          StripeAccount.findOrCreate(
-            { email: customer.email },
-            {
-              name: customer.name,
-              email: customer.email,
-              created_at: Date.now(),
-              stripe_status: 'subscribed',
-              stripe_customer_id: customer.id,
-              stripe_email: customer.email,
-              stripe_subscription_id: subscription.id,
-              stripe_token: req.body.token.id,
-              stripe_current_period_end: subscription.current_period_end,
-              stripe_current_period_start: subscription.current_period_start
-            }, (err, result) => {
-              if (err) return res.status(500).send(err)
-
-              user.save()
-              res.status(200).send('You have successfully subscribed to BuzzLightYear!')
-            })
-        }
       }
     })
+
+    function subscribe (customer) {
+      stripe.subscriptions.create({
+        customer: customer.id,
+        items: [{ plan: 'buzz-monthly-sub' }]
+      }, (err, subscription) => {
+        if (err) {
+          res.status(500).send(err)
+        } else {
+          updateUserModel(customer, subscription)
+        }
+      })
+    }
+
+    function updateUserModel (customer, subscription) {
+      const user = req.user
+      user.stripe_customer_id = customer.id
+      user.stripe_email = customer.email
+      user.stripe_subscription_id = subscription.id
+      user.stripe_token = req.body.token.id
+
+      StripeAccount.findOrCreate(
+        { email: customer.email },
+        {
+          name: customer.name,
+          email: customer.email,
+          created_at: Date.now(),
+          stripe_status: 'subscribed',
+          stripe_customer_id: customer.id,
+          stripe_email: customer.email,
+          stripe_subscription_id: subscription.id,
+          stripe_token: req.body.token.id,
+          stripe_current_period_end: subscription.current_period_end,
+          stripe_current_period_start: subscription.current_period_start
+        }, (err, result) => {
+          if (err) return res.status(500).send(err)
+
+          user.save()
+          res.status(200).send('You have successfully subscribed to BuzzLightYear!')
+        })
+    }
   })
 
   app.post('api/stripe/cancel', requireLogin, (req, res) => {
+    console.log(req.user)
     stripe.subscriptions.del(req.user.stripe_subscription_id,
       { at_period_end: true },
       (err, confirmation) => {
-        if (err) {
-          console.log(err)
-        } else {
-          console.log(confirmation)
-        }
+        if (err) console.log(err)
+        console.log(confirmation)
       }
     )
+  })
+
+  // BILLING
+
+  app.post('/api/stripe/update_card', requireLogin, (req, res) => {
+    stripe.customers.retrieve(
+      req.user.stripe_customer_id,
+      (err, customer) => {
+        if (err) return res.status(500).send(err)
+        customer.default_source === null
+          ? newCard() : deleteStripeCard(customer.default_source)
+      }
+    )
+
+    function deleteStripeCard (card) {
+      stripe.customers.deleteCard(
+        req.user.stripe_customer_id, card,
+        (err, confirmation) => {
+          if (err) return res.status(500).send(err)
+          if (confirmation.deleted === true) {
+            newCard()
+          } else {
+            return res.status(500).send('The card was not deleted properly. Please try again.')
+          }
+        }
+      )
+    }
+
+    function newCard () {
+      stripe.customers.createSource(
+        req.user.stripe_customer_id,
+        { source: req.body.token.id },
+        (err, card) => {
+          if (err) return res.status(500).send(err)
+          if (card) {
+            res.status(200).send('Your payment method has been updated.')
+          } else {
+            res.status(500).send('The card was not updated properly. Please try again.')
+          }
+        }
+      )
+    }
   })
 
   // CUSTOMER
@@ -96,51 +133,28 @@ module.exports = (app) => {
     )
   })
 
-  // BILLING
-
-  app.post('/api/stripe/update_card', requireLogin, (req, res) => {
-    stripe.customers.updateCard(
-      "cus_BaXXq6kH07HDjv",
-      "card_1BDN4TBgmE30r29MKX2qknBB",
-      { name: "Joshua Thompson" },
-      function(err, card) {
-        // asynchronously called
-      }
-    )
-  })
-
-  app.post('/api/stripe/delete_card', requireLogin, (req, res) => {
-    stripe.customers.deleteCard(
-      "cus_BaXXq6kH07HDjv",
-      "card_1BDN4TBgmE30r29MKX2qknBB",
-      function(err, confirmation) {
-        // asynchronously called
-      }
-    )
-  })
-
   // COUPONS & DISCOUNTS
-  app.post('/api/stripe/create_coupon', requireLogin, (req, res) => {
-    stripe.coupons.create({
-      percent_off: 25,
-      duration: 'repeating',
-      duration_in_months: 3,
-      id: '25OFF'
-    }, function(err, coupon) {
-      // asynchronously called
-    })
-  })
-
-  app.post('/api/stripe/retrieve_coupon', requireLogin, (req, res) => {
-    stripe.coupons.retrieve(
-      "25OFF",
-      function(err, coupon) {
-        // asynchronously called
-      }
-    )
-  })
-
-  app.post('/api/stripe/delete_coupon', requireLogin, (req, res) => {
-    stripe.coupons.del('25OFF')
-  })
+  // app.post('/api/stripe/create_coupon', requireLogin, (req, res) => {
+  //   stripe.coupons.create({
+  //     percent_off: 25,
+  //     duration: 'repeating',
+  //     duration_in_months: 3,
+  //     id: '25OFF'
+  //   }, function(err, coupon) {
+  //     // asynchronously called
+  //   })
+  // })
+  //
+  // app.post('/api/stripe/retrieve_coupon', requireLogin, (req, res) => {
+  //   stripe.coupons.retrieve(
+  //     "25OFF",
+  //     function(err, coupon) {
+  //       // asynchronously called
+  //     }
+  //   )
+  // })
+  //
+  // app.post('/api/stripe/delete_coupon', requireLogin, (req, res) => {
+  //   stripe.coupons.del('25OFF')
+  // })
 }

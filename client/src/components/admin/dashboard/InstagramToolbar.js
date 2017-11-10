@@ -8,11 +8,6 @@ class InstagramToolbar extends Component {
       <div id='instagram-toolbar'>
         <div style={{ display: 'flex' }}>
           <div>
-            <ul>
-              <li><p>@{this.props.authenticatedUser.instagram_username}</p></li>
-              <li><p>Following: {this.props.authenticatedUser.instagram_current_following}</p></li>
-              <li><p>Followers: {this.props.authenticatedUser.instagram_current_followers}</p></li>
-            </ul>
           </div>
           <div>
             <StartAutomator

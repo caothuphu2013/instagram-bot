@@ -9,7 +9,6 @@ module.exports = (app) => {
       { email: req.user.email }).exec()
 
     getInstagramAccount.then(InstagramAccount => {
-      console.log(InstagramAccount)
       res.status(200).send(InstagramAccount)
     }).catch(err => {
       res.status(500).send(err)

@@ -6,6 +6,7 @@ const moment = require('moment-timezone')
 const fetch = require('node-fetch')
 
 exports.automate = (params) => {
+  console.log('automator running')
   // account
   const userEmail = params.email
   const instagramID = params.instagram_id
@@ -55,7 +56,7 @@ exports.automate = (params) => {
   //  START AUTOMATOR      //
   -------------------------*/
   // check if timezone parameter is in place, if not automatically run automate()
-  // if so, check if the localHour is before 10pm and after 7am, when it is run automate()
+  // // if so, check if the localHour is before 10pm and after 7am, when it is run automate()
   // if (timezone !== '') {
   //   if (localHour < 20 && localHour > 7) automate()
   // } else {
@@ -70,13 +71,13 @@ exports.automate = (params) => {
     /*       LOCATIONS DATA         */
     /********************************/
     // get location IDs based off latitude and longitude coordinates
-    locationIDs = (latitude !== '' && longitude !== '') && await locationSearch()
-    // // get recent media IDs based off location IDs
-    if (locationIDs) {
-      for (var z = 0; z < locationIDs.length; z++) {
-        locationMediaIDs.push(await locationRecentMedia(locationIDs[z]))
-      }
-    }
+    // locationIDs = (latitude !== '' && longitude !== '') && await locationSearch()
+    // // // get recent media IDs based off location IDs
+    // if (locationIDs) {
+    //   for (var z = 0; z < locationIDs.length; z++) {
+    //     locationMediaIDs.push(await locationRecentMedia(locationIDs[z]))
+    //   }
+    // }
 
     /********************************/
     /*       USERNAMES DATA         */
@@ -88,31 +89,31 @@ exports.automate = (params) => {
       }
     }
     // get recent media IDs based from the username IDs
-    if (usernameIDs) {
-      for (var b = 0; b < usernames.length; b++) {
-        userRecentMediaIDs.push(await userRecentMedia(usernameIDs[b]))
-      }
-    }
-    // get user's followers IDs based off the recent media they liked
-    if (userRecentMediaIDs) {
-      for (var c = 0; c < userRecentMediaIDs.length; c++) {
-        if (userRecentMediaIDs[c].length > 0) {
-          for (var cc = 0; cc < userRecentMediaIDs[c].length; cc += skip) {
-            userIDsWhoFollowUsernames.push(await usersWhoLikedThisMedia(userRecentMediaIDs[c][cc]))
-          }
-        }
-      }
-    }
+    // if (usernameIDs) {
+    //   for (var b = 0; b < usernames.length; b++) {
+    //     userRecentMediaIDs.push(await userRecentMedia(usernameIDs[b]))
+    //   }
+    // }
+    // // get user's followers IDs based off the recent media they liked
+    // if (userRecentMediaIDs) {
+    //   for (var c = 0; c < userRecentMediaIDs.length; c++) {
+    //     if (userRecentMediaIDs[c].length > 0) {
+    //       for (var cc = 0; cc < userRecentMediaIDs[c].length; cc += skip) {
+    //         userIDsWhoFollowUsernames.push(await usersWhoLikedThisMedia(userRecentMediaIDs[c][cc]))
+    //       }
+    //     }
+    //   }
+    // }
 
     // /********************************/
     /*       HASHTAGS DATA          */
     /********************************/
     // get recent media IDs based from hashtags
-    if (hashtags[0] !== '') {
-      for (var d = 0; d < hashtags.length; d++) {
-        hashtagRecentMediaIDs.push(await recentHashtagMedia(hashtags[d]))
-      }
-    }
+    // if (hashtags[0] !== '') {
+    //   for (var d = 0; d < hashtags.length; d++) {
+    //     hashtagRecentMediaIDs.push(await recentHashtagMedia(hashtags[d]))
+    //   }
+    // }
     //
     // console.log(locationIDs)
     // console.log(locationMediaIDs)
@@ -205,10 +206,13 @@ exports.automate = (params) => {
 
   async function automate () {
     if (!abort) await getData()
-    if (!abort && likeMode) await addLikes()
-    if (!abort && followMode) await addFollows()
-    if (!abort) await finishAutomation()
+    // if (!abort && likeMode) await addLikes()
+    // if (!abort && followMode) await addFollows()
+    // if (!abort) await finishAutomation()
   }
+
+  // [ '30984466', '1749343281', '5277147', '27343860' ]
+  // requestToFollow('1749343281')
 
   /********************************/
   /*           HELPERS            */
@@ -404,23 +408,13 @@ exports.automate = (params) => {
   }
 
   function requestToFollow (usernameID) {
-    // return axios.post(`https://api.instagram.com/v1/users/${usernameID}/relationship?access_token=${accessToken}?`, { action: 'follow' })
-    // .then(res => {
-    //   apiCallsPerHour++
-    //   console.log(res)
-    // })
-    // .catch(err => {
-    //   console.log(err)
-    //   if (err.response.data.error_type === 'OAuthRateLimitException') abort = true
-    // })
-    // let action = { 'action': 'follow' }
-    // fetch(`https://api.instagram.com/v1/users/${usernameID}/relationship?access_token=${accessToken}`,
-    //   { method: 'POST', action: 'follow' })
-    // .then(res => {
-    //   console.log(res)
-    // }).catch(err => {
-    //   console.log(err)
-    // })
+    fetch(`https://api.instagram.com/v1/users/${usernameID}/relationship?access_token=${accessToken}`,
+      { method: 'POST', body: JSON.stringify({ action: 'follow' }), headers: { contentType: 'application/json' } })
+    .then(res => {
+      console.log(res)
+    }).catch(err => {
+      console.log('err: ' + err)
+    })
   }
 
   /********************************/

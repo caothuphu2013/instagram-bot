@@ -1,8 +1,8 @@
 import React, { Component } from 'react'
 import axios from 'axios'
 import { connect } from 'react-redux'
-import * as actions from '../../actions'
-import Spinner from '../UI/Spinner'
+import * as actions from '../../../actions'
+import Spinner from '../../UI/Spinner'
 
 class AuthForm extends Component {
   constructor (props) {
@@ -12,7 +12,9 @@ class AuthForm extends Component {
       email: '',
       password: '',
       authenticated: this.props.authenticatedUser,
-      spinner: false
+      description: '',
+      spinner: false,
+      error: false
     }
 
     this.handleChange = this.handleChange.bind(this)
@@ -46,12 +48,21 @@ class AuthForm extends Component {
 
     axios.post(this.props.path, params)
       .then(res => {
-        console.log(res.data.success)
+        if (res.data.success === undefined) {
+          this.setState({
+            error: true,
+            desription: 'This user already exists, please login instead'
+          })
+        }
         this.props.fetchUser()
         this.spinnify()
       })
       .catch(error => {
-        console.log(error)
+        this.setState({
+          error: true,
+          desription: 'There was an error signing up, please try again'
+        })
+        this.spinnify()
       })
   }
 
@@ -71,6 +82,7 @@ class AuthForm extends Component {
     return (
       <div className='container'>
         {(this.state.spinner) && <Spinner />}
+        {(this.state.error) && <p>{this.state.description}</p>}
         <form id='login-form' onSubmit={this.login}>
           <label htmlFor='hashtag'>{(this.props.signUp) ? 'Sign Up' : 'Login'}</label>
           {this.props.signUp && this.renderSignUp()}
