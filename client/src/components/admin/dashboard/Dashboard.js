@@ -38,12 +38,7 @@ class Dashboard extends Component {
       showDashboard: false,
       showSpinner: true,
       showOverlay: false,
-<<<<<<< HEAD
       overlayComponent: ''
-=======
-      overlayComponent: '',
-      overlayDescription: 'Your trial has ended, please subscribe to continue service.'
->>>>>>> fa14d03f4e0d9f78c87cf769cd5461217a28d991
     }
 
     this.returnOverlay = this.returnOverlay.bind(this)
@@ -64,16 +59,7 @@ class Dashboard extends Component {
   spinnify () { this.setState({ showSpinner: !this.state.showSpinner }) }
 
   returnOverlay () {
-<<<<<<< HEAD
     return <Overlay>{this.state.overlayComponent}</Overlay>
-=======
-    return (
-      <Overlay>
-        <div>{this.state.overlayDescription}</div>
-        {this.state.overlayComponent}
-      </Overlay>
-    )
->>>>>>> fa14d03f4e0d9f78c87cf769cd5461217a28d991
   }
 
   renderDashboard () {
@@ -91,7 +77,6 @@ class Dashboard extends Component {
             toastify={this.toastify.bind(this)}
             spinnify={this.spinnify.bind(this)}
             overlay={this.state.showOverlay}
-<<<<<<< HEAD
             updateEmail={() => this.setState({
               showOverlay: true,
               overlayComponent: <UpdateEmail
@@ -137,43 +122,8 @@ class Dashboard extends Component {
                 spinnify={this.spinnify.bind(this)}
                 closeOverlay={() => this.setState({ showOverlay: false })}
                 />
-=======
-            triggerCancel={() => this.setState({
-              showOverlay: true,
-              overlayComponent: <CancelSubscription
-                triggerThankyou={(description, response) => this.setState({
-                  overlayComponent: <Thankyou
-                    closeOverlay={() => this.setState({ showOverlay: false })}>
-                    {response}
-                  </Thankyou>,
-                  overlayDescription: description
-                })}
-                spinnify={this.spinnify.bind(this)}
-                closeOverlay={() => this.setState({ showOverlay: false })}
-                />,
-              overlayDescription: 'Are you sure you want to cancel your subscription?'
-            })}
-            triggerCheckout={(path) => this.setState({
-              showOverlay: true,
-              overlayComponent: <Checkout
-                path={path}
-                user={this.props.authenticatedUser}
-                triggerThankyou={(description, response) => this.setState({
-                  overlayComponent: <Thankyou
-                    reload
-                    closeOverlay={() => this.setState({ showOverlay: false })}>
-                    {response}
-                  </Thankyou>,
-                  overlayDescription: description
-                })}
-                spinnify={this.spinnify.bind(this)}
-                closeOverlay={() => this.setState({ showOverlay: false })}
-                />,
-              overlayDescription: 'Subscribe'
->>>>>>> fa14d03f4e0d9f78c87cf769cd5461217a28d991
-            })}
+              })}
           />
-
         </div>
       </div>
     )

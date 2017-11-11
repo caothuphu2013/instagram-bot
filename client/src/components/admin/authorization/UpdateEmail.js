@@ -39,10 +39,6 @@ class UpdateEmail extends Component {
     if (this.state.new_email !== this.state.confirm_new_email) {
       this.setState({ error: true })
     } else {
-<<<<<<< Updated upstream
-      
-=======
->>>>>>> Stashed changes
       this.props.spinnify()
       axios.post('/auth/update_email', { new_email: this.state.new_email })
         .then(response => {
