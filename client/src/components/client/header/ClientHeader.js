@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { Link } from 'react-router-dom'
 import Modal from 'react-modal'
-import AuthForm from '../../UI/AuthForm'
+import AuthForm from '../../admin/authorization/AuthForm'
 
 class ClientHeader extends Component {
   constructor (props) {

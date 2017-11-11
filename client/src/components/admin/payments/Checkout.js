@@ -8,9 +8,11 @@ class Checkout extends Component {
     return (
       <Elements>
         <CheckoutForm
+          path={this.props.path}
           spinnify={this.props.spinnify}
           toastify={this.props.toastify}
           closeOverlay={this.props.closeOverlay}
+          triggerThankyou={this.props.triggerThankyou}
         />
       </Elements>
     )

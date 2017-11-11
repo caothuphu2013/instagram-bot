@@ -2,7 +2,6 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.min.css'
-
 import * as actions from '../../../actions'
 
 // showOnBoardingSlider
@@ -12,19 +11,25 @@ import OnBoardingSlider from '../onboarding/OnBoardingSlider'
 import InstagramToolbar from './InstagramToolbar'
 import SettingsToolbar from './SettingsToolbar'
 import TargetingToolbar from './TargetingToolbar'
-import StripeToolbar from './StripeToolbar'
+import BillingToolbar from './BillingToolbar'
 import StatsToolbar from './StatsToolbar'
 import MenuBar from './MenuBar'
 
+// Auth
+import UpdateEmail from '../authorization/UpdateEmail'
+
+// Billing
 import Checkout from '../payments/Checkout'
+import CancelSubscription from '../payments/CancelSubscription'
+
+// UI
 import Spinner from '../../UI/Spinner'
 import Overlay from '../../UI/Overlay'
-import ifInTrial from '../../../utilities/ifInTrial'
+import Thankyou from '../../UI/Thankyou'
 
-class showDashboard extends Component {
+class Dashboard extends Component {
   constructor (props) {
     super(props)
-
     this.props.fetchUserInstagramStats(this.props.authenticatedUser.email)
     this.props.fetchUserParams(this.props.authenticatedUser.email)
 
@@ -33,14 +38,10 @@ class showDashboard extends Component {
       showDashboard: false,
       showSpinner: true,
       showOverlay: false,
-      // settingsToolbarVisible: false,
-      // statsToolbarVisible: true,
-      // stripeToolbarVisible: false,
-      overlayDescription: 'Your trial has ended, please subscribe to continue service.'
+      overlayComponent: ''
     }
 
     this.returnOverlay = this.returnOverlay.bind(this)
-    // this.toggleMenu = this.toggleMenu.bind(this)
   }
 
   componentWillReceiveProps (nextProps) {
@@ -58,44 +59,8 @@ class showDashboard extends Component {
   spinnify () { this.setState({ showSpinner: !this.state.showSpinner }) }
 
   returnOverlay () {
-    const { createdAt, paid } = this.props.authenticatedUser
-    if ((!ifInTrial(createdAt, paid) && !paid) || this.state.showOverlay === true) {
-      return (
-        <Overlay>
-          <div>{this.state.overlayDescription}</div>
-          <Checkout
-            user={this.props.authenticatedUser}
-            toastify={this.toastify.bind(this)}
-            spinnify={this.spinnify.bind(this)}
-            closeOverlay={() => this.setState({ showOverlay: false })}
-          />
-          <p onClick={() => this.setState({ showOverlay: false })}>Close</p>
-        </Overlay>
-      )
-    }
+    return <Overlay>{this.state.overlayComponent}</Overlay>
   }
-
-  // toggleMenu (state) {
-  //   if (state === 'settingsToolbarVisible') {
-  //     this.setState({
-  //       settingsToolbarVisible: true,
-  //       statsToolbarVisible: false,
-  //       stripeToolbarVisible: false
-  //     })
-  //   } else if (state === 'statsToolbarVisible') {
-  //     this.setState({
-  //       settingsToolbarVisible: false,
-  //       statsToolbarVisible: true,
-  //       stripeToolbarVisible: false
-  //     })
-  //   } else if (state === 'stripeToolbarVisible') {
-  //     this.setState({
-  //       settingsToolbarVisible: false,
-  //       statsToolbarVisible: false,
-  //       stripeToolbarVisible: true
-  //     })
-  //   }
-  // }
 
   renderDashboard () {
     return (
@@ -105,37 +70,61 @@ class showDashboard extends Component {
           toastify={this.toastify.bind(this)}
           spinnify={this.spinnify.bind(this)}
         />
-        <MenuBar />
         <div className='toolbar-container'>
-          <StatsToolbar
-            userInstagramStats={this.props.userInstagramStats}
-            toastify={this.toastify.bind(this)}
-            spinnify={this.spinnify.bind(this)}
-          />
 
-          <SettingsToolbar
-            user={this.props.authenticatedUser}
-            userParams={this.props.userParams}
-            toastify={this.toastify.bind(this)}
-            spinnify={this.spinnify.bind(this)}
-          />
-
-          <TargetingToolbar
-            user={this.props.authenticatedUser}
-            userParams={this.props.userParams}
-            toastify={this.toastify.bind(this)}
-            spinnify={this.spinnify.bind(this)}
-          />
-
-          <StripeToolbar
+          <BillingToolbar
             user={this.props.authenticatedUser}
             toastify={this.toastify.bind(this)}
             spinnify={this.spinnify.bind(this)}
-            triggerCheckout={() => this.setState({
+            overlay={this.state.showOverlay}
+            updateEmail={() => this.setState({
               showOverlay: true,
-              overlayDescription: 'Subscribe'
+              overlayComponent: <UpdateEmail
+                triggerThankyou={(title, response) => this.setState({
+                  overlayComponent: <Thankyou
+                    closeOverlay={() => this.setState({ showOverlay: false })}>
+                    {title}
+                    {response}
+                  </Thankyou>
+                })}
+                spinnify={this.spinnify.bind(this)}
+                email={this.props.authenticatedUser.email}
+                closeOverlay={() => this.setState({ showOverlay: false })}
+                />,
+            })}
+            triggerCancel={() => this.setState({
+              showOverlay: true,
+              overlayComponent: <CancelSubscription
+                triggerThankyou={(title, response) => this.setState({
+                  overlayComponent: <Thankyou
+                    closeOverlay={() => this.setState({ showOverlay: false })}>
+                    {title}
+                    {response}
+                  </Thankyou>
+                })}
+                spinnify={this.spinnify.bind(this)}
+                closeOverlay={() => this.setState({ showOverlay: false })}
+                />
+            })}
+            triggerCheckout={(path) => this.setState({
+              showOverlay: true,
+              overlayComponent: <Checkout
+                path={path}
+                user={this.props.authenticatedUser}
+                triggerThankyou={(title, response) => this.setState({
+                  overlayComponent: <Thankyou
+                    reload
+                    closeOverlay={() => this.setState({ showOverlay: false })}>
+                    {title}
+                    {response}
+                  </Thankyou>
+                })}
+                spinnify={this.spinnify.bind(this)}
+                closeOverlay={() => this.setState({ showOverlay: false })}
+                />
             })}
           />
+
         </div>
       </div>
     )
@@ -144,8 +133,6 @@ class showDashboard extends Component {
   render () {
     return (
       <div id='dashboard'>
-        {this.returnOverlay()}
-        {(this.state.showSpinner) && <Spinner />}
         <ToastContainer
           position='top-center'
           type='success'
@@ -155,6 +142,8 @@ class showDashboard extends Component {
           closeOnClick
           pauseOnHover
         />
+        {(this.state.showOverlay) && this.returnOverlay()}
+        {(this.state.showSpinner) && <Spinner />}
         {(this.state.showOnBoarding) && <OnBoardingSlider />}
         {(this.state.showDashboard) && this.renderDashboard()}
       </div>
@@ -166,4 +155,27 @@ function mapStateToProps ({ authenticatedUser, userInstagramStats, userParams })
   return { authenticatedUser, userInstagramStats, userParams }
 }
 
-export default connect(mapStateToProps, actions)(showDashboard)
+export default connect(mapStateToProps, actions)(Dashboard)
+
+{/*
+  <MenuBar />
+
+  <StatsToolbar
+    userInstagramStats={this.props.userInstagramStats}
+    toastify={this.toastify.bind(this)}
+    spinnify={this.spinnify.bind(this)}
+  />
+  <SettingsToolbar
+    user={this.props.authenticatedUser}
+    userParams={this.props.userParams}
+    toastify={this.toastify.bind(this)}
+    spinnify={this.spinnify.bind(this)}
+  />
+
+  <TargetingToolbar
+    user={this.props.authenticatedUser}
+    userParams={this.props.userParams}
+    toastify={this.toastify.bind(this)}
+    spinnify={this.spinnify.bind(this)}
+  />
+   */}

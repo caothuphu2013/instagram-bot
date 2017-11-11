@@ -16,7 +16,6 @@ class TargetingToolbar extends Component {
       param_longitude: '',
       param_latitude: ''
     }
-
     this.handleChange = this.handleChange.bind(this)
     this.handleCheckbox = this.handleCheckbox.bind(this)
     this.saveParams = this.saveParams.bind(this)
@@ -24,10 +23,6 @@ class TargetingToolbar extends Component {
 
   handleChange (event) {
     this.setState({ [event.target.name]: event.target.value })
-  }
-
-  handleCheckbox (event) {
-    this.setState({ [event.target.name]: event.target.checked })
   }
 
   saveParams (event) {
@@ -83,7 +78,6 @@ class TargetingToolbar extends Component {
           }}
           types={['(cities)']}
         />
-
 
         <form id='params-form' onSubmit={this.saveParams}>
           <label htmlFor='param_hashtags'>Enter hashtags:</label>

@@ -4,6 +4,8 @@ mongoose.Promise = require('bluebird')
 const crypto = require('crypto')
 const InstagramAccount = require('../models/InstagramAccount')
 const User = require('../models/User')
+const UserParameters = require('../models/UserParameters')
+const StripeAccount = require('../models/StripeAccount')
 const ig = require('instagram-node').instagram()
 const moment = require('moment')
 
@@ -72,7 +74,7 @@ module.exports = (app) => {
           }).catch(err => {
             res.status(500).send(err)
           })
-
+          
           const updateInstagramAccount = InstagramAccount.findOneAndUpdate(
             { email: user.email },
             {
@@ -108,10 +110,66 @@ module.exports = (app) => {
     })
 
   // verify user email
-  app.get('/auth/verify', (req, res) => {})
+  app.post('/auth/verify_email', (req, res) => {})
+
+  // update user email
+  app.post('/auth/update_email', (req, res) => {
+    const errorMessage = 'There was an error updating your email. Please try again.'
+
+    const updateUser = User.findOneAndUpdate(
+      { email: req.user.email },
+      { email: req.body.new_email, stripe_email: req.body.new_email},
+      { new: true, upsert: true }).exec()
+
+    const updateInstagramAccount = InstagramAccount.findOneAndUpdate(
+      { email: req.user.email },
+      { email: req.body.new_email },
+      { new: true, upsert: true }).exec()
+
+    const updateStripeAccount = StripeAccount.findOneAndUpdate(
+      { email: req.user.email },
+      { email: req.body.new_email, stripe_email: req.body.new_email },
+      { new: true, upsert: true }).exec()
+
+    const updateUserParameters = UserParameters.findOneAndUpdate(
+      { email: req.user.email },
+      { email: req.body.new_email},
+      { new: true, upsert: true }).exec()
+
+
+    updateUser.then(user => {
+      startInsta()
+    }).catch(err => {
+      res.status(500).send(err)
+    })
+
+    const startInsta = () => {
+      updateInstagramAccount.then(user => {
+        startStripe()
+      }).catch(err => {
+        res.status(500).send(errorMessage)
+      })
+    }
+
+    const startStripe = () => {
+      updateStripeAccount.then(user => {
+        startParams()
+      }).catch(err => {
+        res.status(500).send(errorMessage)
+      })
+    }
+
+    const startParams = () => {
+      updateUserParameters.then(user => {
+        res.status(200).send('Email updated successfully')
+      }).catch(err => {
+        res.status(500).send(errorMessage)
+      })
+    }
+  })
 
   // reset password
-  app.get('/auth/reset_password', (req, res) => {})
+  app.post('/auth/reset_password', (req, res) => {})
 
   // logout current user
   app.get('/auth/logout', (req, res) => {

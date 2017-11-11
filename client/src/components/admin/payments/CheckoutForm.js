@@ -16,16 +16,14 @@ class CheckoutForm extends Component {
     this.props.spinnify()
 
     this.props.stripe.createToken({ type: 'card', name }).then(({token}) => {
-      axios.post('api/stripe/subscribe', { token })
+      axios.post(this.props.path, { token })
       .then(response => {
-        this.props.toastify(response)
         this.props.spinnify()
-        this.props.closeOverlay()
+        this.props.triggerThankyou('Thank you', response.data)
       })
       .catch(error => {
-        this.props.toastify(error)
         this.props.spinnify()
-        this.props.closeOverlay()
+        this.props.triggerThankyou('Oops something went wrong!', error.data)
       })
     })
   }
@@ -38,6 +36,7 @@ class CheckoutForm extends Component {
           <CardElement style={{base: {fontSize: '18px'}}} />
         </label>
         <button>Confirm order</button>
+        <p onClick={this.props.closeOverlay}>Close</p>
       </form>
     )
   }
