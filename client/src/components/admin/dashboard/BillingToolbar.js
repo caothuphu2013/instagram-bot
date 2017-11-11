@@ -11,6 +11,7 @@ class BillingToolbar extends Component {
     if (this.props.user.stripe_customer_id) {
       return (
         <div>
+<<<<<<< HEAD
           <h5>Account</h5>
           <ul>
             <li>
@@ -31,6 +32,19 @@ class BillingToolbar extends Component {
             <li><p onClick={() => this.props.deleteInstagram()}>Delete Instagram</p></li>
           </ul>
           <h5>Billing</h5>
+=======
+          <ul>
+            <li>Email: {this.props.user.email}</li>
+            <li>Update password</li>
+            <li>Account created: {this.props.user.created_at}</li>
+            <li>Last login: {this.props.user.last_login}</li>
+            <li>Delete account</li>
+          </ul>
+          <ul>
+            <li>User: {this.props.user.instagram_username}</li>
+            <li>Remove account</li>
+          </ul>
+>>>>>>> fa14d03f4e0d9f78c87cf769cd5461217a28d991
           <ul>
             <li>
               <p onClick={() => this.props.triggerCheckout('api/stripe/update_card')}>
@@ -43,6 +57,7 @@ class BillingToolbar extends Component {
               </p>
             </li>
           </ul>
+<<<<<<< HEAD
           <ul>
             <li><p onClick={() => this.props.deleteAccount()}>Delete Account</p></li>
           </ul>
@@ -59,6 +74,17 @@ class BillingToolbar extends Component {
         Test
       </p>
     )
+=======
+        </div>
+      )
+    } else {
+      return (
+        <p className='btn' onClick={() => this.props.triggerCheckout('api/stripe/subscribe')}>
+          Test
+        </p>
+      )
+    }
+>>>>>>> fa14d03f4e0d9f78c87cf769cd5461217a28d991
   }
 
   render () {
