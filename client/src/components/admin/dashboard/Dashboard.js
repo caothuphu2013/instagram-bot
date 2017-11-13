@@ -17,6 +17,8 @@ import MenuBar from './MenuBar'
 
 // Auth
 import UpdateEmail from '../authorization/UpdateEmail'
+import UpdatePassword from '../authorization/UpdatePassword'
+import DeleteAccount from '../authorization/DeleteAccount'
 
 // Billing
 import Checkout from '../payments/Checkout'
@@ -77,6 +79,29 @@ class Dashboard extends Component {
             toastify={this.toastify.bind(this)}
             spinnify={this.spinnify.bind(this)}
             overlay={this.state.showOverlay}
+            deleteAccount={() => this.setState({
+              showOverlay: true,
+              overlayComponent: <DeleteAccount
+                spinnify={this.spinnify.bind(this)}
+                email={this.props.authenticatedUser.email}
+                closeOverlay={() => this.setState({ showOverlay: false })}
+                />,
+            })}
+            updatePassword={() => this.setState({
+              showOverlay: true,
+              overlayComponent: <UpdatePassword
+                triggerThankyou={(title, response) => this.setState({
+                  overlayComponent: <Thankyou
+                    closeOverlay={() => this.setState({ showOverlay: false })}>
+                    {title}
+                    {response}
+                  </Thankyou>
+                })}
+                spinnify={this.spinnify.bind(this)}
+                email={this.props.authenticatedUser.email}
+                closeOverlay={() => this.setState({ showOverlay: false })}
+                />,
+            })}
             updateEmail={() => this.setState({
               showOverlay: true,
               overlayComponent: <UpdateEmail

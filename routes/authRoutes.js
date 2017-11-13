@@ -74,7 +74,7 @@ module.exports = (app) => {
           }).catch(err => {
             res.status(500).send(err)
           })
-          
+
           const updateInstagramAccount = InstagramAccount.findOneAndUpdate(
             { email: user.email },
             {
@@ -169,7 +169,73 @@ module.exports = (app) => {
   })
 
   // reset password
-  app.post('/auth/reset_password', (req, res) => {})
+  app.post('/auth/update_password', (req, res) => {
+    console.log(req.user)
+    console.log(req.body)
+    res.status(200).send('Password updated successfully')
+  })
+
+  // logout current user
+  app.post('/auth/delete_account', (req, res) => {
+    // const deleteUser = User.findOneAndRemove({ email: req.body.email }).exec()
+    //
+    // deleteUser.then(res => {
+    //   console.log('response')
+    //   console.log(res)
+    // }).catch(err => {
+    //   console.log('error')
+    //   console.log(err)
+    // })
+
+    const errorMessage = 'There was an error deleting your account. Please try again.'
+
+    const deleteUser = User.findOneAndRemove({ email: req.body.email }).exec()
+
+    const deleteInstagramAccount = InstagramAccount.findOneAndRemove({ email: req.body.email }).exec()
+
+    const deleteStripeAccount = StripeAccount.findOneAndRemove({ email: req.body.email }).exec()
+
+    const deleteUserParameters = UserParameters.findOneAndRemove({ email: req.body.email }).exec()
+
+    deleteUser.then(user => {
+      deleteInsta()
+    }).catch(err => {
+      res.status(500).send(errorMessage)
+    })
+
+    const deleteInsta = () => {
+      deleteInstagramAccount.then(user => {
+        deleteStripe()
+      }).catch(err => {
+        res.status(500).send(errorMessage)
+      })
+    }
+
+    const deleteStripe = () => {
+      deleteStripeAccount.then(user => {
+        deleteParams()
+      }).catch(err => {
+        res.status(500).send(errorMessage)
+      })
+    }
+
+    const deleteParams = () => {
+      deleteUserParameters.then(user => {
+        req.logout()
+        res.redirect('/')
+      }).catch(err => {
+        res.status(500).send(errorMessage)
+      })
+    }
+    // console.log(req.body.email)
+    //
+    // User.remove({ email: req.body.email }, (err, res) => {
+    //   console.log('response')
+    //   console.log(res)
+    //   console.log('error')
+    //   console.log(err)
+    // });
+  })
 
   // logout current user
   app.get('/auth/logout', (req, res) => {

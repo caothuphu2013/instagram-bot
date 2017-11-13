@@ -11,8 +11,7 @@ class BillingToolbar extends Component {
     if (this.props.user.stripe_customer_id) {
       return (
         <div>
-        
-          <h5>Account</h5>
+
           <ul>
             <li>
               Email: {this.props.user.email}
@@ -22,12 +21,10 @@ class BillingToolbar extends Component {
             <li>Account created: {new Date(this.props.user.created_at).toLocaleString()}</li>
             <li>Last login: {new Date(this.props.user.last_login).toLocaleString()}</li>
           </ul>
-          <h5>Instagram Account</h5>
           <ul>
             <li>User: @{this.props.user.instagram_username}</li>
             <li><p onClick={() => this.props.deleteInstagram()}>Delete Instagram</p></li>
           </ul>
-          <h5>Billing</h5>
           <ul>
             <li>
               <p onClick={() => this.props.triggerCheckout('api/stripe/update_card')}>
