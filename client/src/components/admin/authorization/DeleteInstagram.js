@@ -5,30 +5,33 @@ class CancelSubscription extends Component {
   constructor (props) {
     super(props)
 
-    this.cancel = this.cancel.bind(this)
+    this.delete = this.delete.bind(this)
   }
 
-  cancel () {
+  delete () {
     this.props.spinnify()
-    axios.get('api/stripe/cancel')
+    axios.post('/auth/delete_instagram', { email: this.props.user.email })
       .then(response => {
         this.props.spinnify()
         this.props.triggerThankyou('Subscription cancelled', response.data)
       })
       .catch(error => {
         this.props.spinnify()
-        console.log(error)
         this.props.triggerThankyou('Oops something went wrong!', error.data)
       })
   }
 
   render () {
+    console.log(this.props.user)
+    let backgroundImage = `url('${this.props.user.instagram_profile_picture}')`
     return (
       <div>
-        <p>If you wish to cancel your subscription today, you will have continued
-          service until the end of this current billing period.</p>
-        <p>Feel free to start back up at anytime.</p>
-        <button className='btn' onClick={this.cancel}>Cancel</button>
+        <ul>
+          <li><div className='profile-pic' style={{ backgroundImage }} /></li>
+          <li><p>{this.props.user.instagram_username}</p></li>
+        </ul>
+        <p>Are you sure you would like to delete this Instagram account?</p>
+        <button className='btn' onClick={this.delete}>Delete</button>
         <p onClick={this.props.closeOverlay}>Close</p>
       </div>
     )

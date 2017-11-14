@@ -92,7 +92,8 @@ passport.use(
       instagram_username: profile._json.data.username,
       instagram_current_following: profile._json.data.counts.follows,
       instagram_current_followers: profile._json.data.counts.followed_by,
-      instagram_current_media: profile._json.data.counts.media
+      instagram_current_media: profile._json.data.counts.media,
+      onboarded: true
     }
 
     const updateUser = User.findOneAndUpdate(

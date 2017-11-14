@@ -1,20 +1,5 @@
 import React, { Component } from 'react'
-import Form from 'react-validation/build/form'
-import Input from 'react-validation/build/input'
-import validator from 'validator'
 import axios from 'axios'
-
-const required = (value) => {
-  if (!value.toString().trim().length) {
-    return 'require';
-  }
-};
-
-const password = (value) => {
-  if (!validator.ispassword(value)) {
-    return `${value} is not a valid password.`
-  }
-}
 
 class UpdatePassword extends Component {
   constructor (props) {
@@ -63,42 +48,39 @@ class UpdatePassword extends Component {
     return (
       <div>
         <p>Update your account password</p>
-        <Form id='update-password-form' className='form' onSubmit={this.update}>
+        <form id='update-password-form' className='form' onSubmit={this.update}>
           <label htmlFor='current_password'>
-            <Input
+            <input
               id='current_password'
               name='current_password'
               type='password'
               placeholder='Current password'
-              validations={[required, password]}
               value={this.state.current_password}
               onChange={this.handleChange}
             />
           </label>
           <label htmlFor='new_password'>
-            <Input
+            <input
               id='new_password'
               name='new_password'
               type='password'
               placeholder='New password'
-              validations={[required, password]}
               value={this.state.new_password}
               onChange={this.handleChange}
             />
           </label>
           <label htmlFor='confirm_new_password'>
-            <Input
+            <input
               id='confirm_new_password'
               name='confirm_new_password'
               type='password'
               placeholder='Confirm new password'
-              validations={[required, password]}
               value={this.state.confirm_new_password}
               onChange={this.handleChange}
             />
           </label>
           <input type='submit' value='Submit' />
-        </Form>
+        </form>
         {(this.state.error) && <p className='error'>Please confirm your new password matches</p>}
         <p onClick={this.props.closeOverlay}>Close</p>
       </div>

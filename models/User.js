@@ -20,7 +20,8 @@ const userSchema = new Schema({
   stripe_customer_id: String,
   stripe_email: String,
   stripe_subscription_id: String,
-  stripe_token: String
+  stripe_token: String,
+  onboarded: Boolean
 })
 
 userSchema.plugin(passportLocalMongoose, {

@@ -28,10 +28,8 @@
     "react-stripe-elements": "0.0.8",
     "react-timezone": "^0.2.0",
     "react-toastify": "^2.0.0",
-    "react-validation": "^3.0.7",
     "redux": "^3.7.2",
-    "redux-thunk": "^2.2.0",
-    "validator": "^9.1.1"
+    "redux-thunk": "^2.2.0"
   },
   "scripts": {
     "build-css": "node-sass-chokidar --source-map true src/scss/main.scss -o public/css",

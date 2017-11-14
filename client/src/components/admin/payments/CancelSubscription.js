@@ -10,7 +10,7 @@ class CancelSubscription extends Component {
 
   cancel () {
     this.props.spinnify()
-    axios.get('api/stripe/cancel')
+    axios.post('api/stripe/cancel_sub', { cacnel: true })
       .then(response => {
         this.props.spinnify()
         this.props.triggerThankyou('Subscription cancelled', response.data)

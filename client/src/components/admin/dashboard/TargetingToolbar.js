@@ -17,7 +17,6 @@ class TargetingToolbar extends Component {
       param_latitude: ''
     }
     this.handleChange = this.handleChange.bind(this)
-    this.handleCheckbox = this.handleCheckbox.bind(this)
     this.saveParams = this.saveParams.bind(this)
   }
 
@@ -54,11 +53,13 @@ class TargetingToolbar extends Component {
   }
 
   render () {
+    const noInstagram = (this.props.user.instagram_accessToken === '')
     return (
       <div id='targeting-toolbar' className='toolbar'>
         <TimezonePicker
           style={{width: '100%'}}
           value={this.state.param_timezone}
+          disabled={noInstagram}
           onChange={timezone => {
             this.setState({ param_timezone: timezone })
           }}
@@ -70,6 +71,7 @@ class TargetingToolbar extends Component {
 
         <Autocomplete
           style={{width: '100%'}}
+          disabled={noInstagram}
           onPlaceSelected={place => {
             this.setState({
               param_longitude: place.geometry.location.lng(),
@@ -88,6 +90,7 @@ class TargetingToolbar extends Component {
             placeholder='hashtags separated by a comma..'
             value={this.state.param_hashtags}
             onChange={this.handleChange}
+            disabled={noInstagram}
           />
           <label htmlFor='param_usernames'>Enter usernames:</label>
           <textarea
@@ -97,6 +100,7 @@ class TargetingToolbar extends Component {
             placeholder='usernames separated by a comma..'
             value={this.state.param_usernames}
             onChange={this.handleChange}
+            disabled={noInstagram}
           />
         <label htmlFor='param_blacklist_hashtags'>Enter hashtags to blacklist:</label>
           <textarea
@@ -106,6 +110,7 @@ class TargetingToolbar extends Component {
             placeholder='hashtags to blasklist separated by a comma..'
             value={this.state.param_blacklist_hashtags}
             onChange={this.handleChange}
+            disabled={noInstagram}
           />
         <label htmlFor='param_blacklist_usernames'>Enter usernames to blacklist:</label>
           <textarea
@@ -115,8 +120,9 @@ class TargetingToolbar extends Component {
             placeholder='usernames to blacklist separated by a comma..'
             value={this.state.param_blacklist_usernames}
             onChange={this.handleChange}
+            disabled={noInstagram}
           />
-          <input type='submit' value='Save' />
+          <input type='submit' disabled={noInstagram} value='Save' />
         </form>
 
       </div>

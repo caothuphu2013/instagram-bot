@@ -26,9 +26,9 @@ class StatsToolbar extends Component {
               <th>Following</th>
             </tr>
             <tr>
-              <td>{stats.instagram_current_media}</td>
-              <td>{stats.instagram_current_followers}</td>
-              <td>{stats.instagram_current_following}</td>
+              <td>{(stats.instagram_current_media) ? stats.instagram_current_media : '-'}</td>
+              <td>{(stats.instagram_current_followers) ? stats.instagram_current_followers : '-'}</td>
+              <td>{(stats.instagram_current_following) ? stats.instagram_current_following : '-'}</td>
             </tr>
           </table>
           <h5>Last Login</h5>

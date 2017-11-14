@@ -69,7 +69,7 @@ module.exports = (app) => {
     }
   })
 
-  app.post('api/stripe/cancel', requireLogin, (req, res) => {
+  app.post('api/stripe/cancel_sub', requireLogin, (req, res) => {
     console.log(req.user)
     stripe.subscriptions.del(req.user.stripe_subscription_id,
       { at_period_end: true },

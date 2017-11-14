@@ -1,20 +1,5 @@
 import React, { Component } from 'react'
-import Form from 'react-validation/build/form'
-import Input from 'react-validation/build/input'
-import validator from 'validator'
 import axios from 'axios'
-
-const required = (value) => {
-  if (!value.toString().trim().length) {
-    return 'require';
-  }
-};
-
-const email = (value) => {
-  if (!validator.isEmail(value)) {
-    return `${value} is not a valid email.`
-  }
-}
 
 class UpdateEmail extends Component {
   constructor (props) {
@@ -26,12 +11,13 @@ class UpdateEmail extends Component {
       error: false
     }
 
-    this.update = this.update.bind(this)
+    this.update = this.update.bind(this, this.state.context)
     this.handleChange = this.handleChange.bind(this)
   }
 
   handleChange (event) {
     this.setState({ [event.target.name]: event.target.value })
+    this.showInputError(event.target.name)
   }
 
   update (e) {
@@ -57,32 +43,37 @@ class UpdateEmail extends Component {
     return (
       <div>
         <p>Update your account email</p>
-        <Form id='update-email-form' className='form' onSubmit={this.update}>
+        <form
+          id='update-email-form'
+          className='form'
+          onSubmit={this.update}
+        >
           <div className='current_email'>Current Email: {this.props.email}</div>
           <label htmlFor='new_email'>
-            <Input
+            <input
               id='new_email'
               name='new_email'
               type='email'
               placeholder='New email'
-              validations={[required, email]}
               value={this.state.new_email}
               onChange={this.handleChange}
+              required
             />
+            <div className='error' id='email-error' />
           </label>
           <label htmlFor='confirm_new_email'>
-            <Input
+            <input
               id='confirm_new_email'
               name='confirm_new_email'
               type='email'
               placeholder='Confirm new email'
-              validations={[required, email]}
               value={this.state.confirm_new_email}
               onChange={this.handleChange}
+              required
             />
           </label>
           <input type='submit' value='Submit' />
-        </Form>
+        </form>
         {(this.state.error) && <p className='error'>Please confirm your new email matches</p>}
         <p onClick={this.props.closeOverlay}>Close</p>
       </div>

@@ -44,34 +44,54 @@ class SettingsToolbar extends Component {
   }
 
   render () {
+    const noInstagram = (this.props.user.instagram_accessToken === '')
     return (
       <div id='settings-toolbar' className='toolbar'>
+        {(noInstagram) && <p>Please connect an Instagram account</p>}
         <form id='params-form' onSubmit={this.saveParams}>
-          <label htmlFor='param_like_mode'>Like Mode: </label>
-          <input
-            id='param_like_mode'
-            type='checkbox'
-            name='param_like_mode'
-            checked={this.state.param_like_mode}
-            onClick={this.handleCheckbox}
-          />
-          <label htmlFor='param_follow_mode'>Follow Mode: </label>
-          <input
-            id='param_follow_mode'
-            type='checkbox'
-            name='param_follow_mode'
-            checked={this.state.param_follow_mode}
-            onClick={this.handleCheckbox}
-          />
-          <label htmlFor='param_unfollow_mode'>Unfollow Mode: </label>
-          <input
-            id='param_unfollow_mode'
-            type='checkbox'
-            name='param_unfollow_mode'
-            checked={this.state.param_unfollow_mode}
-            onClick={this.handleCheckbox}
-          />
-          <input type='submit' value='Save' />
+          <div className='switch'>
+            <label htmlFor='param_like_mode'>Like Mode:
+              <input
+                id='param_like_mode'
+                type='checkbox'
+                name='param_like_mode'
+                checked={this.state.param_like_mode}
+                onClick={this.handleCheckbox}
+                disabled={noInstagram}
+              />
+              <span className='lever' />
+            </label>
+          </div>
+
+          <div className='switch'>
+            <label htmlFor='param_follow_mode'>Follow Mode:
+              <input
+                id='param_follow_mode'
+                type='checkbox'
+                name='param_follow_mode'
+                checked={this.state.param_follow_mode}
+                onClick={this.handleCheckbox}
+                disabled={noInstagram}
+              />
+              <span className='lever' />
+            </label>
+          </div>
+
+          <div className='switch'>
+            <label htmlFor='param_unfollow_mode'>Unfollow Mode:
+              <input
+                id='param_unfollow_mode'
+                type='checkbox'
+                name='param_unfollow_mode'
+                checked={this.state.param_unfollow_mode}
+                onClick={this.handleCheckbox}
+                disabled={noInstagram}
+              />
+              <span className='lever' />
+            </label>
+          </div>
+
+          <button type='submit' name='action' disabled={noInstagram}>Save</button>
         </form>
       </div>
     )

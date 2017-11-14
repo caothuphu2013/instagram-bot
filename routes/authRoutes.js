@@ -32,7 +32,8 @@ module.exports = (app) => {
       stripe_customer_id: '',
       stripe_email: '',
       stripe_subscription_id: '',
-      stripe_token: ''
+      stripe_token: '',
+      onboarded: false
     }),
     req.body.password, (err, user) => {
       if (err) return res.send(err)
@@ -223,6 +224,73 @@ module.exports = (app) => {
       }).catch(err => {
         res.status(500).send(errorMessage)
       })
+    }
+  })
+
+  // delete current instagram account
+  app.post('/auth/delete_instagram', (req, res) => {
+    const errorMessage = 'There was an error deleting your account. Please try again.'
+
+    const updateUser = User.findOneAndUpdate(
+      { email: req.body.email },
+      {
+        instagram_accessToken: '',
+        instagram_id: '',
+        instagram_username: '',
+        instagram_current_following: null,
+        instagram_current_followers: null,
+        instagram_current_media: null
+      },
+      { new: true, upsert: true }).exec()
+
+    updateUser.then(user => {
+      deleteInsta()
+    }).catch(err => {
+      res.status(500).send(errorMessage)
+    })
+
+    const deleteInstagramAccount = InstagramAccount.findOneAndUpdate(
+      { email: req.body.email },
+      {
+        created_at: null,
+        current_login: null,
+        last_login: null,
+        instagram_accessToken: '',
+        instagram_id: '',
+        instagram_displayName: '',
+        instagram_username: '',
+        instagram_profile_picture: '',
+        instagram_bio: '',
+        instagram_current_media: null,
+        instagram_lastLogin_media: null,
+        instagram_current_following: null,
+        instagram_current_followers: null,
+        instagram_lastLogin_following: null,
+        instagram_lastLogin_followers: null,
+        instagram_likes_since_lastLogin: null,
+        instagram_follows_requested_since_lastLogin: null,
+        instagram_account_total: null,
+        instagram_account: null
+      },
+      { new: true, upsert: true }).exec()
+
+    const deleteInsta = () => {
+      deleteInstagramAccount.then(user => {
+        updateReqUser()
+      }).catch(err => {
+        res.status(500).send(errorMessage)
+      })
+    }
+
+    const updateReqUser = () => {
+      req.user.instagram_id = ''
+      req.user.instagram_username = ''
+      req.user.instagram_current_following = null
+      req.user.instagram_current_followers = null
+      req.user.instagram_current_media = null
+      req.user.instagram_accessToken = ''
+      req.user.save()
+      res.status(200).send('Instagram account successfully deleted')
     }
   })
 
