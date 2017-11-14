@@ -1,10 +1,22 @@
 import React, { Component } from 'react'
+import axios from 'axios'
 
 class BillingToolbar extends Component {
   constructor (props) {
     super(props)
 
     this.renderContent = this.renderContent.bind(this)
+  }
+
+  componentDidMount () {
+    axios.post('/api/stripe/current',
+    { customer_id: this.props.user.stripe_customer_id })
+      .then(customer => {
+        console.log(customer.data)
+      })
+      .catch(err => {
+        console.log(err)
+      })
   }
 
   renderContent () {

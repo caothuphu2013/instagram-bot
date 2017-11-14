@@ -76,13 +76,14 @@ module.exports = (app) => {
       (err, confirmation) => {
         if (err) console.log(err)
         console.log(confirmation)
-      }
-    )
+      })
   })
 
   // BILLING
 
   app.post('/api/stripe/update_card', requireLogin, (req, res) => {
+    const errorMessage = 'The card was not deleted properly. Please try again.'
+
     stripe.customers.retrieve(
       req.user.stripe_customer_id,
       (err, customer) => {
@@ -100,7 +101,7 @@ module.exports = (app) => {
           if (confirmation.deleted === true) {
             newCard()
           } else {
-            return res.status(500).send('The card was not deleted properly. Please try again.')
+            return res.status(500).send(errorMessage)
           }
         }
       )
@@ -115,7 +116,7 @@ module.exports = (app) => {
           if (card) {
             res.status(200).send('Your payment method has been updated.')
           } else {
-            res.status(500).send('The card was not updated properly. Please try again.')
+            res.status(500).send(errorMessage)
           }
         }
       )
@@ -125,12 +126,10 @@ module.exports = (app) => {
   // CUSTOMER
 
   app.post('/api/stripe/current', requireLogin, (req, res) => {
-    stripe.customers.retrieve(
-      "cus_BaXXq6kH07HDjv",
-      function(err, customer) {
-        // asynchronously called
-      }
-    )
+    stripe.customers.retrieve(req.body.customer_id, (err, customer) => {
+      if (err) res.status(500).send('There was an error retrieving customer')
+      if (customer) res.status(200).send(customer)
+    })
   })
 
   // COUPONS & DISCOUNTS

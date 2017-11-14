@@ -7,7 +7,6 @@ const User = require('../models/User')
 const UserParameters = require('../models/UserParameters')
 const StripeAccount = require('../models/StripeAccount')
 const ig = require('instagram-node').instagram()
-const moment = require('moment')
 
 module.exports = (app) => {
   // landing page
@@ -118,7 +117,7 @@ module.exports = (app) => {
 
     const updateUser = User.findOneAndUpdate(
       { email: req.user.email },
-      { email: req.body.new_email, stripe_email: req.body.new_email},
+      { email: req.body.new_email, stripe_email: req.body.new_email },
       { new: true, upsert: true }).exec()
 
     const updateInstagramAccount = InstagramAccount.findOneAndUpdate(
@@ -133,9 +132,8 @@ module.exports = (app) => {
 
     const updateUserParameters = UserParameters.findOneAndUpdate(
       { email: req.user.email },
-      { email: req.body.new_email},
+      { email: req.body.new_email },
       { new: true, upsert: true }).exec()
-
 
     updateUser.then(user => {
       startInsta()
@@ -170,23 +168,22 @@ module.exports = (app) => {
 
   // reset password
   app.post('/auth/update_password', (req, res) => {
-    console.log(req.user)
-    console.log(req.body)
-    res.status(200).send('Password updated successfully')
+    User.authenticate()(req.user.email, req.body.current_password, (err, user) => {
+      if (err) return res.status(500).send('There was an error. Please try again.')
+
+      if (user) {
+        user.setPassword(req.body.new_password, () => {
+          user.save()
+          res.status(200).send('Password reset successfully')
+        })
+      } else {
+        res.status(500).send('This user does not exist')
+      }
+    })
   })
 
   // logout current user
   app.post('/auth/delete_account', (req, res) => {
-    // const deleteUser = User.findOneAndRemove({ email: req.body.email }).exec()
-    //
-    // deleteUser.then(res => {
-    //   console.log('response')
-    //   console.log(res)
-    // }).catch(err => {
-    //   console.log('error')
-    //   console.log(err)
-    // })
-
     const errorMessage = 'There was an error deleting your account. Please try again.'
 
     const deleteUser = User.findOneAndRemove({ email: req.body.email }).exec()
@@ -227,14 +224,6 @@ module.exports = (app) => {
         res.status(500).send(errorMessage)
       })
     }
-    // console.log(req.body.email)
-    //
-    // User.remove({ email: req.body.email }, (err, res) => {
-    //   console.log('response')
-    //   console.log(res)
-    //   console.log('error')
-    //   console.log(err)
-    // });
   })
 
   // logout current user
