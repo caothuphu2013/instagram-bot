@@ -11,7 +11,7 @@ class StartAutomator extends Component {
   }
 
   componentDidMount () {
-    axios.get('/api/current_params', { email: this.props.user.email })
+    axios.get('/api/current_params', { email: this.props.email })
       .then(res => {
         if (res.data !== '') this.setState({ running: res.data.param_automator_running })
       })

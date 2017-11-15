@@ -10,15 +10,14 @@ class CancelSubscription extends Component {
 
   cancel () {
     this.props.spinnify()
-    axios.post('api/stripe/cancel_sub', { cacnel: true })
-      .then(response => {
+    axios.get('api/stripe/cancel_sub')
+      .then(customer => {
         this.props.spinnify()
-        this.props.triggerThankyou('Subscription cancelled', response.data)
+        console.log(customer);
       })
-      .catch(error => {
+      .catch(err => {
         this.props.spinnify()
-        console.log(error)
-        this.props.triggerThankyou('Oops something went wrong!', error.data)
+        console.log(err)
       })
   }
 

@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import axios from 'axios'
 
-class CancelSubscription extends Component {
+class DeleteInstagram extends Component {
   constructor (props) {
     super(props)
 
@@ -22,7 +22,6 @@ class CancelSubscription extends Component {
   }
 
   render () {
-    console.log(this.props.user)
     let backgroundImage = `url('${this.props.user.instagram_profile_picture}')`
     return (
       <div>
@@ -38,4 +37,4 @@ class CancelSubscription extends Component {
   }
 }
 
-export default CancelSubscription
+export default DeleteInstagram

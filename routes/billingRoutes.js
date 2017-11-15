@@ -5,6 +5,8 @@ const User = require('../models/User')
 const StripeAccount = require('../models/StripeAccount')
 
 module.exports = (app) => {
+  // SUBSCRIPTION
+
   app.post('/api/stripe/subscribe', requireLogin, (req, res) => {
     // SUBSCRIPTIONS
     // CHECK IF STRIPE CUSTOMER EXISTS INSTEAD
@@ -69,14 +71,14 @@ module.exports = (app) => {
     }
   })
 
-  app.post('api/stripe/cancel_sub', requireLogin, (req, res) => {
+  app.get('api/stripe/cancel_sub', requireLogin, (req, res) => {
     console.log(req.user)
-    stripe.subscriptions.del(req.user.stripe_subscription_id,
-      { at_period_end: true },
-      (err, confirmation) => {
-        if (err) console.log(err)
-        console.log(confirmation)
-      })
+    // stripe.subscriptions.del(req.user.stripe_subscription_id,
+    //   { at_period_end: true },
+    //   (err, confirmation) => {
+    //     if (err) console.log(err)
+    //     console.log(confirmation)
+    //   })
   })
 
   // BILLING
@@ -131,29 +133,4 @@ module.exports = (app) => {
       if (customer) res.status(200).send(customer)
     })
   })
-
-  // COUPONS & DISCOUNTS
-  // app.post('/api/stripe/create_coupon', requireLogin, (req, res) => {
-  //   stripe.coupons.create({
-  //     percent_off: 25,
-  //     duration: 'repeating',
-  //     duration_in_months: 3,
-  //     id: '25OFF'
-  //   }, function(err, coupon) {
-  //     // asynchronously called
-  //   })
-  // })
-  //
-  // app.post('/api/stripe/retrieve_coupon', requireLogin, (req, res) => {
-  //   stripe.coupons.retrieve(
-  //     "25OFF",
-  //     function(err, coupon) {
-  //       // asynchronously called
-  //     }
-  //   )
-  // })
-  //
-  // app.post('/api/stripe/delete_coupon', requireLogin, (req, res) => {
-  //   stripe.coupons.del('25OFF')
-  // })
 }

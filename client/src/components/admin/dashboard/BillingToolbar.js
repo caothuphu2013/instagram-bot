@@ -42,9 +42,7 @@ class BillingToolbar extends Component {
 
   renderInstagramAccount () {
     if (this.props.user.instagram_accessToken === '') {
-      return (
-        <div><a className='btn' href='/auth/instagram'>Connect</a></div>
-      )
+      return <div><a className='btn' href='/auth/instagram'>Connect</a></div>
     }
 
     return (
@@ -67,6 +65,7 @@ class BillingToolbar extends Component {
     if (this.props.user.stripe_customer_id) {
       return (
         <div>
+          <h5>Account</h5>
           <ul>
             <li>
               <p>Email: {this.props.user.email}</p>
@@ -79,9 +78,12 @@ class BillingToolbar extends Component {
 
           <hr />
 
+          <h5>Instagram</h5>
           {this.renderInstagramAccount()}
 
           <hr />
+
+          <h5>Subscription</h5>
           <ul>
             <li><p>Subscription: {subName}</p></li>
             <li><p>Current period started: {periodStarts}</p></li>
@@ -90,6 +92,8 @@ class BillingToolbar extends Component {
           </ul>
 
           <hr />
+
+          <h5>Billing</h5>
           <ul>
             <li>
               <p>{this.state.card_brand} {this.state.card_last4}</p>
@@ -98,6 +102,7 @@ class BillingToolbar extends Component {
           </ul>
 
           <hr />
+
           <ul>
             <li><p onClick={() => this.props.deleteAccount()}>Delete Account</p></li>
           </ul>
