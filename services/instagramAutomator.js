@@ -16,6 +16,7 @@ exports.automate = (params) => {
   const likeMode = params.param_like_mode
   const followMode = params.param_follow_mode
   const unfollowMode = params.param_unfollow_mode
+  const boostMode = params.param_boost_mode
   // hashtags & usernames
   const hashtags = params.param_hashtags
   const usernames = params.param_usernames

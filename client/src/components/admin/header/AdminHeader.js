@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { Link } from 'react-router-dom'
-import ifInTrial from '../../../utilities/ifInTrial'
+import isInTrial from '../../../utilities/isInTrial'
 import trialDaysRemaining from '../../../utilities/trialDaysRemaining'
 
 class AdminHeader extends Component {
@@ -9,7 +9,7 @@ class AdminHeader extends Component {
     const createdAt = this.props.authenticatedUser.created_at
     const paid = this.props.authenticatedUser.stripe_subscription_id
 
-    if (ifInTrial(createdAt, paid)) {
+    if (isInTrial(createdAt, paid)) {
       return (
         <ul id='nav-mobile' className='right hide-on-med-and-down'>
           <li>{trialDaysRemaining(createdAt)}</li>

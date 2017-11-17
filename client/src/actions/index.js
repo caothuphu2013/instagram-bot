@@ -34,19 +34,3 @@ export const fetchUser = () => async dispatch => {
     payload: res.data
   })
 }
-
-export const handleToken = token => async dispatch => {
-  const res = await axios.post('/api/stripe', token)
-  dispatch({
-    type: FETCH_USER,
-    payload: res.data
-  })
-}
-
-// export const fetchuserInstagramStats = () => async dispatch => {
-//   const res = await axios.get('/stats/latest')
-//   dispatch({
-//     type: FETCH_USER_STATS,
-//     payload: res.data
-//   })
-// }

@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import StartAutomator from './StartAutomator'
+import isInTrial from '../../../utilities/isInTrial'
 
 class InstagramToolbar extends Component {
   constructor (props) {
@@ -14,18 +15,16 @@ class InstagramToolbar extends Component {
       return <a className='btn' href='/auth/instagram'>Connect</a>
     }
 
-    let backgroundImage = `url('${this.props.profilePic}')`
+    const backgroundImage = `url('${this.props.profilePic}')`
+    const isInTrialorNot = (isInTrial(user.created_at, user.stripe_subscription_id))
+    const subscribe = (<p className='btn' onClick={() => this.props.triggerCheckout('api/stripe/subscribe')}>Subscribe</p>)
+
     return (
       <div style={{ display: 'flex' }}>
         <div>
-          <ul>
-            <li><div className='profile-pic' style={{ backgroundImage }} /></li>
-            <li><p>{user.instagram_username}</p></li>
-            <li><p>Following: {user.instagram_current_following}</p></li>
-            <li><p>Followers: {user.instagram_current_followers}</p></li>
-          </ul>
         </div>
         <div>
+          {(isInTrialorNot) && subscribe}
           <StartAutomator
             email={user.email}
             toastify={this.props.toastify}
@@ -46,3 +45,12 @@ class InstagramToolbar extends Component {
 }
 
 export default InstagramToolbar
+
+{/*
+  <ul>
+    <li><div className='profile-pic' style={{ backgroundImage }} /></li>
+    <li><p>{user.instagram_username}</p></li>
+    <li><p>Following: {user.instagram_current_following}</p></li>
+    <li><p>Followers: {user.instagram_current_followers}</p></li>
+  </ul>
+  */}

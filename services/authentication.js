@@ -69,6 +69,7 @@ passport.use(
       param_like_mode: false,
       param_follow_mode: false,
       param_unfollow_mode: false,
+      param_boost_mode: false,
       param_automator_running: false,
       param_longitude: '',
       param_latitude: '',

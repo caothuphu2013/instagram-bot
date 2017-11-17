@@ -56,72 +56,79 @@ class TargetingToolbar extends Component {
     const noInstagram = (this.props.user.instagram_accessToken === '')
     return (
       <div id='targeting-toolbar' className='toolbar'>
-        <TimezonePicker
-          style={{width: '100%'}}
-          value={this.state.param_timezone}
-          disabled={noInstagram}
-          onChange={timezone => {
-            this.setState({ param_timezone: timezone })
-          }}
-          inputProps={{
-            placeholder: 'Select Timezone',
-            name: 'timezone'
-          }}
-        />
-
-        <Autocomplete
-          style={{width: '100%'}}
-          disabled={noInstagram}
-          onPlaceSelected={place => {
-            this.setState({
-              param_longitude: place.geometry.location.lng(),
-              param_latitude: place.geometry.location.lat()
-            })
-          }}
-          types={['(cities)']}
-        />
+        <h5>Active Targeting</h5>
 
         <form id='params-form' onSubmit={this.saveParams}>
-          <label htmlFor='param_hashtags'>Enter hashtags:</label>
-          <textarea
-            id='param_hashtags'
-            type='text'
-            name='param_hashtags'
-            placeholder='hashtags separated by a comma..'
-            value={this.state.param_hashtags}
-            onChange={this.handleChange}
+          <label htmlFor='param_hashtags'>Enter hashtags:
+            <textarea
+              id='param_hashtags'
+              type='text'
+              name='param_hashtags'
+              placeholder='hashtags separated by a comma..'
+              value={this.state.param_hashtags}
+              onChange={this.handleChange}
+              disabled={noInstagram}
+            />
+          </label>
+          <label htmlFor='param_usernames'>Enter usernames:
+            <textarea
+              id='param_usernames'
+              type='text'
+              name='param_usernames'
+              placeholder='usernames separated by a comma..'
+              value={this.state.param_usernames}
+              onChange={this.handleChange}
+              disabled={noInstagram}
+            />
+          </label>
+          <Autocomplete
+            style={{width: '100%'}}
             disabled={noInstagram}
+            onPlaceSelected={place => {
+              this.setState({
+                param_longitude: place.geometry.location.lng(),
+                param_latitude: place.geometry.location.lat()
+              })
+            }}
+            types={['(cities)']}
           />
-          <label htmlFor='param_usernames'>Enter usernames:</label>
-          <textarea
-            id='param_usernames'
-            type='text'
-            name='param_usernames'
-            placeholder='usernames separated by a comma..'
-            value={this.state.param_usernames}
-            onChange={this.handleChange}
+          <input type='submit' disabled={noInstagram} value='Save' />
+          <hr />
+          <h5>Optional Targeting</h5>
+          <TimezonePicker
+            style={{width: '100%'}}
+            value={this.state.param_timezone}
             disabled={noInstagram}
+            onChange={timezone => {
+              this.setState({ param_timezone: timezone })
+            }}
+            inputProps={{
+              placeholder: 'Select Timezone',
+              name: 'timezone'
+            }}
           />
-        <label htmlFor='param_blacklist_hashtags'>Enter hashtags to blacklist:</label>
-          <textarea
-            id='param_blacklist_hashtags'
-            type='text'
-            name='param_blacklist_hashtags'
-            placeholder='hashtags to blasklist separated by a comma..'
-            value={this.state.param_blacklist_hashtags}
-            onChange={this.handleChange}
-            disabled={noInstagram}
-          />
-        <label htmlFor='param_blacklist_usernames'>Enter usernames to blacklist:</label>
-          <textarea
-            id='param_blacklist_usernames'
-            type='text'
-            name='param_blacklist_usernames'
-            placeholder='usernames to blacklist separated by a comma..'
-            value={this.state.param_blacklist_usernames}
-            onChange={this.handleChange}
-            disabled={noInstagram}
-          />
+          <label htmlFor='param_blacklist_hashtags'>Enter hashtags to blacklist:
+            <textarea
+              id='param_blacklist_hashtags'
+              type='text'
+              name='param_blacklist_hashtags'
+              placeholder='hashtags to blasklist separated by a comma..'
+              value={this.state.param_blacklist_hashtags}
+              onChange={this.handleChange}
+              disabled={noInstagram}
+            />
+          </label>
+          <label htmlFor='param_blacklist_usernames'>Enter usernames to blacklist:
+            <textarea
+              id='param_blacklist_usernames'
+              type='text'
+              name='param_blacklist_usernames'
+              placeholder='usernames to blacklist separated by a comma..'
+              value={this.state.param_blacklist_usernames}
+              onChange={this.handleChange}
+              disabled={noInstagram}
+            />
+          </label>
           <input type='submit' disabled={noInstagram} value='Save' />
         </form>
 

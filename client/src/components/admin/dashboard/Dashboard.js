@@ -30,6 +30,9 @@ import Spinner from '../../UI/Spinner'
 import Overlay from '../../UI/Overlay'
 import Thankyou from '../../UI/Thankyou'
 
+// utilities
+import isInTrial from '../../../utilities/isInTrial'
+
 class Dashboard extends Component {
   constructor (props) {
     super(props)
@@ -48,11 +51,58 @@ class Dashboard extends Component {
   }
 
   componentWillReceiveProps (nextProps) {
+    // Check if user has been authenticated
     if (nextProps.authenticatedUser) {
+      // Check if user has been onboarded, if not show onboarding slider, if so
+      // check if userparams and userstats has propogated then show dashboard
       if (!nextProps.authenticatedUser.onboarded) {
         this.setState({ showOnBoarding: true, showSpinner: false })
       } else if (nextProps.userParams && nextProps.userInstagramStats) {
         this.setState({ showDashboard: true, showSpinner: false })
+      }
+    }
+  }
+
+  componentDidMount () {
+    // Check if user is still in trial, if not trigger overlay preventing them
+    // from using app, and asking to subscribe
+    const user = this.props.authenticatedUser
+    if (user.onboarded) {
+      if (user.stripe_subscription_id === '') {
+        if (!isInTrial(user.created_at, user.stripe_subscription_id)) {
+          const triggerCheckout = (path) => this.setState({
+            showOverlay: true,
+            overlayComponent:
+              <Checkout
+                path={path}
+                user={this.props.authenticatedUser}
+                triggerThankyou={(title, response) => this.setState({
+                  overlayComponent:
+                    <Thankyou
+                      reload
+                      closeOverlay={() => this.setState({ showOverlay: false })}>
+                      {title}
+                      {response}
+                    </Thankyou>
+                })}
+                spinnify={this.spinnify.bind(this)}
+                closeOverlay={() => this.setState({ showOverlay: false })}
+              />
+          })
+          const trialEnded = (
+            <Thankyou closeOverlay={() => this.setState({ showOverlay: false })}>
+              <p>
+                Your trial period has ended. Subscribe to our monthly plan to get
+                unlimited access.
+              </p>
+              <button
+                className='btn'
+                onClick={() => triggerCheckout('/api/stripe/subscribe')}>
+                Subscribe
+              </button>
+            </Thankyou>)
+          this.setState({ showOverlay: true, overlayComponent: trialEnded })
+        }
       }
     }
   }
@@ -71,6 +121,25 @@ class Dashboard extends Component {
           profilePic={this.props.userInstagramStats.instagram_profile_picture}
           toastify={this.toastify.bind(this)}
           spinnify={this.spinnify.bind(this)}
+          triggerCheckout={(path) => this.setState({
+            showOverlay: true,
+            overlayComponent:
+              <Checkout
+                path={path}
+                user={this.props.authenticatedUser}
+                triggerThankyou={(title, response) => this.setState({
+                  overlayComponent:
+                    <Thankyou
+                      reload
+                      closeOverlay={() => this.setState({ showOverlay: false })}>
+                      {title}
+                      {response}
+                    </Thankyou>
+                })}
+                spinnify={this.spinnify.bind(this)}
+                closeOverlay={() => this.setState({ showOverlay: false })}
+              />
+          })}
         />
         <MenuBar />
         <div className='toolbar-container'>
@@ -228,18 +297,23 @@ export default connect(mapStateToProps, actions)(Dashboard)
 {/*
   <MenuBar />
 
-  <StatsToolbar
-    userInstagramStats={this.props.userInstagramStats}
-    toastify={this.toastify.bind(this)}
-    spinnify={this.spinnify.bind(this)}
-  />
   <SettingsToolbar
     user={this.props.authenticatedUser}
     userParams={this.props.userParams}
     toastify={this.toastify.bind(this)}
     spinnify={this.spinnify.bind(this)}
   />
-
+  <TargetingToolbar
+    user={this.props.authenticatedUser}
+    userParams={this.props.userParams}
+    toastify={this.toastify.bind(this)}
+    spinnify={this.spinnify.bind(this)}
+  />
+  <StatsToolbar
+    userInstagramStats={this.props.userInstagramStats}
+    toastify={this.toastify.bind(this)}
+    spinnify={this.spinnify.bind(this)}
+  />
   <BillingToolbar
     user={this.props.authenticatedUser}
     toastify={this.toastify.bind(this)}
@@ -259,11 +333,12 @@ export default connect(mapStateToProps, actions)(Dashboard)
       overlayComponent:
         <UpdatePassword
           triggerThankyou={(title, response) => this.setState({
-            overlayComponent: <Thankyou
-              closeOverlay={() => this.setState({ showOverlay: false })}>
-              {title}
-              {response}
-            </Thankyou>
+            overlayComponent:
+              <Thankyou
+                closeOverlay={() => this.setState({ showOverlay: false })}>
+                {title}
+                {response}
+              </Thankyou>
           })}
           spinnify={this.spinnify.bind(this)}
           email={this.props.authenticatedUser.email}
@@ -272,72 +347,72 @@ export default connect(mapStateToProps, actions)(Dashboard)
     })}
     updateEmail={() => this.setState({
       showOverlay: true,
-      overlayComponent: <UpdateEmail
-        triggerThankyou={(title, response) => this.setState({
-          overlayComponent: <Thankyou
-            closeOverlay={() => this.setState({ showOverlay: false })}>
-            {title}
-            {response}
-          </Thankyou>
-        })}
-        spinnify={this.spinnify.bind(this)}
-        email={this.props.authenticatedUser.email}
-        closeOverlay={() => this.setState({ showOverlay: false })}
-        />,
+      overlayComponent:
+        <UpdateEmail
+          triggerThankyou={(title, response) => this.setState({
+            overlayComponent:
+              <Thankyou
+                closeOverlay={() => this.setState({ showOverlay: false })}>
+                {title}
+                {response}
+              </Thankyou>
+          })}
+          spinnify={this.spinnify.bind(this)}
+          email={this.props.authenticatedUser.email}
+          closeOverlay={() => this.setState({ showOverlay: false })}
+        />
     })}
     triggerCancel={() => this.setState({
       showOverlay: true,
-      overlayComponent: <CancelSubscription
-        triggerThankyou={(title, response) => this.setState({
-          overlayComponent:
-          <Thankyou
-            closeOverlay={() => this.setState({ showOverlay: false })}>
-            {title}
-            {response}
-          </Thankyou>
-        })}
-        spinnify={this.spinnify.bind(this)}
-        closeOverlay={() => this.setState({ showOverlay: false })}
+      overlayComponent:
+        <CancelSubscription
+          triggerThankyou={(title, response) => this.setState({
+            overlayComponent:
+              <Thankyou closeOverlay={() => this.setState({ showOverlay: false })}>
+                {title}
+                {response}
+              </Thankyou>
+          })}
+          spinnify={this.spinnify.bind(this)}
+          closeOverlay={() => this.setState({ showOverlay: false })}
         />
     })}
     triggerCheckout={(path) => this.setState({
       showOverlay: true,
-      overlayComponent: <Checkout
-        path={path}
-        user={this.props.authenticatedUser}
-        triggerThankyou={(title, response) => this.setState({
-          overlayComponent: <Thankyou
-            reload
-            closeOverlay={() => this.setState({ showOverlay: false })}>
-            {title}
-            {response}
-          </Thankyou>
-        })}
-        spinnify={this.spinnify.bind(this)}
-        closeOverlay={() => this.setState({ showOverlay: false })}
+      overlayComponent:
+        <Checkout
+          path={path}
+          user={this.props.authenticatedUser}
+          triggerThankyou={(title, response) => this.setState({
+            overlayComponent:
+              <Thankyou
+                reload
+                closeOverlay={() => this.setState({ showOverlay: false })}
+              >
+                {title}
+                {response}
+              </Thankyou>
+          })}
+          spinnify={this.spinnify.bind(this)}
+          closeOverlay={() => this.setState({ showOverlay: false })}
         />
-      })}
+    })}
     deleteInstagram={() => this.setState({
       showOverlay: true,
       overlayComponent:
         <DeleteInstagram
           triggerThankyou={(title, response) => this.setState({
-            overlayComponent: <Thankyou
-              closeOverlay={() => this.setState({ showOverlay: false })}>
-              {title}
-              {response}
-            </Thankyou>
+            overlayComponent:
+              <Thankyou
+                reload
+                closeOverlay={() => this.setState({ showOverlay: false })}>
+                {title}
+                {response}
+              </Thankyou>
           })}
           user={this.props.userInstagramStats}
           spinnify={this.spinnify.bind(this)}
           closeOverlay={() => this.setState({ showOverlay: false })}
         />
     })}
-  />
-  <TargetingToolbar
-    user={this.props.authenticatedUser}
-    userParams={this.props.userParams}
-    toastify={this.toastify.bind(this)}
-    spinnify={this.spinnify.bind(this)}
-  />
    */}
