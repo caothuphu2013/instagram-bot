@@ -22,6 +22,12 @@ class InstagramToolbar extends Component {
     return (
       <div style={{ display: 'flex' }}>
         <div>
+          <ul>
+            <li><div className='profile-pic' style={{ backgroundImage }} /></li>
+            <li><p>{user.instagram_username}</p></li>
+            <li><p>Following: {user.instagram_current_following}</p></li>
+            <li><p>Followers: {user.instagram_current_followers}</p></li>
+          </ul>
         </div>
         <div>
           {(isInTrialorNot) && subscribe}

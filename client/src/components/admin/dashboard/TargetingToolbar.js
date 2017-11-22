@@ -95,18 +95,6 @@ class TargetingToolbar extends Component {
           <input type='submit' disabled={noInstagram} value='Save' />
           <hr />
           <h5>Optional Targeting</h5>
-          <TimezonePicker
-            style={{width: '100%'}}
-            value={this.state.param_timezone}
-            disabled={noInstagram}
-            onChange={timezone => {
-              this.setState({ param_timezone: timezone })
-            }}
-            inputProps={{
-              placeholder: 'Select Timezone',
-              name: 'timezone'
-            }}
-          />
           <label htmlFor='param_blacklist_hashtags'>Enter hashtags to blacklist:
             <textarea
               id='param_blacklist_hashtags'
@@ -129,6 +117,18 @@ class TargetingToolbar extends Component {
               disabled={noInstagram}
             />
           </label>
+          <TimezonePicker
+            style={{width: '100%'}}
+            value={this.state.param_timezone}
+            disabled={noInstagram}
+            onChange={timezone => {
+              this.setState({ param_timezone: timezone })
+            }}
+            inputProps={{
+              placeholder: 'Select Timezone',
+              name: 'timezone'
+            }}
+          />
           <input type='submit' disabled={noInstagram} value='Save' />
         </form>
 

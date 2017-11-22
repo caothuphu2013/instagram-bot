@@ -17,7 +17,6 @@ class UpdateEmail extends Component {
 
   handleChange (event) {
     this.setState({ [event.target.name]: event.target.value })
-    this.showInputError(event.target.name)
   }
 
   update (e) {

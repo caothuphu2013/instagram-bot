@@ -50,6 +50,8 @@ exports.automate = (params) => {
 
   let hashtagRecentMediaIDs = []
 
+  let usersIFollow
+  let notFollowedBy = []
   // for Unfollows function
   let userIDsRequestedToFollow = []
 
@@ -160,7 +162,7 @@ exports.automate = (params) => {
     }
   }
 
-  function addFollows () {
+  async function addFollows () {
     /********************************/
     /*       USERNAMES DATA         */
     /********************************/
@@ -181,8 +183,27 @@ exports.automate = (params) => {
     }
   }
 
-  function unFollows () {
+  async function unFollows () {
+    // Get list of users I follow
+    if (unfollowMode) {
+      await getWhoIFollow()
+    }
 
+    // Loop through that list and check if each user follows you back
+    if (usersIFollow.length > 0) {
+      for (var a = 0; a < usersIFollow.length; a++) {
+        if (await getRelationship(usersIFollow[a], 'incoming_status') === 'followed_by') {
+          notFollowedBy.push(usersIFollow[a])
+        }
+      }
+    }
+
+    // Now request to unfollow each user who doesnt follow you back
+    if (notFollowedBy.length > 0) {
+      for (var b = 0; b < notFollowedBy.length; b++) {
+        requestToUnfollow(notFollowedBy[b])
+      }
+    }
   }
 
   function finishAutomation () {
@@ -207,14 +228,15 @@ exports.automate = (params) => {
 
   async function automate () {
     if (!abort) await getData()
-    // if (!abort && likeMode) await addLikes()
-    // if (!abort && followMode) await addFollows()
-    // if (!abort) await finishAutomation()
+    if (!abort && likeMode) await addLikes()
+    if (!abort && followMode) await addFollows()
+    if (!abort && unfollowMode) await unFollows()
+    if (!abort) await finishAutomation()
   }
 
   // [ '30984466', '1749343281', '5277147', '27343860' ]
   // requestToFollow('1749343281')
-
+  unFollows()
   /********************************/
   /*           HELPERS            */
   /********************************/
@@ -394,13 +416,31 @@ exports.automate = (params) => {
   /********************************/
   /*   RELATIONSHIP ENDPOINTS     */
   /********************************/
-  function getRelationship (usernameID) {
-   axios.get(`https://api.instagram.com/v1/users/${usernameID}/relationship`, {
+  function getWhoIFollow () {
+    return axios.get(`https://api.instagram.com/v1/users/self/follows`, {
       params: { access_token: accessToken }
     })
     .then(res => {
       apiCallsPerHour++
-      console.log(res.data.data)
+      usersIFollow = res.data.data.map(user => user.id)
+    })
+    .catch(err => {
+      console.log('get who I follow err: ' + err)
+      if (err.response.data.error_type === 'OAuthRateLimitException') abort = true
+    })
+  }
+
+  function getRelationship (usernameID, status) {
+    return axios.get(`https://api.instagram.com/v1/users/${usernameID}/relationship`, {
+      params: { access_token: accessToken }
+    })
+    .then(res => {
+      apiCallsPerHour++
+      if (status === 'incoming_status') {
+        return res.data.data.incoming_status
+      } else {
+        return res.data.data.outgoing_status
+      }
     })
     .catch(err => {
       console.log('get relationship err: ' + err)
@@ -409,11 +449,48 @@ exports.automate = (params) => {
   }
 
   function requestToFollow (usernameID) {
+    axios.post(`https://api.instagram.com/v1/users/${usernameID}/relationship?access_token=${accessToken}`, {
+      action: 'follow'
+    })
+    .then(res => {
+      console.log(res.body.data)
+    })
+    .catch(err => {
+      console.log(err.data)
+    })
+
+    // fetch(`https://api.instagram.com/v1/users/${usernameID}/relationship?access_token=${accessToken}`,
+    //   { method: 'POST', body: JSON.stringify({ action: 'follow' }), headers: { contentType: 'application/json' } })
+    // .then(res => {
+    //   return res.json()
+    // }).catch(err => {
+    //   console.log('err: ' + err)
+    // })
+    // .then(res => {
+    //   console.log(res)
+    // })
+  }
+
+  function requestToUnfollow (usernameID) {
+    // axios.post(`https://api.instagram.com/v1/users/${usernameID}/relationship?access_token=${accessToken}`, {
+    //   action: 'unfollow'
+    // })
+    // .then(res => {
+    //   console.log(res.body.data)
+    // })
+    // .catch(err => {
+    //   console.log(err.data)
+    // })
+
     fetch(`https://api.instagram.com/v1/users/${usernameID}/relationship?access_token=${accessToken}`,
-      { method: 'POST', body: JSON.stringify({ action: 'follow' }), headers: { contentType: 'application/json' } })
+      { method: 'POST', body: JSON.stringify({ action: 'unfollow' }), headers: { contentType: 'application/json' } })
+    .then(res => {
+      return res.json()
+    })
     .then(res => {
       console.log(res)
-    }).catch(err => {
+    })
+    .catch(err => {
       console.log('err: ' + err)
     })
   }

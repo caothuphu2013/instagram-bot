@@ -15,6 +15,7 @@ class BillingToolbar extends Component {
 
     this.renderContent = this.renderContent.bind(this)
     this.renderInstagramAccount = this.renderInstagramAccount.bind(this)
+    this.renderBilling = this.renderBilling.bind(this)
   }
 
   componentDidMount () {
@@ -53,9 +54,7 @@ class BillingToolbar extends Component {
     )
   }
 
-  renderContent () {
-    const created = new Date(this.props.user.created_at).toLocaleString().split(',')[0]
-    const lastLogin = new Date(this.props.user.last_login).toLocaleString().split(',')[0]
+  renderBilling () {
     const subName = (this.state.has_data) ? this.state.sub_name : '-'
     const periodStarts = (this.state.has_data)
     ? new Date(this.state.sub_current_period_end).toLocaleString().split(',')[0] : '-'
@@ -65,34 +64,13 @@ class BillingToolbar extends Component {
     if (this.props.user.stripe_customer_id) {
       return (
         <div>
-          <h5>Account</h5>
-          <ul>
-            <li>
-              <p>Email: {this.props.user.email}</p>
-              <p onClick={() => this.props.updateEmail()}>Update Email</p>
-            </li>
-            <li><p onClick={() => this.props.updatePassword()}>Update password</p></li>
-            <li><p>Account created: {created}</p></li>
-            <li><p>Last login: {lastLogin}</p></li>
-          </ul>
-
-          <hr />
-
-          <h5>Instagram</h5>
-          {this.renderInstagramAccount()}
-
-          <hr />
-
-          <h5>Subscription</h5>
           <ul>
             <li><p>Subscription: {subName}</p></li>
             <li><p>Current period started: {periodStarts}</p></li>
             <li><p>Current period ends: {periodEnds}</p></li>
             <li><p onClick={() => this.props.triggerCancel()}>Cancel subscription</p></li>
           </ul>
-
           <hr />
-
           <h5>Billing</h5>
           <ul>
             <li>
@@ -112,8 +90,34 @@ class BillingToolbar extends Component {
 
     return (
       <p className='btn' onClick={() => this.props.triggerCheckout('api/stripe/subscribe')}>
-        Test
+        Subscribe
       </p>
+    )
+  }
+
+  renderContent () {
+    const created = new Date(this.props.user.created_at).toLocaleString().split(',')[0]
+    const lastLogin = new Date(this.props.user.last_login).toLocaleString().split(',')[0]
+
+    return (
+      <div>
+        <h5>Account</h5>
+        <ul>
+          <li>
+            <p>Email: {this.props.user.email}</p>
+            <p onClick={() => this.props.updateEmail()}>Update Email</p>
+          </li>
+          <li><p onClick={() => this.props.updatePassword()}>Update password</p></li>
+          <li><p>Account created: {created}</p></li>
+          <li><p>Last login: {lastLogin}</p></li>
+        </ul>
+        <hr />
+        <h5>Instagram</h5>
+        {this.renderInstagramAccount()}
+        <hr />
+        <h5>Subscription</h5>
+        {this.renderBilling()}
+      </div>
     )
   }
 
