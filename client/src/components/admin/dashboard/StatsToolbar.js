@@ -55,10 +55,10 @@ class StatsToolbar extends Component {
             </tr>
             <tr>
               <td>
-                {(stats.instagram_likes_since_lastLogin === null) ? '-' : stats.instagram_likes_since_lastLogin}
+                {(stats.instagram_likes_since_lastLogin === 0) ? '-' : stats.instagram_likes_since_lastLogin}
               </td>
               <td>
-                {(stats.instagram_follows_requested_since_lastLogin === null) ? '-' : stats.instagram_follows_requested_since_lastLogin}
+                {(stats.instagram_follows_requested_since_lastLogin === 0) ? '-' : stats.instagram_follows_requested_since_lastLogin}
               </td>
               <td>
                 {(stats.instagram_lastLogin_followers === null) ? '-' : (stats.instagram_current_followers - stats.instagram_lastLogin_followers)}

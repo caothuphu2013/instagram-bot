@@ -59,6 +59,7 @@ module.exports = (app) => {
         // make instagram api call to get users latest data
         ig.use({ access_token: user.instagram_accessToken })
         ig.user(user.instagram_id, (err, medias, pagination, remaining, limit) => {
+          console.log(medias)
           if (err) return res.send(err)
 
           const updateUser = User.findOneAndUpdate(

@@ -20,6 +20,8 @@ const InstagramAccount = new Schema({
   instagram_current_followers: Number,
   instagram_lastLogin_following: Number,
   instagram_lastLogin_followers: Number,
+  instagram_current_likes_since_lastLogin: Number,
+  instagram_current_follows_requested_since_lastLogin: Number,
   instagram_likes_since_lastLogin: Number,
   instagram_follows_requested_since_lastLogin: Number,
   instagram_account_total: Number,

@@ -1,12 +1,11 @@
 const axios = require('axios')
-const keys = require('../config/keys')
 const mongoose = require('mongoose')
 mongoose.Promise = require('bluebird')
 const moment = require('moment-timezone')
 const fetch = require('node-fetch')
+const InstagramAccount = require('../models/InstagramAccount')
 
 exports.automate = (params) => {
-  console.log('automator running')
   // account
   const userEmail = params.email
   const instagramID = params.instagram_id
@@ -28,19 +27,18 @@ exports.automate = (params) => {
   const timezone = params.param_timezone
   const localHour = (timezone) && Number(moment().tz(timezone).format().split('T')[1].split(':')[0])
   // intervals
-  const perHour = (process.env.NODE_ENV === 'production') ? 60 : 30
-  const oneHour = 3600000
-  const globalRateLimit = keys.globalRateLimit // 500 sandbox / 5000 prod
-
+  const likeLimitPerHour = (boostMode) ? 120 : 80
+  const followLimitPerHour = (boostMode) ? 120 : 80
   /*-----------------------
   //  Automator Variables
   -------------------------*/
   let likesPerHour = 0
   let followsPerHour = 0
   let apiCallsPerHour = 0
-  let skip = 5
+  let skip = 4
   let abort = false
 
+  // GET DATA
   let locationIDs
   let locationMediaIDs = []
 
@@ -50,37 +48,47 @@ exports.automate = (params) => {
 
   let hashtagRecentMediaIDs = []
 
+  // UNFOLLOW DATA
   let usersIFollow
   let notFollowedBy = []
-  // for Unfollows function
-  let userIDsRequestedToFollow = []
 
-  /*-------------------------
+  /* -------------------------
   //  START AUTOMATOR      //
-  -------------------------*/
+  ------------------------- */
   // check if timezone parameter is in place, if not automatically run automate()
   // // if so, check if the localHour is before 10pm and after 7am, when it is run automate()
-  // if (timezone !== '') {
-  //   if (localHour < 20 && localHour > 7) automate()
-  // } else {
-  //   automate()
-  // }
+  if (timezone !== '') {
+    if (localHour < 20 && localHour > 7) automate()
+  } else {
+    automate()
+  }
 
-  /*-------------------------
+  /* ------------------------
+  //  AUTOMATOR            //
+  ------------------------- */
+  async function automate () {
+    if (!abort) await getData()
+    if (!abort && likeMode && (likesPerHour < likeLimitPerHour)) await addLikes()
+    if (!abort && followMode && (followsPerHour < followLimitPerHour)) await addFollows()
+    if (!abort && unfollowMode) await unFollows()
+    await finishAutomation()
+  }
+
+  /* -------------------------
   //  AUTOMATOR PROCESS    //
-  -------------------------*/
+  ------------------------- */
   async function getData () {
     /********************************/
     /*       LOCATIONS DATA         */
     /********************************/
     // get location IDs based off latitude and longitude coordinates
-    // locationIDs = (latitude !== '' && longitude !== '') && await locationSearch()
+    locationIDs = (latitude !== '' && longitude !== '') && await locationSearch()
     // // // get recent media IDs based off location IDs
-    // if (locationIDs) {
-    //   for (var z = 0; z < locationIDs.length; z++) {
-    //     locationMediaIDs.push(await locationRecentMedia(locationIDs[z]))
-    //   }
-    // }
+    if (locationIDs) {
+      for (var z = 0; z < locationIDs.length; z++) {
+        locationMediaIDs.push(await locationRecentMedia(locationIDs[z]))
+      }
+    }
 
     /********************************/
     /*       USERNAMES DATA         */
@@ -92,31 +100,31 @@ exports.automate = (params) => {
       }
     }
     // get recent media IDs based from the username IDs
-    // if (usernameIDs) {
-    //   for (var b = 0; b < usernames.length; b++) {
-    //     userRecentMediaIDs.push(await userRecentMedia(usernameIDs[b]))
-    //   }
-    // }
+    if (usernameIDs.length > 0) {
+      for (var b = 0; b < usernames.length; b++) {
+        userRecentMediaIDs.push(await userRecentMedia(usernameIDs[b]))
+      }
+    }
     // // get user's followers IDs based off the recent media they liked
-    // if (userRecentMediaIDs) {
-    //   for (var c = 0; c < userRecentMediaIDs.length; c++) {
-    //     if (userRecentMediaIDs[c].length > 0) {
-    //       for (var cc = 0; cc < userRecentMediaIDs[c].length; cc += skip) {
-    //         userIDsWhoFollowUsernames.push(await usersWhoLikedThisMedia(userRecentMediaIDs[c][cc]))
-    //       }
-    //     }
-    //   }
-    // }
+    if (userRecentMediaIDs.length > 0) {
+      for (var c = 0; c < userRecentMediaIDs.length; c++) {
+        if (userRecentMediaIDs[c].length > 0) {
+          for (var cc = 0; cc < userRecentMediaIDs[c].length; cc += skip) {
+            userIDsWhoFollowUsernames.push(await usersWhoLikedThisMedia(userRecentMediaIDs[c][cc]))
+          }
+        }
+      }
+    }
 
     // /********************************/
     /*       HASHTAGS DATA          */
     /********************************/
     // get recent media IDs based from hashtags
-    // if (hashtags[0] !== '') {
-    //   for (var d = 0; d < hashtags.length; d++) {
-    //     hashtagRecentMediaIDs.push(await recentHashtagMedia(hashtags[d]))
-    //   }
-    // }
+    if (hashtags[0] !== '') {
+      for (var d = 0; d < hashtags.length; d++) {
+        hashtagRecentMediaIDs.push(await recentHashtagMedia(hashtags[d]))
+      }
+    }
     //
     // console.log(locationIDs)
     // console.log(locationMediaIDs)
@@ -131,13 +139,16 @@ exports.automate = (params) => {
     /*       LOCATION LIKES         */
     /********************************/
     // loop through location Media IDs and like posts
-    if (locationMediaIDs.length > 0) {
-      for (var y = 0; y < locationMediaIDs.length; y++) {
-        if (locationMediaIDs[y].length > 0) {
-          for (var yy = 0; yy < locationMediaIDs[y].length; yy += skip) {
-            if (await addLike(locationMediaIDs[y][yy]) === 200) {
-              likesPerHour++
-              console.log('added location like')
+    if (latitude !== '' && longitude !== '') {
+      if (locationMediaIDs.length > 0) {
+        for (var y = 0; y < locationMediaIDs.length; y++) {
+          if (locationMediaIDs[y].length > 0) {
+            for (var yy = 0; yy < locationMediaIDs[y].length; yy += skip) {
+              if (await addLike(locationMediaIDs[y][yy]) === 200) {
+                likesPerHour++
+                if (likesPerHour >= likeLimitPerHour) abort = true
+                console.log('added location like')
+              }
             }
           }
         }
@@ -154,7 +165,26 @@ exports.automate = (params) => {
           for (var xx = 0; xx < userRecentMediaIDs[x].length; xx += skip) {
             if (await addLike(userRecentMediaIDs[x][xx]) === 200) {
               likesPerHour++
+              if (likesPerHour >= likeLimitPerHour) abort = true
               console.log('added users recent media like')
+            }
+          }
+        }
+      }
+    }
+
+    /********************************/
+    /*  HASHTAG RECENT MEDIA LIKES  */
+    /********************************/
+    // loop through given hashtag recent media and like some of the media
+    if (hashtagRecentMediaIDs.length > 0) {
+      for (var z = 0; z < hashtagRecentMediaIDs.length; z++) {
+        if (hashtagRecentMediaIDs[z].length > 0) {
+          for (var zz = 0; zz < hashtagRecentMediaIDs[z].length; zz += skip) {
+            if (await addLike(hashtagRecentMediaIDs[z][zz]) === 200) {
+              likesPerHour++
+              if (likesPerHour >= likeLimitPerHour) abort = true
+              console.log('added hashtag recent media like')
             }
           }
         }
@@ -185,14 +215,12 @@ exports.automate = (params) => {
 
   async function unFollows () {
     // Get list of users I follow
-    if (unfollowMode) {
-      await getWhoIFollow()
-    }
+    if (unfollowMode) await getWhoIFollow()
 
     // Loop through that list and check if each user follows you back
     if (usersIFollow.length > 0) {
       for (var a = 0; a < usersIFollow.length; a++) {
-        if (await getRelationship(usersIFollow[a], 'incoming_status') === 'followed_by') {
+        if (await getRelationship(usersIFollow[a], 'incoming_status') === 'none') {
           notFollowedBy.push(usersIFollow[a])
         }
       }
@@ -207,36 +235,31 @@ exports.automate = (params) => {
   }
 
   function finishAutomation () {
-    // const saveData = Stats.findOneAndUpdate(
-    //   { email: userEmail },
-    //   {
-    //     $inc: {
-    //       instagram_likes_since_lastLogin: likesPerHour,
-    //       instagram_follows_requested_since_lastLogin: followsPerHour
-    //     }
-    //   },
-    //   { returnNewDocument: true, upsert: true }).exec()
-    //
-    // saveData.then(params => {
-    //     console.log('finish: ' + likesPerHour)
-    //     console.log('finish: ' + perHour)
-    //     // if (likesPerHour < perHour && followsPerHour < perHour) automate()
-    //   }).catch(err => {
-    //     console.log(err)
-    //   })
-  }
+    const saveData = InstagramAccount.findOneAndUpdate(
+      { email: userEmail },
+      {
+        $inc: {
+          instagram_likes_since_lastLogin: likesPerHour,
+          instagram_follows_requested_since_lastLogin: followsPerHour
+        }
+      },
+      { returnNewDocument: true, upsert: true }).exec()
 
-  async function automate () {
-    if (!abort) await getData()
-    if (!abort && likeMode) await addLikes()
-    if (!abort && followMode) await addFollows()
-    if (!abort && unfollowMode) await unFollows()
-    if (!abort) await finishAutomation()
+    saveData.then(params => {
+      console.log('finish: ' + likesPerHour)
+      console.log('finish: ' + followsPerHour)
+      console.log(params)
+      if (likesPerHour < likeLimitPerHour || followsPerHour < followLimitPerHour) {
+        // automate()
+      }
+    }).catch(err => {
+      console.log(err)
+    })
   }
 
   // [ '30984466', '1749343281', '5277147', '27343860' ]
   // requestToFollow('1749343281')
-  unFollows()
+
   /********************************/
   /*           HELPERS            */
   /********************************/
@@ -392,7 +415,7 @@ exports.automate = (params) => {
       return res.data.meta.code
     })
     .catch(err => {
-      console.log('add like error: ' + err)
+      console.log(err)
       if (err.response.data.error_type === 'OAuthRateLimitException') abort = true
     })
   }

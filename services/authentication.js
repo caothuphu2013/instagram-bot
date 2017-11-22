@@ -43,8 +43,10 @@ passport.use(
       instagram_current_followers: profile._json.data.counts.followed_by,
       instagram_lastLogin_following: null,
       instagram_lastLogin_followers: null,
-      instagram_likes_since_lastLogin: null,
-      instagram_follows_requested_since_lastLogin: null,
+      instagram_current_likes_since_lastLogin: null,
+      instagram_current_follows_requested_since_lastLogin: null,
+      instagram_likes_since_lastLogin: 0,
+      instagram_follows_requested_since_lastLogin: 0,
       instagram_account_total: 1,
       instagram_account: 1
     }
