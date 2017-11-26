@@ -1,0 +1,10 @@
+nav {
+  height: 44px;
+  line-height: 44px;
+  position: fixed;
+  z-index: 1000;
+  padding-bottom: 64px; }
+
+.home {
+  position: relative;
+  top: 64px; }

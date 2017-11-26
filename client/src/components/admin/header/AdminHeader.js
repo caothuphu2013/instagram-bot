@@ -29,9 +29,13 @@ class AdminHeader extends Component {
     return (
       <nav>
         <div className='container nav-wrapper'>
-          <Link to='/dashboard' className='brand-logo'>
-          </Link>
-          {this.renderContent()}
+          <Link to='/dashboard' className='brand-logo'>Strolio</Link>
+          <ul id='nav-mobile' className='right hide-on-med-and-down'>
+            <li><Link to='/pricing'>Pricing</Link></li>
+            <li><Link to='/guide'>Guide</Link></li>
+            <li><Link to='/faq'>FAQ</Link></li>
+            <li><a href='/auth/logout'>Logout</a></li>
+          </ul>
         </div>
       </nav>
     )

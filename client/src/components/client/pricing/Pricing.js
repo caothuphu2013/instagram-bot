@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
+import Spinner from '../../UI/Spinner'
 
-class Landing extends Component {
+class Pricing extends Component {
   constructor (props) {
     super(props)
 
@@ -13,10 +14,10 @@ class Landing extends Component {
 
   render () {
     return (
-      <div id='landing'>
-        <div className='container landing-container'>
+      <div id='pricing'>
+        <div className='container pricing-container'>
           <div style={{ textAlign: 'center', padding: '50px' }}>
-            Landing
+            Pricing
           </div>
         </div>
       </div>
@@ -24,4 +25,4 @@ class Landing extends Component {
   }
 }
 
-export default Landing
+export default Pricing

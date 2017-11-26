@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import StartAutomator from './StartAutomator'
 import isInTrial from '../../../utilities/isInTrial'
+import trialDaysRemaining from '../../../utilities/trialDaysRemaining'
 
 class InstagramToolbar extends Component {
   constructor (props) {
@@ -27,6 +28,7 @@ class InstagramToolbar extends Component {
             <li><p>{user.instagram_username}</p></li>
             <li><p>Following: {user.instagram_current_following}</p></li>
             <li><p>Followers: {user.instagram_current_followers}</p></li>
+            {(isInTrialorNot) && <li><p>{trialDaysRemaining(user.created_at)}</p></li>}
           </ul>
         </div>
         <div>

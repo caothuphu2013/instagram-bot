@@ -34,33 +34,43 @@ class AuthForm extends Component {
     event.preventDefault()
     this.spinnify()
     const signUp = {
-      name: this.state.name.toLowerCase(),
-      email: this.state.email.toLowerCase(),
+      name: this.state.name.toLowerCase().trim(),
+      email: this.state.email.toLowerCase().trim(),
       password: this.state.password,
       createdAt: Date.now()
     }
     const login = {
-      email: this.state.email.toLowerCase(),
-      password: this.state.password.toLowerCase(),
+      email: this.state.email.toLowerCase().trim(),
+      password: this.state.password.toLowerCase().trim(),
       createdAt: Date.now()
     }
     const params = (this.props.signUp) ? signUp : login
 
     axios.post(this.props.path, params)
       .then(res => {
-        if (res.data.success === undefined) {
-          this.setState({
-            error: true,
-            desription: 'This user already exists, please login instead'
+        console.log('res')
+        console.log(res)
+        if (res.data === "A user with the given username is already registered") {
+          this.setState({ error: true, name: '', email: '', password: '',
+            description: 'A user with the given email is already registered'
           })
+          this.spinnify()
+        } else if (res.data === "Password or username is incorrect") {
+          this.setState({ error: true, email: '', password: '',
+            description: res.data
+          })
+          this.spinnify()
+        } else {
+          this.props.fetchUser()
+          this.spinnify()
         }
-        this.props.fetchUser()
-        this.spinnify()
       })
-      .catch(error => {
+      .catch(err => {
+        console.log('err')
+        console.log(err)
         this.setState({
           error: true,
-          desription: 'There was an error signing up, please try again'
+          desription: err.message
         })
         this.spinnify()
       })
@@ -68,13 +78,15 @@ class AuthForm extends Component {
 
   renderSignUp () {
     return (
-      <textarea
-        type='text'
-        name='name'
-        placeholder='Name'
-        value={this.state.name}
-        onChange={this.handleChange}
-      />
+      <label htmlFor='name'>
+        <input
+          type='text'
+          name='name'
+          placeholder='First & Last Name'
+          value={this.state.name}
+          onChange={this.handleChange}
+        />
+      </label>
     )
   }
 
@@ -82,25 +94,29 @@ class AuthForm extends Component {
     return (
       <div className='container'>
         {(this.state.spinner) && <Spinner />}
-        {(this.state.error) && <p>{this.state.description}</p>}
+        {(this.state.error) ? <p className='error'>{this.state.description}</p> : null}
         <form id='login-form' onSubmit={this.login}>
-          <label htmlFor='hashtag'>{(this.props.signUp) ? 'Sign Up' : 'Login'}</label>
+          <p>{(this.props.signUp) ? 'Sign Up' : 'Login'}</p>
           {this.props.signUp && this.renderSignUp()}
-          <textarea
-            type='text'
-            name='email'
-            placeholder='Email'
-            value={this.state.email}
-            onChange={this.handleChange}
-          />
-          <textarea
-            type='text'
-            name='password'
-            placeholder='password'
-            value={this.state.password}
-            onChange={this.handleChange}
-          />
-          <input type='submit' value='Save' />
+          <label htmlFor='email'>
+            <input
+              type='email'
+              name='email'
+              placeholder='Email'
+              value={this.state.email}
+              onChange={this.handleChange}
+            />
+          </label>
+          <label htmlFor='password'>
+            <input
+              type='password'
+              name='password'
+              placeholder='Password'
+              value={this.state.password}
+              onChange={this.handleChange}
+            />
+          </label>
+          <input type='submit' value={(this.props.signUp) ? 'Start Trial' : 'Login'} />
         </form>
       </div>
     )

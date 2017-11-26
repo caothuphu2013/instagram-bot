@@ -1,5 +1,11 @@
 #dashboard {
   width: 100%;
-  position: relative;
+  position: fixed;
   height: calc(100vh - 64px);
+
+  .dashboard-container {
+    height: 100%;
+    width: 100%;
+
+  }
 }

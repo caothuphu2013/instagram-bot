@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { Link } from 'react-router-dom'
-import Modal from 'react-modal'
 import AuthForm from '../../admin/authorization/AuthForm'
+import Overlay from '../../UI/Overlay'
 
 class ClientHeader extends Component {
   constructor (props) {
@@ -17,11 +17,17 @@ class ClientHeader extends Component {
   }
 
   openSignUpModal () {
-    this.setState({ signUpModalIsOpen: !this.state.signUpModalIsOpen })
+    this.setState({
+      signUpModalIsOpen: !this.state.signUpModalIsOpen,
+      loginModalIsOpen: false
+    })
   }
 
   openLoginModal () {
-    this.setState({ loginModalIsOpen: !this.state.loginModalIsOpen })
+    this.setState({
+      loginModalIsOpen: !this.state.loginModalIsOpen,
+      signUpModalIsOpen: false
+    })
   }
 
   render () {
@@ -29,16 +35,20 @@ class ClientHeader extends Component {
       <nav>
         <div className='container nav-wrapper'>
           <Link to='/' className='brand-logo'>
+            Strolio
           </Link>
           <div>
-            <ul id='nav-mobile' className='right hide-on-med-and-down'>
-              <li><p onClick={this.openLoginModal}>Login</p></li>
-              <li><p onClick={this.openSignUpModal}>Sign Up</p></li>
+            <ul id='nav-mobile' className='right'>
+              <li><Link to='/pricing'>Pricing</Link></li>
+              <li><Link to='/guide'>Guide</Link></li>
+              <li><Link to='/faq'>FAQ</Link></li>
+              <li><a onClick={this.openLoginModal}>Login</a></li>
+              <li><a onClick={this.openSignUpModal}>Start Free Trial</a></li>
             </ul>
           </div>
         </div>
 
-        <Modal isOpen={this.state.signUpModalIsOpen} contentLabel='Sign Up Form'>
+        <Overlay isOpen={this.state.signUpModalIsOpen} contentLabel='Sign Up Form'>
           <AuthForm
             signUp='true'
             path='/auth/signup'
@@ -46,16 +56,16 @@ class ClientHeader extends Component {
             isOpen={this.openSignUpModal}
           />
           <p onClick={this.openSignUpModal}>Close</p>
-        </Modal>
+        </Overlay>
 
-        <Modal isOpen={this.state.loginModalIsOpen} contentLabel='Login Form'>
+        <Overlay isOpen={this.state.loginModalIsOpen} contentLabel='Login Form'>
           <AuthForm
             path='/auth/login'
             history={this.props.history}
             isOpen={this.openLoginModal}
           />
           <p onClick={this.openLoginModal}>Close</p>
-        </Modal>
+        </Overlay>
       </nav>
     )
   }

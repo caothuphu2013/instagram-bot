@@ -111,11 +111,17 @@ class Dashboard extends Component {
 
   spinnify () { this.setState({ showSpinner: !this.state.showSpinner }) }
 
-  returnOverlay () { return <Overlay>{this.state.overlayComponent}</Overlay> }
+  returnOverlay () {
+    return (
+      <Overlay isOpen={this.state.showOverlay}>
+        {this.state.overlayComponent}
+      </Overlay>
+    )
+  }
 
   renderDashboard () {
     return (
-      <div>
+      <div className='dashboard-container'>
         <InstagramToolbar
           user={this.props.authenticatedUser}
           profilePic={this.props.userInstagramStats.instagram_profile_picture}
@@ -154,6 +160,7 @@ class Dashboard extends Component {
             userParams={this.props.userParams}
             toastify={this.toastify.bind(this)}
             spinnify={this.spinnify.bind(this)}
+            fetchParams={() => this.props.fetchUserParams(this.props.authenticatedUser.email)}
           />
           <StatsToolbar
             userInstagramStats={this.props.userInstagramStats}
@@ -165,6 +172,7 @@ class Dashboard extends Component {
             toastify={this.toastify.bind(this)}
             spinnify={this.spinnify.bind(this)}
             overlay={this.state.showOverlay}
+            fetchParams={() => this.props.fetchUserParams(this.props.authenticatedUser.email)}
             deleteAccount={() => this.setState({
               showOverlay: true,
               overlayComponent:
@@ -308,6 +316,7 @@ export default connect(mapStateToProps, actions)(Dashboard)
     userParams={this.props.userParams}
     toastify={this.toastify.bind(this)}
     spinnify={this.spinnify.bind(this)}
+    fetchParams={() => this.props.fetchUserParams(this.props.authenticatedUser.email)}
   />
   <StatsToolbar
     userInstagramStats={this.props.userInstagramStats}

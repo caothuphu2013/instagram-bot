@@ -3,6 +3,7 @@
   height: 100%;
   float: right;
   padding: 40px;
+  overflow-y: auto;
 
   .toolbar {
     @include box-shadow;
@@ -15,6 +16,9 @@
 }
 
 #instagram-toolbar {
+  position: relative;
+  z-index: 100;
+
   @include box-shadow;
   .profile-pic {
     height: 80px;

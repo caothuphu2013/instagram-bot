@@ -35,7 +35,6 @@ class BillingToolbar extends Component {
           })
         })
         .catch(err => {
-          this.props.spinnify()
           console.log(err)
         })
     }

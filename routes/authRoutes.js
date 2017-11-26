@@ -36,7 +36,7 @@ module.exports = (app) => {
       onboarded: false
     }),
     req.body.password, (err, user) => {
-      if (err) return res.send(err)
+      if (err) return res.send(err.message)
 
       req.login(user, (err) => {
         if (err) return res.send(err)
@@ -51,7 +51,11 @@ module.exports = (app) => {
   // login a existing user
   app.post('/auth/login', (req, res) => {
     User.authenticate()(req.body.email, req.body.password, (err, user, options) => {
+      console.log(err);
+      console.log(user);
+      console.log(options);
       if (err) return res.send(err)
+      if (!user) return res.send(options.message)
 
       req.login(user, (err) => {
         if (err) return res.send(err)

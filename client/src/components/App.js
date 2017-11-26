@@ -4,8 +4,12 @@ import { connect } from 'react-redux'
 
 import * as actions from '../actions'
 import AdminHeader from './admin/header/AdminHeader'
+import ClientHeader from './client/header/ClientHeader'
 import Dashboard from './admin/dashboard/Dashboard'
 import Landing from './client/landing/Landing'
+import Pricing from './client/pricing/Pricing'
+import Guide from './client/guide/Guide'
+import Help from './client/help/Help'
 
 class App extends Component {
   componentDidMount () {
@@ -17,15 +21,26 @@ class App extends Component {
       return (
         <div>
           <AdminHeader />
-          <Route path='/dashboard' component={Dashboard} />
-          <Redirect from='/' to='/dashboard' exact />
+          <div className='home'>
+            <Redirect from='/' to='/dashboard' exact />
+            <Route path='/dashboard' component={Dashboard} />
+            <Route path='/guide' component={Guide} />
+            <Route path='/pricing' component={Pricing} />
+            <Route path='/faq' component={Help} />
+          </div>
         </div>
       )
     } else {
       return (
         <div>
-          <Route path='/' component={Landing} />
-          <Redirect from='/*' to='/' />
+          <ClientHeader />
+          <div className='home'>
+            <Redirect from='/dashboard' to='/' exact />
+            <Route path='/' component={Landing} exact />
+            <Route path='/guide' component={Guide} />
+            <Route path='/pricing' component={Pricing} />
+            <Route path='/faq' component={Help} />
+          </div>
         </div>
       )
     }

@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 
-class Landing extends Component {
+class Help extends Component {
   constructor (props) {
     super(props)
 
@@ -13,10 +13,10 @@ class Landing extends Component {
 
   render () {
     return (
-      <div id='landing'>
-        <div className='container landing-container'>
+      <div id='help'>
+        <div className='container help-container'>
           <div style={{ textAlign: 'center', padding: '50px' }}>
-            Landing
+            Help
           </div>
         </div>
       </div>
@@ -24,4 +24,4 @@ class Landing extends Component {
   }
 }
 
-export default Landing
+export default Help

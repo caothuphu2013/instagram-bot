@@ -43,6 +43,7 @@ class TargetingToolbar extends Component {
       user_id: this.props.user._id
     })
     .then(response => {
+      this.props.fetchParams()
       this.props.spinnify()
       this.props.toastify(response.data)
     })
