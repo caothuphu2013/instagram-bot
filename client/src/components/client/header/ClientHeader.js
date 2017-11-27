@@ -35,13 +35,13 @@ class ClientHeader extends Component {
       <nav>
         <div className='container nav-wrapper'>
           <Link to='/' className='brand-logo'>
-            Strolio
+
           </Link>
           <div>
             <ul id='nav-mobile' className='right'>
-              <li><Link to='/pricing'>Pricing</Link></li>
+              {/*<li><Link to='/pricing'>Pricing</Link></li>
               <li><Link to='/guide'>Guide</Link></li>
-              <li><Link to='/faq'>FAQ</Link></li>
+              <li><Link to='/faq'>FAQ</Link></li>*/}
               <li><a onClick={this.openLoginModal}>Login</a></li>
               <li><a onClick={this.openSignUpModal}>Start Free Trial</a></li>
             </ul>

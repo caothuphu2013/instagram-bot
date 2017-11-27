@@ -33,6 +33,7 @@ module.exports = (app) => {
       stripe_email: '',
       stripe_subscription_id: '',
       stripe_token: '',
+      stripe_cancel_at_period_end: false,
       onboarded: false
     }),
     req.body.password, (err, user) => {
@@ -51,9 +52,6 @@ module.exports = (app) => {
   // login a existing user
   app.post('/auth/login', (req, res) => {
     User.authenticate()(req.body.email, req.body.password, (err, user, options) => {
-      console.log(err);
-      console.log(user);
-      console.log(options);
       if (err) return res.send(err)
       if (!user) return res.send(options.message)
 
@@ -63,7 +61,6 @@ module.exports = (app) => {
         // make instagram api call to get users latest data
         ig.use({ access_token: user.instagram_accessToken })
         ig.user(user.instagram_id, (err, medias, pagination, remaining, limit) => {
-          console.log(medias)
           if (err) return res.send(err)
 
           const updateUser = User.findOneAndUpdate(

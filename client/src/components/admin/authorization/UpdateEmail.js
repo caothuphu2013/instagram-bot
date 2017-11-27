@@ -27,6 +27,7 @@ class UpdateEmail extends Component {
       this.props.spinnify()
       axios.post('/auth/update_email', { new_email: this.state.new_email })
         .then(response => {
+          console.log(response);
           this.props.spinnify()
           this.props.triggerThankyou('Email Updated', response.data)
         })

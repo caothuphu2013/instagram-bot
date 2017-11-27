@@ -61,7 +61,8 @@ module.exports = (app) => {
           stripe_subscription_id: subscription.id,
           stripe_token: req.body.token.id,
           stripe_current_period_end: subscription.current_period_end,
-          stripe_current_period_start: subscription.current_period_start
+          stripe_current_period_start: subscription.current_period_start,
+          strip_cancel_at_period_end: false
         }, (err, result) => {
           if (err) return res.status(500).send(err)
 
@@ -71,14 +72,38 @@ module.exports = (app) => {
     }
   })
 
-  app.get('api/stripe/cancel_sub', requireLogin, (req, res) => {
-    console.log(req.user)
-    // stripe.subscriptions.del(req.user.stripe_subscription_id,
-    //   { at_period_end: true },
-    //   (err, confirmation) => {
-    //     if (err) console.log(err)
-    //     console.log(confirmation)
-    //   })
+  app.post('/api/stripe/cancel_sub', requireLogin, (req, res) => {
+    stripe.subscriptions.del(req.user.stripe_subscription_id,
+      { at_period_end: true },
+      (err, confirmation) => {
+        if (err) res.status(500).send(err)
+
+        if (confirmation.cancel_at_period_end) {
+          const updateUser = User.findOneAndUpdate(
+            { email: req.user.email },
+            { stripe_cancel_at_period_end: true },
+            { new: true, upsert: true }).exec()
+
+          updateUser.then(params => {
+            updateStripe
+          }).catch(err => {
+            res.status(500).send('There was an error updating your subscription in the database, please try again.')
+          })
+
+          const updateStripe = StripeAccount.findOneAndUpdate(
+            { email: req.user.email },
+            { stripe_cancel_at_period_end: true },
+            { new: true, upsert: true }).exec()
+
+          updateStripe.then(params => {
+            res.status(200).send(`You have successfully unsubscribed from Project Buzz. You may continue using the app until ${new Date(confirmation.current_period_end).toLocaleString().split(',')[0]}`)
+          }).catch(err => {
+            res.status(500).send('There was an error updating your subscription in the database, please try again.')
+          })
+        } else {
+          res.status(200).send('There was a problem unsubscribing from Project Buzz, please try again.')
+        }
+      })
   })
 
   // BILLING

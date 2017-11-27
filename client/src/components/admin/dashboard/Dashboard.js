@@ -122,57 +122,12 @@ class Dashboard extends Component {
   renderDashboard () {
     return (
       <div className='dashboard-container'>
-        <InstagramToolbar
-          user={this.props.authenticatedUser}
-          profilePic={this.props.userInstagramStats.instagram_profile_picture}
-          toastify={this.toastify.bind(this)}
-          spinnify={this.spinnify.bind(this)}
-          triggerCheckout={(path) => this.setState({
-            showOverlay: true,
-            overlayComponent:
-              <Checkout
-                path={path}
-                user={this.props.authenticatedUser}
-                triggerThankyou={(title, response) => this.setState({
-                  overlayComponent:
-                    <Thankyou
-                      reload
-                      closeOverlay={() => this.setState({ showOverlay: false })}>
-                      {title}
-                      {response}
-                    </Thankyou>
-                })}
-                spinnify={this.spinnify.bind(this)}
-                closeOverlay={() => this.setState({ showOverlay: false })}
-              />
-          })}
-        />
-        <MenuBar />
         <div className='toolbar-container'>
-          <SettingsToolbar
-            user={this.props.authenticatedUser}
-            userParams={this.props.userParams}
-            toastify={this.toastify.bind(this)}
-            spinnify={this.spinnify.bind(this)}
-          />
-          <TargetingToolbar
-            user={this.props.authenticatedUser}
-            userParams={this.props.userParams}
-            toastify={this.toastify.bind(this)}
-            spinnify={this.spinnify.bind(this)}
-            fetchParams={() => this.props.fetchUserParams(this.props.authenticatedUser.email)}
-          />
-          <StatsToolbar
-            userInstagramStats={this.props.userInstagramStats}
-            toastify={this.toastify.bind(this)}
-            spinnify={this.spinnify.bind(this)}
-          />
           <BillingToolbar
             user={this.props.authenticatedUser}
             toastify={this.toastify.bind(this)}
             spinnify={this.spinnify.bind(this)}
             overlay={this.state.showOverlay}
-            fetchParams={() => this.props.fetchUserParams(this.props.authenticatedUser.email)}
             deleteAccount={() => this.setState({
               showOverlay: true,
               overlayComponent:
@@ -220,6 +175,7 @@ class Dashboard extends Component {
               showOverlay: true,
               overlayComponent:
                 <CancelSubscription
+                  fetchUser={() => this.props.fetchUser()}
                   triggerThankyou={(title, response) => this.setState({
                     overlayComponent:
                       <Thankyou closeOverlay={() => this.setState({ showOverlay: false })}>
@@ -303,8 +259,32 @@ function mapStateToProps ({ authenticatedUser, userInstagramStats, userParams })
 export default connect(mapStateToProps, actions)(Dashboard)
 
 {/*
+  <InstagramToolbar
+    user={this.props.authenticatedUser}
+    profilePic={this.props.userInstagramStats.instagram_profile_picture}
+    toastify={this.toastify.bind(this)}
+    spinnify={this.spinnify.bind(this)}
+    triggerCheckout={(path) => this.setState({
+      showOverlay: true,
+      overlayComponent:
+        <Checkout
+          path={path}
+          user={this.props.authenticatedUser}
+          triggerThankyou={(title, response) => this.setState({
+            overlayComponent:
+              <Thankyou
+                reload
+                closeOverlay={() => this.setState({ showOverlay: false })}>
+                {title}
+                {response}
+              </Thankyou>
+          })}
+          spinnify={this.spinnify.bind(this)}
+          closeOverlay={() => this.setState({ showOverlay: false })}
+        />
+    })}
+  />
   <MenuBar />
-
   <SettingsToolbar
     user={this.props.authenticatedUser}
     userParams={this.props.userParams}

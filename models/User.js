@@ -20,6 +20,7 @@ const userSchema = new Schema({
   stripe_customer_id: String,
   stripe_email: String,
   stripe_subscription_id: String,
+  stripe_cancel_at_period_end: Boolean,
   stripe_token: String,
   onboarded: Boolean
 })

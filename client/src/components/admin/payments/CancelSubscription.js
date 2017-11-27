@@ -8,16 +8,19 @@ class CancelSubscription extends Component {
     this.cancel = this.cancel.bind(this)
   }
 
-  cancel () {
+  cancel (e) {
+    e.preventDefault()
     this.props.spinnify()
-    axios.get('api/stripe/cancel_sub')
-      .then(customer => {
+    axios.post('/api/stripe/cancel_sub')
+      .then(res => {
         this.props.spinnify()
-        console.log(customer);
+        this.props.fetchUser()
+        this.props.triggerThankyou('Success', res.data)
       })
       .catch(err => {
         this.props.spinnify()
         console.log(err)
+        this.props.triggerThankyou('Oops something went wrong!', err.data)
       })
   }
 
@@ -27,7 +30,9 @@ class CancelSubscription extends Component {
         <p>If you wish to cancel your subscription today, you will have continued
           service until the end of this current billing period.</p>
         <p>Feel free to start back up at anytime.</p>
-        <button className='btn' onClick={this.cancel}>Cancel</button>
+        <form onSubmit={this.cancel}>
+          <input type='submit' value='Cancel Subscription' />
+        </form>
         <p onClick={this.props.closeOverlay}>Close</p>
       </div>
     )

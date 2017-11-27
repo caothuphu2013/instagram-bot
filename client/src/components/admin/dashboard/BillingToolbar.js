@@ -60,6 +60,10 @@ class BillingToolbar extends Component {
     const periodEnds = (this.state.has_data)
     ? new Date(this.state.sub_current_period_end).toLocaleString().split(',')[0] : '-'
 
+    const subscriptionState = (this.props.user.stripe_cancel_at_period_end) ?
+      <li><p >Reactivate subscription</p></li> :
+      <li><p onClick={() => this.props.triggerCancel()}>Cancel subscription</p></li>
+
     if (this.props.user.stripe_customer_id) {
       return (
         <div>
@@ -67,10 +71,10 @@ class BillingToolbar extends Component {
             <li><p>Subscription: {subName}</p></li>
             <li><p>Current period started: {periodStarts}</p></li>
             <li><p>Current period ends: {periodEnds}</p></li>
-            <li><p onClick={() => this.props.triggerCancel()}>Cancel subscription</p></li>
+            {subscriptionState}
           </ul>
           <hr />
-          <h5>Billing</h5>
+          {/*<h5>Billing</h5> */}
           <ul>
             <li>
               <p>{this.state.card_brand} {this.state.card_last4}</p>
@@ -100,7 +104,7 @@ class BillingToolbar extends Component {
 
     return (
       <div>
-        <h5>Account</h5>
+        {/*<h5>Account</h5>*/}
         <ul>
           <li>
             <p>Email: {this.props.user.email}</p>
@@ -111,16 +115,17 @@ class BillingToolbar extends Component {
           <li><p>Last login: {lastLogin}</p></li>
         </ul>
         <hr />
-        <h5>Instagram</h5>
+        {/*<h5>Instagram</h5>*/}
         {this.renderInstagramAccount()}
         <hr />
-        <h5>Subscription</h5>
+        {/*<h5>Subscription</h5>*/}
         {this.renderBilling()}
       </div>
     )
   }
 
   render () {
+    console.log(this.props.user);
     return (
       <div id='billing-toolbar' className='toolbar'>
         {this.renderContent()}

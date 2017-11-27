@@ -12,7 +12,8 @@ const StripeAccount = new Schema({
   stripe_subscription_id: String,
   stripe_token: String,
   stripe_current_period_end: Number,
-  stripe_current_period_start: Number
+  stripe_current_period_start: Number,
+  stripe_cancel_at_period_end: Boolean
 })
 
 StripeAccount.plugin(findOrCreate)

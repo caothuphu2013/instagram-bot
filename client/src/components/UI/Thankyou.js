@@ -16,7 +16,7 @@ class Thankyou extends Component {
 
   close () {
     this.props.closeOverlay()
-    window.location.reload()
+    if (this.props.reload) window.location.reload()
   }
 
   render () {
