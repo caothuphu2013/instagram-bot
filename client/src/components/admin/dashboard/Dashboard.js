@@ -24,6 +24,7 @@ import DeleteInstagram from '../authorization/DeleteInstagram'
 // Billing
 import Checkout from '../payments/Checkout'
 import CancelSubscription from '../payments/CancelSubscription'
+import ReactivateSubscription from '../payments/ReactivateSubscription'
 
 // UI
 import Spinner from '../../UI/Spinner'
@@ -158,6 +159,7 @@ class Dashboard extends Component {
               showOverlay: true,
               overlayComponent:
                 <UpdateEmail
+                  fetchUser={() => this.props.fetchUser()}
                   triggerThankyou={(title, response) => this.setState({
                     overlayComponent:
                       <Thankyou
@@ -225,6 +227,22 @@ class Dashboard extends Component {
                   closeOverlay={() => this.setState({ showOverlay: false })}
                 />
             })}
+            reactivateSub={() => this.setState({
+              showOverlay: true,
+              overlayComponent:
+                <ReactivateSubscription
+                  fetchUser={() => this.props.fetchUser()}
+                  triggerThankyou={(title, response) => this.setState({
+                    overlayComponent:
+                      <Thankyou closeOverlay={() => this.setState({ showOverlay: false })}>
+                        {title}
+                        {response}
+                      </Thankyou>
+                  })}
+                  spinnify={this.spinnify.bind(this)}
+                  closeOverlay={() => this.setState({ showOverlay: false })}
+                />
+            })}
           />
         </div>
       </div>
@@ -244,7 +262,7 @@ class Dashboard extends Component {
           pauseOnHover
         />
         {(this.state.showOverlay) && this.returnOverlay()}
-        {(this.state.showSpinner) && <Spinner />}
+        {(this.state.showSpinner) && <Spinner isOpen={this.state.showSpinner} />}
         {(this.state.showOnBoarding) && <OnBoardingSlider />}
         {(this.state.showDashboard) && this.renderDashboard()}
       </div>

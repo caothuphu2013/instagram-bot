@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import axios from 'axios'
+import { validateEmail } from '../../../utilities/validations'
 
 class DeleteAccount extends Component {
   constructor (props) {
@@ -7,7 +8,8 @@ class DeleteAccount extends Component {
 
     this.state = {
       input_email: '',
-      error: false
+      error: false,
+      error_type: ''
     }
 
     this.handleChange = this.handleChange.bind(this)
@@ -20,21 +22,35 @@ class DeleteAccount extends Component {
 
   delete (e) {
     e.preventDefault()
-    if (this.props.email !== this.state.input_email) {
-      this.setState({ error: true })
-    } else {
-      this.props.spinnify()
-      axios.post('/auth/delete_account', { email: this.state.input_email })
-        .then(response => {
-          this.props.spinnify()
-          window.location.reload()
-        })
-        .catch(error => {
-          this.props.spinnify()
-          console.log(error)
-          this.props.triggerThankyou('Oops something went wrong!', error.data)
-        })
+
+    // validate email address
+    if (!validateEmail(this.state.input_email)) {
+      this.setState({
+        error: true,
+        error_type: 'Please provide a valid email address'
+      })
+      return
     }
+
+    // validate email input matches account email
+    if (this.props.email !== this.state.input_email) {
+      this.setState({
+        error: true,
+        error_type: 'Please confirm the input matches your account email.'
+      })
+      return
+    }
+
+    this.props.spinnify()
+    axios.post('/auth/delete_account', { email: this.state.input_email })
+      .then(response => {
+        this.props.spinnify()
+        window.location.reload()
+      })
+      .catch(error => {
+        this.props.spinnify()
+        this.props.triggerThankyou('Oops something went wrong!', error.data)
+      })
   }
 
   render () {
@@ -56,8 +72,7 @@ class DeleteAccount extends Component {
           </label>
           <input type='submit' value='Delete Account' />
         </form>
-        {(this.state.error) && <p className='error'>
-          Please confirm the input matches your account email.</p>}
+        {(this.state.error) && <p className='error'>{this.state.error_type}</p>}
         <p onClick={this.props.closeOverlay}>Close</p>
       </div>
     )

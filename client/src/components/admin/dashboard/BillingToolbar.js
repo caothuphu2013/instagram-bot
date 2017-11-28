@@ -60,9 +60,9 @@ class BillingToolbar extends Component {
     const periodEnds = (this.state.has_data)
     ? new Date(this.state.sub_current_period_end).toLocaleString().split(',')[0] : '-'
 
-    const subscriptionState = (this.props.user.stripe_cancel_at_period_end) ?
-      <li><p >Reactivate subscription</p></li> :
-      <li><p onClick={() => this.props.triggerCancel()}>Cancel subscription</p></li>
+    const subscriptionState = (this.props.user.stripe_cancel_at_period_end)
+      ? <li><p onClick={() => this.props.reactivateSub()}>Reactivate subscription</p></li>
+      : <li><p onClick={() => this.props.triggerCancel()}>Cancel subscription</p></li>
 
     if (this.props.user.stripe_customer_id) {
       return (
@@ -125,7 +125,6 @@ class BillingToolbar extends Component {
   }
 
   render () {
-    console.log(this.props.user);
     return (
       <div id='billing-toolbar' className='toolbar'>
         {this.renderContent()}

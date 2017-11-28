@@ -13,7 +13,7 @@ module.exports = (app) => {
     User.findOne({ email: req.user.email }, (err, user) => {
       if (err) return res.status(400).send(err)
 
-      if (user.stripe_email !== '') {
+      if (user.stripe_customer_id !== '') {
         return res.status(200).send('This user is already subscribed')
       } else {
         stripe.customers.create({
@@ -23,23 +23,27 @@ module.exports = (app) => {
           if (err) {
             res.status(500).send(err)
           } else {
-            subscribe(customer)
+            subscribe(customer, user)
           }
         })
       }
     })
 
-    function subscribe (customer) {
-      stripe.subscriptions.create({
-        customer: customer.id,
-        items: [{ plan: 'buzz-monthly-sub' }]
-      }, (err, subscription) => {
-        if (err) {
-          res.status(500).send(err)
-        } else {
-          updateUserModel(customer, subscription)
-        }
-      })
+    function subscribe (customer, user) {
+      if (user.stripe_subscription_id !== '') {
+        return res.status(200).send('This user is already subscribed')
+      } else {
+        stripe.subscriptions.create({
+          customer: customer.id,
+          items: [{ plan: 'buzz-monthly-sub' }]
+        }, (err, subscription) => {
+          if (err) {
+            res.status(500).send(err)
+          } else {
+            updateUserModel(customer, subscription)
+          }
+        })
+      }
     }
 
     function updateUserModel (customer, subscription) {
@@ -73,6 +77,8 @@ module.exports = (app) => {
   })
 
   app.post('/api/stripe/cancel_sub', requireLogin, (req, res) => {
+    const error = 'There was an error updating your subscription in the database, please try again.'
+
     stripe.subscriptions.del(req.user.stripe_subscription_id,
       { at_period_end: true },
       (err, confirmation) => {
@@ -87,7 +93,7 @@ module.exports = (app) => {
           updateUser.then(params => {
             updateStripe
           }).catch(err => {
-            res.status(500).send('There was an error updating your subscription in the database, please try again.')
+            res.status(500).send(error)
           })
 
           const updateStripe = StripeAccount.findOneAndUpdate(
@@ -98,12 +104,66 @@ module.exports = (app) => {
           updateStripe.then(params => {
             res.status(200).send(`You have successfully unsubscribed from Project Buzz. You may continue using the app until ${new Date(confirmation.current_period_end).toLocaleString().split(',')[0]}`)
           }).catch(err => {
-            res.status(500).send('There was an error updating your subscription in the database, please try again.')
+            res.status(500).send(error)
           })
         } else {
-          res.status(200).send('There was a problem unsubscribing from Project Buzz, please try again.')
+          res.status(200).send(error)
         }
       })
+  })
+
+  app.post('/api/stripe/reactivate_sub', requireLogin, (req, res) => {
+    const error = 'There was an error reactivating your subscription, please try again.'
+    stripe.subscriptions.retrieve(
+      req.user.stripe_subscription_id,
+      (err, subscription) => {
+        if (err) res.status(500).send(error)
+        const itemID = subscription.items.data[0].id
+        const trialEnd = subscription.current_period_end
+        updateSub(itemID, trialEnd)
+      }
+    )
+
+    const updateSub = (itemID, trialEnd) => {
+      stripe.subscriptions.update(
+        req.user.stripe_subscription_id,
+        {
+          trial_end: trialEnd,
+          items: [{
+            id: itemID,
+            plan: 'buzz-monthly-sub'
+          }]
+        },
+      (err, subscription) => {
+        if (err) res.status(500).send(error)
+
+        if (subscription.cancel_at_period_end === false) {
+          const updateUser = User.findOneAndUpdate(
+            { email: req.user.email },
+            { stripe_cancel_at_period_end: false },
+            { new: true, upsert: true }).exec()
+
+          updateUser.then(params => {
+            updateStripe
+          }).catch(err => {
+            res.status(500).send(error)
+          })
+
+          const updateStripe = StripeAccount.findOneAndUpdate(
+            { email: req.user.email },
+            { stripe_cancel_at_period_end: true },
+            { new: true, upsert: true }).exec()
+
+          updateStripe.then(params => {
+            res.status(200).send(`You have successfully resinstated your subscription, your billing will start again on ${new Date(subscription.trial_end).toLocaleString().split(',')[0]}`)
+          }).catch(err => {
+            res.status(500).send(error)
+          })
+        } else {
+          res.status(200).send(error)
+        }
+      })
+    }
   })
 
   // BILLING

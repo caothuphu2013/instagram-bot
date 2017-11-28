@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import axios from 'axios'
+import { validateEmail } from '../../../utilities/validations'
 
 class UpdateEmail extends Component {
   constructor (props) {
@@ -8,10 +9,11 @@ class UpdateEmail extends Component {
     this.state = {
       new_email: '',
       confirm_new_email: '',
-      error: false
+      error: false,
+      error_type: ''
     }
 
-    this.update = this.update.bind(this, this.state.context)
+    this.update = this.update.bind(this)
     this.handleChange = this.handleChange.bind(this)
   }
 
@@ -21,22 +23,36 @@ class UpdateEmail extends Component {
 
   update (e) {
     e.preventDefault()
-    if (this.state.new_email !== this.state.confirm_new_email) {
-      this.setState({ error: true })
-    } else {
-      this.props.spinnify()
-      axios.post('/auth/update_email', { new_email: this.state.new_email })
-        .then(response => {
-          console.log(response);
-          this.props.spinnify()
-          this.props.triggerThankyou('Email Updated', response.data)
-        })
-        .catch(error => {
-          this.props.spinnify()
-          console.log(error)
-          this.props.triggerThankyou('Oops something went wrong!', error.data)
-        })
+
+    // validate email address
+    if (!validateEmail(this.state.new_email)) {
+      this.setState({
+        error: true,
+        error_type: 'Please provide a valid email address'
+      })
+      return
     }
+
+    // validate email input matches account email
+    if (this.state.new_email !== this.state.confirm_new_email) {
+      this.setState({
+        error: true,
+        error_type: 'Please confirm both emails match'
+      })
+      return
+    }
+
+    this.props.spinnify()
+    axios.post('/auth/update_email', { new_email: this.state.new_email })
+      .then(response => {
+        this.props.fetchUser()
+        this.props.spinnify()
+        this.props.triggerThankyou('Email Updated', response.data)
+      })
+      .catch(error => {
+        this.props.spinnify()
+        this.props.triggerThankyou('Oops something went wrong!', error.data)
+      })
   }
 
   render () {
@@ -59,7 +75,6 @@ class UpdateEmail extends Component {
               onChange={this.handleChange}
               required
             />
-            <div className='error' id='email-error' />
           </label>
           <label htmlFor='confirm_new_email'>
             <input
@@ -74,7 +89,7 @@ class UpdateEmail extends Component {
           </label>
           <input type='submit' value='Submit' />
         </form>
-        {(this.state.error) && <p className='error'>Please confirm your new email matches</p>}
+        {(this.state.error) && <p className='error'>{this.state.error_type}</p>}
         <p onClick={this.props.closeOverlay}>Close</p>
       </div>
     )
