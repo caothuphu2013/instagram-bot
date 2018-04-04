@@ -12,8 +12,12 @@ API's: Instagram API, Stripe API
 
 ### Getting started
 
-1. cd into root and run npm install
+1. cd into root and run `npm install`
 
-3. cd into client and run npm install
+3. cd into client and run `npm install`
 
-3. From root run - npm run dev
+3. From root run `npm run dev`
+
+You will be presented with a blank landing page. Since app is only in sandbox mode it is unable to connect any person Instagram account.
+
+Unfortunately upon finishing this application [Instagram closed down their API indefinitely](https://www.instagram.com/developer/changelog/) so development has been indefinitely halted as well.
