@@ -1,5 +1,10 @@
 import React, { Component } from 'react'
 import axios from 'axios'
+import {
+  minimumFiveChars,
+  containsNumber,
+  containsUppercase
+} from '../../../utilities/validations'
 
 class UpdatePassword extends Component {
   constructor (props) {
@@ -9,7 +14,8 @@ class UpdatePassword extends Component {
       current_password: '',
       new_password: '',
       confirm_new_password: '',
-      error: false
+      error: false,
+      error_type: ''
     }
 
     this.update = this.update.bind(this)
@@ -24,24 +30,51 @@ class UpdatePassword extends Component {
     e.preventDefault()
     const state = this.state
 
-    if (state.new_password !== state.confirm_new_password) {
-      this.setState({ error: true })
-    } else {
-      this.props.spinnify()
-      axios.post('/auth/update_password', {
-        current_password: state.current_password,
-        new_password: state.new_password
+    if (!minimumFiveChars(state.new_password)) {
+      this.setState({
+        error: true,
+        error_type: 'Your password must be a minimum of 5 characters'
       })
-        .then(response => {
-          this.props.spinnify()
-          this.props.triggerThankyou('password Updated', response.data)
-        })
-        .catch(error => {
-          this.props.spinnify()
-          console.log(error)
-          this.props.triggerThankyou('Oops something went wrong!', error.data)
-        })
+      return
     }
+
+    if (!containsNumber(state.new_password)) {
+      this.setState({
+        error: true,
+        error_type: 'Your password must contain a number'
+      })
+      return
+    }
+
+    if (!containsUppercase(state.new_password)) {
+      this.setState({
+        error: true,
+        error_type: 'Your password must contain an uppercase letter'
+      })
+      return
+    }
+
+    if (state.new_password !== state.confirm_new_password) {
+      this.setState({
+        error: true,
+        error_type: 'Please confirm both new passwords match'
+      })
+      return
+    }
+
+    this.props.spinnify()
+    axios.post('/auth/update_password', {
+      current_password: state.current_password,
+      new_password: state.new_password
+    })
+    .then(response => {
+      this.props.spinnify()
+      this.props.triggerThankyou(response.data.title, response.data.message)
+    })
+    .catch(error => {
+      this.props.spinnify()
+      this.props.triggerThankyou('Oops something went wrong!', error.data)
+    })
   }
 
   render () {
@@ -57,6 +90,7 @@ class UpdatePassword extends Component {
               placeholder='Current password'
               value={this.state.current_password}
               onChange={this.handleChange}
+              required
             />
           </label>
           <label htmlFor='new_password'>
@@ -67,6 +101,7 @@ class UpdatePassword extends Component {
               placeholder='New password'
               value={this.state.new_password}
               onChange={this.handleChange}
+              required
             />
           </label>
           <label htmlFor='confirm_new_password'>
@@ -77,11 +112,12 @@ class UpdatePassword extends Component {
               placeholder='Confirm new password'
               value={this.state.confirm_new_password}
               onChange={this.handleChange}
+              required
             />
           </label>
           <input type='submit' value='Submit' />
         </form>
-        {(this.state.error) && <p className='error'>Please confirm your new password matches</p>}
+        {(this.state.error) && <p className='error'>{this.state.error_type}</p>}
         <p onClick={this.props.closeOverlay}>Close</p>
       </div>
     )

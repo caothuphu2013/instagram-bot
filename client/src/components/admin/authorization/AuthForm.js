@@ -3,6 +3,12 @@ import axios from 'axios'
 import { connect } from 'react-redux'
 import * as actions from '../../../actions'
 import Spinner from '../../UI/Spinner'
+import {
+  minimumFiveChars,
+  containsNumber,
+  containsUppercase,
+  validateEmail
+} from '../../../utilities/validations'
 
 class AuthForm extends Component {
   constructor (props) {
@@ -13,7 +19,7 @@ class AuthForm extends Component {
       password: '',
       confirmPassword: '',
       authenticated: this.props.authenticatedUser,
-      description: '',
+      error_type: '',
       spinner: false,
       error: false
     }
@@ -33,14 +39,88 @@ class AuthForm extends Component {
 
   login (e) {
     e.preventDefault()
-
+    const state = this.state
+    // validate sign up form
     if (this.props.signUp) {
-      if (this.state.confirmPassword !== this.state.password) {
+      if (this.state.name === '') {
         this.setState({
           error: true,
-          password: '',
-          confirmPassword: '',
-          description: 'Please make sure the passwords match'
+          error_type: 'Please input your name to get started'
+        })
+        return
+      }
+
+      if (!validateEmail(state.email)) {
+        this.setState({
+          error: true,
+          error_type: 'Please provide a valid email address'
+        })
+        return
+      }
+
+      if (state.password === '') {
+        this.setState({
+          error: true,
+          error_type: 'Please input a password to get started'
+        })
+        return
+      }
+
+      if (!minimumFiveChars(state.password)) {
+        this.setState({
+          error: true,
+          error_type: 'Your password must be a minimum of 5 characters'
+        })
+        return
+      }
+
+      if (!containsNumber(state.password)) {
+        this.setState({
+          error: true,
+          error_type: 'Your password must contain a number'
+        })
+        return
+      }
+
+      if (!containsUppercase(state.password)) {
+        this.setState({
+          error: true,
+          error_type: 'Your password must contain an uppercase letter'
+        })
+        return
+      }
+
+      if (state.password !== state.confirmPassword) {
+        this.setState({
+          error: true,
+          error_type: 'Please confirm both passwords match'
+        })
+        return
+      }
+    }
+
+    // validate login form
+    if (!this.props.signUp) {
+      if (state.email === '') {
+        this.setState({
+          error: true,
+          error_type: 'Please input your email'
+        })
+        return
+      }
+
+      if (!validateEmail(state.email)) {
+        this.setState({
+          error: true,
+          error_type: 'Please provide a valid email address'
+        })
+        return
+      }
+
+      if (state.password === '') {
+        this.setState({
+          error: true,
+          error_type: 'Please input your password'
         })
         return
       }
@@ -71,7 +151,7 @@ class AuthForm extends Component {
             email: '',
             password: '',
             confirmPassword: '',
-            description: 'A user with the given email is already registered'
+            error_type: 'A user with the given email is already registered'
           })
           this.spinnify()
         } else if (res.data === 'Password or username is incorrect') {
@@ -79,7 +159,7 @@ class AuthForm extends Component {
             error: true,
             email: '',
             password: '',
-            description: res.data
+            error_type: res.data
           })
           this.spinnify()
         } else {
@@ -152,6 +232,7 @@ class AuthForm extends Component {
             placeholder='Email'
             value={this.state.email}
             onChange={this.handleChange}
+
           />
         </label>
         <label htmlFor='password'>
@@ -161,6 +242,7 @@ class AuthForm extends Component {
             placeholder='Password'
             value={this.state.password}
             onChange={this.handleChange}
+
           />
         </label>
         <input type='submit' value='Login' />
@@ -172,8 +254,8 @@ class AuthForm extends Component {
     return (
       <div className='container'>
         {(this.state.spinner) && <Spinner />}
-        {(this.state.error) ? <p className='error'>{this.state.description}</p> : null}
         {(this.props.signUp) ? this.renderSignUp() : this.renderLogin()}
+        {(this.state.error) && <p className='error'>{this.state.error_type}</p>}
       </div>
     )
   }

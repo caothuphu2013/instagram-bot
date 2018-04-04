@@ -177,10 +177,16 @@ module.exports = (app) => {
       if (user) {
         user.setPassword(req.body.new_password, () => {
           user.save()
-          res.status(200).send('Password reset successfully')
+          res.status(200).send({
+            title: 'Success!',
+            message: 'Password reset successfully'
+          })
         })
       } else {
-        res.status(500).send('This user does not exist')
+        res.status(200).send({
+          title: 'Oops!',
+          message: 'The password for your account did not match, please try again.'
+        })
       }
     })
   })
